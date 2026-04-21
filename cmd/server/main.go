@@ -35,7 +35,7 @@ func main() {
 
 	platform := os.Getenv("PLATFORM")
 
-	server config
+	// server config
 	cfg := &handlers.ApiConfig{
 		Port:     port,
 		DB:       dbQuery,
@@ -56,6 +56,8 @@ func main() {
 	mux.Handle("/", homepage)
 
 	// TODO: register handlers
+	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
+	
 
 	// run server in background
 	go func () {
