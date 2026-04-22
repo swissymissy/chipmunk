@@ -12,7 +12,7 @@ import (
 	"context"
 
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "modernc.org/sqlite"
 	"github.com/swissymissy/chipmunk/internal/handlers"
 )
 
@@ -24,7 +24,7 @@ func main() {
 
 	dbURL := os.Getenv("DB_URL")
 	// open connection to database
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("sqlite", dbURL)
 	if err != nil {
 		log.Printf("Error connecting to database: %s\n", err)
 		return
@@ -57,7 +57,7 @@ func main() {
 
 	// TODO: register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
-	
+
 
 	// run server in background
 	go func () {
