@@ -83,13 +83,13 @@ func (q *Queries) GetByID(ctx context.Context, id string) (Student, error) {
 	return i, err
 }
 
-const getByStudentEmail = `-- name: GetByStudentEmail :one
+const getStudentByEmail = `-- name: GetStudentByEmail :one
 SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at FROM students
 WHERE email = ?
 `
 
-func (q *Queries) GetByStudentEmail(ctx context.Context, email string) (Student, error) {
-	row := q.db.QueryRowContext(ctx, getByStudentEmail, email)
+func (q *Queries) GetStudentByEmail(ctx context.Context, email string) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudentByEmail, email)
 	var i Student
 	err := row.Scan(
 		&i.ID,
@@ -106,13 +106,13 @@ func (q *Queries) GetByStudentEmail(ctx context.Context, email string) (Student,
 	return i, err
 }
 
-const getByStudentID = `-- name: GetByStudentID :one
+const getStudentByID = `-- name: GetStudentByID :one
 SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at FROM students
 WHERE student_id = ?
 `
 
-func (q *Queries) GetByStudentID(ctx context.Context, studentID string) (Student, error) {
-	row := q.db.QueryRowContext(ctx, getByStudentID, studentID)
+func (q *Queries) GetStudentByID(ctx context.Context, studentID string) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudentByID, studentID)
 	var i Student
 	err := row.Scan(
 		&i.ID,

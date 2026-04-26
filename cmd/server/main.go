@@ -58,6 +58,15 @@ func main() {
 	// TODO: register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
 
+	// professor 
+	mux.HandleFunc("POST /api/courses", cfg.DB.HandleCreateCourse) 	// professor create new course
+
+
+	// students
+	mux.HandleFunc("GET /api/courses", cfg.DB.HandlerGetAllCourses)	// list courses to let students pick
+	mux.HandleFunc("POST /api/auth/login", cfg.DB.HandlerStudentLogin) 
+
+
 
 	// run server in background
 	go func () {

@@ -7,11 +7,11 @@ RETURNING *;
 SELECT * FROM students
 WHERE id = ?;
 
--- name: GetByStudentID :one
+-- name: GetStudentByID :one
 SELECT * FROM students
 WHERE student_id = ?;
 
--- name: GetByStudentEmail :one
+-- name: GetStudentByEmail :one
 SELECT * FROM students
 WHERE email = ?;
 
