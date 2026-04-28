@@ -1,9 +1,10 @@
 package handlers
 
-import ()
+import "github.com/swissymissy/chipmunk/internal/database"
 
 type ApiConfig struct {
 	Port     string
-	DB       string
+	DB       *database.Queries
 	Platform string
+	JWT      string
 }

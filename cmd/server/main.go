@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,11 +10,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"context"
 
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/handlers"
+	"github.com/swissymissy/chipmunk/internal/middleware"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
@@ -23,23 +25,38 @@ func main() {
 	baseURL := os.Getenv("BASE_URL")
 
 	dbURL := os.Getenv("DB_URL")
+
 	// open connection to database
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("sqlite", dbURL)
 	if err != nil {
 		log.Printf("Error connecting to database: %s\n", err)
 		return
 	}
+	// set up PRAGMA
+	pragmas := []string{
+		"PRAGMA journal_mode=WAL",  // write-ahead logging for better concurrency
+		"PRAGMA busy_timeout=5000", // sleep for 5s
+		"PRAGMA foreign_keys=ON",   // enable foreign keys
+	}
+	for _, p := range pragmas {
+		if _, err := db.Exec(p); err != nil {
+			log.Fatalf("failed to set %s: %v", p, err)
+		}
+	}
+
 	// query
 	dbQuery := database.New(db)
 	log.Print("Database connected")
 
 	platform := os.Getenv("PLATFORM")
+	jwt := os.Getenv("JWT_SECRET")
 
 	// server config
 	cfg := &handlers.ApiConfig{
 		Port:     port,
 		DB:       dbQuery,
 		Platform: platform,
+		JWT:      jwt,
 	}
 
 	// server mux
@@ -57,23 +74,31 @@ func main() {
 
 	// TODO: register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
-	
+
+	// professor - local only
+	mux.HandleFunc("POST /api/courses", middleware.LocalOnly(cfg.HandleCreateCourse)) // professor create new course
+
+	// students
+	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses) // list courses to let students pick
+	mux.HandleFunc("POST /api/auth/login", cfg.HandlerStudentLogin)
+	mux.HandleFunc("POST /api/auth/register", cfg.HandlerStudentRegister)
+	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))
 
 	// run server in background
-	go func () {
+	go func() {
 		fmt.Printf("Serving on: %s:%s/\n", baseURL, port)
 		if err := chipmunkServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server error: %s\n", err)
 		}
 	}()
-	
+
 	// graceful shutdown
 	// block until os sends SIGTERM or SIGINT
-	sigChan := make(chan os.Signal , 1)
+	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<- sigChan
+	<-sigChan
 
-	log.Println("Shuttign down server...")
+	log.Println("Shutting down server...")
 
 	shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownRelease()
