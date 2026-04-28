@@ -169,6 +169,15 @@ func (q *Queries) ListAllStudents(ctx context.Context) ([]Student, error) {
 	return items, nil
 }
 
+const resetStudents = `-- name: ResetStudents :exec
+DELETE FROM students
+`
+
+func (q *Queries) ResetStudents(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, resetStudents)
+	return err
+}
+
 const updatePassword = `-- name: UpdatePassword :one
 UPDATE students
 SET password_hash = ?, updated_at = datetime('now'), verified = 1

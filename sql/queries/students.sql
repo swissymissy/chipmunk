@@ -34,3 +34,5 @@ SELECT * FROM students;
 DELETE FROM students
 WHERE id = ?;
 
+-- name: ResetStudents :exec
+DELETE FROM students;
