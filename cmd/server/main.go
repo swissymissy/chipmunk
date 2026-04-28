@@ -25,12 +25,25 @@ func main() {
 	baseURL := os.Getenv("BASE_URL")
 
 	dbURL := os.Getenv("DB_URL")
+
 	// open connection to database
 	db, err := sql.Open("sqlite", dbURL)
 	if err != nil {
 		log.Printf("Error connecting to database: %s\n", err)
 		return
 	}
+	// set up PRAGMA
+	pragmas := []string{
+		"PRAGMA journal_mode=WAL",  // write-ahead logging for better concurrency
+		"PRAGMA busy_timeout=5000", // sleep for 5s
+		"PRAGMA foreign_keys=ON",   // enable foreign keys
+	}
+	for _, p := range pragmas {
+		if _, err := db.Exec(p); err != nil {
+			log.Fatalf("failed to set %s: %v", p, err)
+		}
+	}
+
 	// query
 	dbQuery := database.New(db)
 	log.Print("Database connected")
@@ -85,7 +98,7 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	log.Println("Shuttign down server...")
+	log.Println("Shutting down server...")
 
 	shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownRelease()

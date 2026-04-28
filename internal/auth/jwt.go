@@ -49,6 +49,6 @@ func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 
 	// retrieve student ID from claim's subject
 	studentID := claim.Subject
-	
+
 	return studentID, nil
 }
