@@ -1,11 +1,16 @@
 package middleware
 
 import (
+	"context"
 	"log"
 	"net/http"
 
 	"github.com/swissymissy/chipmunk/internal/auth"
 )
+
+type contextKey string 
+
+const UserIDKey contextKey = "userID"
 
 func AuthRequired(next http.HandlerFunc, jwtSecret string ) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +30,11 @@ func AuthRequired(next http.HandlerFunc, jwtSecret string ) http.HandlerFunc {
 			return 
 		}
 
+		// store studentID in contex so handlers can access it
+		ctx := context.WithValue(r.Context(), UserIDKey, studentID)
+
 		// valid token, let request go through
 		log.Printf("student with ID: %s , has logged in\n", studentID)
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

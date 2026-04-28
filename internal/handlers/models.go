@@ -33,3 +33,7 @@ type StudentRegisterResponse struct {
 	LastName string `json:"last_name"`
 	Specialty string `json:"specialty"`
 }
+
+type NewEnrollmentRequest struct {
+	CourseID string `json:"course_id"`
+}
