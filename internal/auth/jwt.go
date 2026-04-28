@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 )
 
 // create new access token for when student login
@@ -32,7 +31,7 @@ func MakeJWT(studentID string, serverSecretToken string) (string, error) {
 }
 
 // check student's token
-func ValidateJWT(tokenString, serverSecretToken string) (uuid.UUID, error) {
+func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 	// create new empty claim struct to be filled
 	claim := &jwt.RegisteredClaims{}
 
@@ -45,14 +44,11 @@ func ValidateJWT(tokenString, serverSecretToken string) (uuid.UUID, error) {
 		},
 	)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("Token is expired or bad signature: %w", err)
+		return "", fmt.Errorf("Token is expired or bad signature: %w", err)
 	}
 
 	// retrieve student ID from claim's subject
-	studentIDstr := claim.Subject
-	studentID, err := uuid.Parse(studentIDstr)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("Error converting string to uuid: %w", err)
-	}
+	studentID := claim.Subject
+	
 	return studentID, nil
 }

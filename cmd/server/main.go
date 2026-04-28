@@ -66,8 +66,8 @@ func main() {
 	mux.HandleFunc("POST /api/courses", middleware.LocalOnly(cfg.HandleCreateCourse)) // professor create new course
 
 	// students
-	mux.HandleFunc("GET /api/courses", middleware.AuthRequired(cfg.HandlerGetAllCourses, cfg.JWT)) // list courses to let students pick
-	mux.HandleFunc("POST /api/auth/login", middleware.AuthRequired(cfg.HandlerStudentLogin, cfg.JWT))
+	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses) // list courses to let students pick
+	mux.HandleFunc("POST /api/auth/login", cfg.HandlerStudentLogin)
 	mux.HandleFunc("POST /api/auth/register", cfg.HandlerStudentRegister)
 	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))
 
