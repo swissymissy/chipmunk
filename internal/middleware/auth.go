@@ -7,7 +7,7 @@ import (
 	"github.com/swissymissy/chipmunk/internal/auth"
 )
 
-func AuthRrequired(next http.HandlerFunc, jwtSecret string ) http.HandlerFunc {
+func AuthRequired(next http.HandlerFunc, jwtSecret string ) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check for token bearer header
 		token, err := auth.GetBearerToken(r.Header)

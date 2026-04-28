@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/handlers"
+	"github.com/swissymissy/chipmunk/internal/middleware"
 	_ "modernc.org/sqlite"
 )
 
@@ -62,11 +63,13 @@ func main() {
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
 
 	// professor
-	mux.HandleFunc("POST /api/courses", cfg.DB.HandleCreateCourse) // professor create new course
+	mux.HandleFunc("POST /api/courses", cfg.HandleCreateCourse) // professor create new course
 
-	// students
-	mux.HandleFunc("GET /api/courses", cfg.DB.HandlerGetAllCourses) // list courses to let students pick
-	mux.HandleFunc("POST /api/auth/login", cfg.DB.HandlerStudentLogin)
+	// students 
+	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses) // list courses to let students pick
+	mux.HandleFunc("POST /api/auth/login", middleware.AuthRequired(cfg.HandlerStudentLogin, cfg.JWT))
+	mux.HandleFunc("POST /api/auth/register", cfg.HandlerStudentRegister)
+	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))
 
 	// run server in background
 	go func() {

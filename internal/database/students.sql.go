@@ -11,18 +11,19 @@ import (
 )
 
 const createStudent = `-- name: CreateStudent :one
-INSERT INTO students (id, student_id, email, first_name, last_name, specialty)
-VALUES (?,?,?,?,?,?)
+INSERT INTO students (id, student_id, email, password_hash, first_name, last_name, verified, specialty)
+VALUES (?,?,?,?,?,?, 1 ,?)
 RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at
 `
 
 type CreateStudentParams struct {
-	ID        string
-	StudentID string
-	Email     string
-	FirstName string
-	LastName  string
-	Specialty sql.NullString
+	ID           string
+	StudentID    string
+	Email        string
+	PasswordHash sql.NullString
+	FirstName    string
+	LastName     string
+	Specialty    sql.NullString
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -30,6 +31,7 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		arg.ID,
 		arg.StudentID,
 		arg.Email,
+		arg.PasswordHash,
 		arg.FirstName,
 		arg.LastName,
 		arg.Specialty,
