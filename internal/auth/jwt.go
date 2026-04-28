@@ -9,14 +9,14 @@ import (
 )
 
 // create new access token for when student login
-func MakeJWT(studentID uuid.UUID, serverSecretToken string) (string, error) {
+func MakeJWT(studentID string, serverSecretToken string) (string, error) {
 
 	// create a new registered claim
 	claim := jwt.RegisteredClaims{
 		Issuer:    "chipmunk-access",
 		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(15 * time.Minute)),
-		Subject:   studentID.String(),
+		Subject:   studentID,
 	}
 
 	// create new token

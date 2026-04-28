@@ -1,10 +1,18 @@
 package handlers
 
-import (
 
-)
 
 type StudentLoginRequest struct {
-	Email string 	`json:"email"`
-	Password string 	`json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type StudentLoginResponse struct {
+	StudentID string `json:"student_id"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Verified int64 `json:"verified"`
+	Specialty string `json:"specialty"`
+	Token string `json:"token"`
 }

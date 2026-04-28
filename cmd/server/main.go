@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,11 +10,11 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"context"
 
 	"github.com/joho/godotenv"
-	_ "modernc.org/sqlite"
+	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/handlers"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
@@ -34,12 +35,14 @@ func main() {
 	log.Print("Database connected")
 
 	platform := os.Getenv("PLATFORM")
+	jwt := os.Getenv("JWT_SECRET")
 
 	// server config
 	cfg := &handlers.ApiConfig{
 		Port:     port,
 		DB:       dbQuery,
 		Platform: platform,
+		JWT:      jwt,
 	}
 
 	// server mux
@@ -58,29 +61,26 @@ func main() {
 	// TODO: register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
 
-	// professor 
-	mux.HandleFunc("POST /api/courses", cfg.DB.HandleCreateCourse) 	// professor create new course
-
+	// professor
+	mux.HandleFunc("POST /api/courses", cfg.DB.HandleCreateCourse) // professor create new course
 
 	// students
-	mux.HandleFunc("GET /api/courses", cfg.DB.HandlerGetAllCourses)	// list courses to let students pick
-	mux.HandleFunc("POST /api/auth/login", cfg.DB.HandlerStudentLogin) 
-
-
+	mux.HandleFunc("GET /api/courses", cfg.DB.HandlerGetAllCourses) // list courses to let students pick
+	mux.HandleFunc("POST /api/auth/login", cfg.DB.HandlerStudentLogin)
 
 	// run server in background
-	go func () {
+	go func() {
 		fmt.Printf("Serving on: %s:%s/\n", baseURL, port)
 		if err := chipmunkServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server error: %s\n", err)
 		}
 	}()
-	
+
 	// graceful shutdown
 	// block until os sends SIGTERM or SIGINT
-	sigChan := make(chan os.Signal , 1)
+	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<- sigChan
+	<-sigChan
 
 	log.Println("Shuttign down server...")
 
