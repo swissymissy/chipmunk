@@ -12,6 +12,7 @@ type contextKey string
 
 const UserIDKey contextKey = "userID"
 
+// check student's token and validate token
 func AuthRequired(next http.HandlerFunc, jwtSecret string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check for token bearer header
