@@ -62,10 +62,10 @@ func main() {
 	// TODO: register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
 
-	// professor
-	mux.HandleFunc("POST /api/courses", cfg.HandleCreateCourse) // professor create new course
+	// professor - local only
+	mux.HandleFunc("POST /api/courses", middleware.LocalOnly(cfg.HandleCreateCourse)) // professor create new course
 
-	// students 
+	// students
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses) // list courses to let students pick
 	mux.HandleFunc("POST /api/auth/login", middleware.AuthRequired(cfg.HandlerStudentLogin, cfg.JWT))
 	mux.HandleFunc("POST /api/auth/register", cfg.HandlerStudentRegister)

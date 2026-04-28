@@ -32,7 +32,7 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 		ResponseWithError(w, http.StatusUnauthorized, "Incorrect Email or Password")
 		return
 	}
-	
+
 	// check if student is verified
 	if student.Verified == 0 {
 		ResponseWithError(w, http.StatusForbidden, "please complete registration first")
@@ -63,11 +63,11 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 	// respond
 	ResponseWithJSON(w, http.StatusOK, StudentLoginResponse{
 		StudentID: student.StudentID,
-		Email: student.Email,
+		Email:     student.Email,
 		FirstName: student.FirstName,
-		LastName: student.LastName,
-		Verified: student.Verified,
+		LastName:  student.LastName,
+		Verified:  student.Verified,
 		Specialty: student.Specialty.String,
-		Token: token,
+		Token:     token,
 	})
 }

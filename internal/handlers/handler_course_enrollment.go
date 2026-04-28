@@ -29,7 +29,7 @@ func (cfg *ApiConfig) HandlerEnrollment(w http.ResponseWriter, r *http.Request) 
 	// add student to course
 	_, err = cfg.DB.NewEnrollment(r.Context(), database.NewEnrollmentParams{
 		StudentID: studentID,
-		CourseID: req.CourseID,
+		CourseID:  req.CourseID,
 	})
 	if err != nil {
 		log.Printf("error adding student to course: %s\n", err)

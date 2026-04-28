@@ -8,7 +8,7 @@ import (
 
 func GetBearerToken(headers http.Header) (string, error) {
 	header := headers.Get("Authorization")
-	
+
 	// no header
 	if header == "" {
 		return "", errors.New("Invalid header")

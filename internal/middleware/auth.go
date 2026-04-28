@@ -8,11 +8,11 @@ import (
 	"github.com/swissymissy/chipmunk/internal/auth"
 )
 
-type contextKey string 
+type contextKey string
 
 const UserIDKey contextKey = "userID"
 
-func AuthRequired(next http.HandlerFunc, jwtSecret string ) http.HandlerFunc {
+func AuthRequired(next http.HandlerFunc, jwtSecret string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check for token bearer header
 		token, err := auth.GetBearerToken(r.Header)
@@ -27,7 +27,7 @@ func AuthRequired(next http.HandlerFunc, jwtSecret string ) http.HandlerFunc {
 		if err != nil {
 			log.Printf("invalid token: %s\n", err)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return 
+			return
 		}
 
 		// store studentID in contex so handlers can access it
