@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -26,6 +27,11 @@ func (cfg *ApiConfig) HandlerStartSession(w http.ResponseWriter, r *http.Request
 	if err == nil {
 		log.Printf("attempt to create new session for an already exist session of course %s\n", req.CourseID)
 		ResponseWithError(w, http.StatusBadRequest, "already exists session for this course")
+		return
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		log.Printf("error checking for active sessions :%s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
