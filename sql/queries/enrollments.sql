@@ -9,6 +9,7 @@ FROM courses c
 JOIN enrollments e ON c.id = e.course_id
 WHERE e.student_id = ?;
 
+-- show list of all students that have registered for a course
 -- name: GetAllStudentsByCourse :many
 SELECT s.id, s.student_id, s.email, s.first_name, s.last_name, s.specialty 
 FROM students s 

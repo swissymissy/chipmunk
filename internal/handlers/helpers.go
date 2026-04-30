@@ -11,3 +11,10 @@ func ToNullString(s string) sql.NullString {
 		Valid:  true,
 	}
 }
+
+func ToNullFloat(f float64) sql.NullFloat64 {
+	return sql.NullFloat64{
+		Float64: f,
+		Valid:   true,
+	}
+}

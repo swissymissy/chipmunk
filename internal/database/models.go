@@ -8,6 +8,29 @@ import (
 	"database/sql"
 )
 
+type AttendanceRecord struct {
+	ID         int64
+	SessionID  int64
+	StudentID  string
+	Status     string
+	CheckInAt  sql.NullString
+	StudentLat sql.NullFloat64
+	StudentLng sql.NullFloat64
+}
+
+type AttendanceSession struct {
+	ID           int64
+	CourseID     string
+	SessionDate  string
+	Status       string
+	SecretKey    string
+	ClassroomLat sql.NullFloat64
+	ClassroomLng sql.NullFloat64
+	RadiusMeters sql.NullInt64
+	StartedAt    string
+	EndedAt      sql.NullString
+}
+
 type Course struct {
 	ID          string
 	CourseName  string
