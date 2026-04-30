@@ -18,12 +18,12 @@ func (cfg *ApiConfig) HandlerRosters(w http.ResponseWriter, r *http.Request) {
 	students, err := cfg.DB.GetAllStudentsByCourse(r.Context(), courseID)
 	if err != nil {
 		log.Printf("error fetching all students in a course: %s\n", err)
-		ResponseWithError(w, http.StatusBadRequest, "failed to get list of students in course")
+		ResponseWithError(w, http.StatusInternalServerError, "failed to get list of students in course")
 		return
 	}
 
 	// write to format repsonse
-	var list []Student
+	list := make([]Student, 0)
 	for _, s := range students {
 		list = append(list, Student{
 			ID:        s.ID,
