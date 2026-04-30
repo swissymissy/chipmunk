@@ -69,3 +69,16 @@ type StartSessionResponse struct {
 	Status      string `json:"status"`
 	StartedAt   string `json:"started_at"`
 }
+
+type CloseSessionRequest struct {
+	SessionID int64  `json:"session_id"`
+}
+
+type CloseSessionResponse struct {
+	SessionID   int64  `json:"session_id"`
+	CourseID    string `json:"course_id"`
+	SessionDate string `json:"session_date"`
+	Status      string `json:"status"`
+	StartedAt   string `json:"started_at"`
+	EndedAt     string `json:"ended_at"`
+}
