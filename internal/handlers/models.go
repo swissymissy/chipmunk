@@ -55,3 +55,17 @@ type Course struct {
 	Section    string `json:"section"`
 	Time       string `json:"time"`
 }
+
+type StartSessionRequest struct {
+	CourseID     string  `json:"course_id"`
+	ClassroomLat float64 `json:"classroom_lat"`
+	ClassroomLng float64 `json:"classroom_lng"`
+}
+
+type StartSessionResponse struct {
+	SessionID   int64  `json:"session_id"`
+	CourseID    string `json:"course_id"`
+	SessionDate string `json:"session_date"`
+	Status      string `json:"status"`
+	StartedAt   string `json:"started_at"`
+}
