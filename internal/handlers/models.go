@@ -4,7 +4,6 @@ type StudentLoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
-
 type StudentLoginResponse struct {
 	StudentID string `json:"student_id"`
 	Email     string `json:"email"`
@@ -23,7 +22,6 @@ type StudentRegisterRequest struct {
 	LastName  string `json:"last_name"`
 	Specialty string `json:"specialty"`
 }
-
 type StudentRegisterResponse struct {
 	StudentID string `json:"student_id"`
 	Email     string `json:"email"`
@@ -41,7 +39,6 @@ type NewCourseRequest struct {
 	Section string `json:"section_date"`
 	Time    string `json:"start_time"`
 }
-
 type NewCourseResponse struct {
 	ID      string `json:"course_id"`
 	Name    string `json:"name"`
@@ -61,7 +58,6 @@ type StartSessionRequest struct {
 	ClassroomLat float64 `json:"classroom_lat"`
 	ClassroomLng float64 `json:"classroom_lng"`
 }
-
 type StartSessionResponse struct {
 	SessionID   int64  `json:"session_id"`
 	CourseID    string `json:"course_id"`
@@ -73,7 +69,6 @@ type StartSessionResponse struct {
 type CloseSessionRequest struct {
 	SessionID int64 `json:"session_id"`
 }
-
 type CloseSessionResponse struct {
 	SessionID   int64  `json:"session_id"`
 	CourseID    string `json:"course_id"`
