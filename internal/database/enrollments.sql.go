@@ -26,6 +26,7 @@ type GetAllStudentsByCourseRow struct {
 	Specialty sql.NullString
 }
 
+// show list of all students that have registered for a course
 func (q *Queries) GetAllStudentsByCourse(ctx context.Context, courseID string) ([]GetAllStudentsByCourseRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllStudentsByCourse, courseID)
 	if err != nil {

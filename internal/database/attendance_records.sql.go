@@ -47,6 +47,7 @@ type GetRecordBySessionRow struct {
 	StudentID_2 string
 }
 
+// get list of students in a session to check their status
 func (q *Queries) GetRecordBySession(ctx context.Context, sessionID int64) ([]GetRecordBySessionRow, error) {
 	rows, err := q.db.QueryContext(ctx, getRecordBySession, sessionID)
 	if err != nil {

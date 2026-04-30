@@ -16,7 +16,7 @@ type RosterRep struct {
 	StudentID2 string `json:"student_school_id"` // student's school id
 }
 
-// let professor see all the rosters in the specific session
+// let professor see all the rosters in the specific session and check their status
 // get req
 func (cfg *ApiConfig) HandlerAttendanceBySession(w http.ResponseWriter, r *http.Request) {
 	// get session id from URL
@@ -27,7 +27,7 @@ func (cfg *ApiConfig) HandlerAttendanceBySession(w http.ResponseWriter, r *http.
 		ResponseWithError(w, http.StatusBadRequest, "invalid request")
 		return
 	}
-	
+
 	// get list of students in the current session
 	rosters, err := cfg.DB.GetRecordBySession(r.Context(), sessionID)
 	if err != nil {

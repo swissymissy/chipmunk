@@ -76,14 +76,14 @@ func main() {
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
 
 	// professor - local only
-	mux.HandleFunc("POST /api/courses", middleware.LocalOnly(cfg.HandleCreateCourse))                   // professor create new course
-	mux.HandleFunc("POST /api/sessions/start", middleware.LocalOnly(cfg.HandlerStartSession))           // start a new session
-	mux.HandleFunc("PUT /api/sessions/close", middleware.LocalOnly(cfg.HandlerCloseSession))           // close an active session
-	mux.HandleFunc("PUT /api/sessions/reopen", middleware.LocalOnly(cfg.HandlerReopenSession))          // reopen a closed session
-	mux.HandleFunc("GET /api/sessions/{id}", middleware.LocalOnly(cfg.HandlerSessionDetail))            // get session details
-	mux.HandleFunc("GET /api/roster/{course_id}", middleware.LocalOnly(cfg.HandlerRosters))             // view students enrolled in a course
+	mux.HandleFunc("POST /api/courses", middleware.LocalOnly(cfg.HandleCreateCourse))                        // professor create new course
+	mux.HandleFunc("POST /api/sessions/start", middleware.LocalOnly(cfg.HandlerStartSession))                // start a new session
+	mux.HandleFunc("PUT /api/sessions/close", middleware.LocalOnly(cfg.HandlerCloseSession))                 // close an active session
+	mux.HandleFunc("PUT /api/sessions/reopen", middleware.LocalOnly(cfg.HandlerReopenSession))               // reopen a closed session
+	mux.HandleFunc("GET /api/sessions/{id}", middleware.LocalOnly(cfg.HandlerSessionDetail))                 // get session details
+	mux.HandleFunc("GET /api/roster/{course_id}", middleware.LocalOnly(cfg.HandlerRosters))                  // view students enrolled in a course
 	mux.HandleFunc("GET /api/attendance/{session_id}", middleware.LocalOnly(cfg.HandlerAttendanceBySession)) // view who is present/absent in a specific session
-	mux.HandleFunc("PUT /api/attendance/override", middleware.LocalOnly(cfg.HandlerMarkStudentPresent)) // manually mark a student present
+	mux.HandleFunc("PUT /api/attendance/override", middleware.LocalOnly(cfg.HandlerMarkStudentPresent))      // manually mark a student present
 
 	// students
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses) // list courses to let students pick

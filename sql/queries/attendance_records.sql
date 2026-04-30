@@ -10,6 +10,7 @@ SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student
 WHERE session_id = ? AND student_id = ?
 RETURNING *;
 
+-- get list of students in a session to check their status
 -- name: GetRecordBySession :many
 SELECT r.* , s.first_name, s.last_name, s.student_id
 FROM attendance_records r
