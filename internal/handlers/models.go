@@ -71,7 +71,7 @@ type StartSessionResponse struct {
 }
 
 type CloseSessionRequest struct {
-	SessionID int64  `json:"session_id"`
+	SessionID int64 `json:"session_id"`
 }
 
 type CloseSessionResponse struct {
