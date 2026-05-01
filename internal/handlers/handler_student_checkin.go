@@ -18,12 +18,16 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		ResponseWithError(w, http.StatusBadRequest, "invalid request")
 		return
 	}
-
-	// get qr token from url
-	qrToken := r.URL.Query().Get("t")
+	qrToken := req.QRToken
 
 	// extract sessionID and timestamp from token
-	sessionID, timestamp, err := auth.ExtractSessionIDTimestamp(qrToken)
+	payload, _, err := auth.SplitToken(qrToken)
+	if err != nil {
+		log.Printf("error splitting qr token into parts: %s\n", err)
+		ResponseWithError(w, http.StatusBadRequest, "invalid token")
+		return
+	}
+	sessionID, _, err := auth.ExtractSessionIDTimestamp(string(payload))
 	if err != nil {
 		log.Printf("error extracting session id and timestamp from qr token: %s\n", err)
 		ResponseWithError(w, http.StatusBadRequest, "invalid token")
@@ -34,7 +38,7 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 	session, err := cfg.DB.GetSessionByID(r.Context(), sessionID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Panicf("attempt to get non-exist session: %s\n", err)
+			log.Printf("attempt to get non-exist session: %s\n", err)
 			ResponseWithError(w, http.StatusNotFound, "session not found")
 			return
 		}
@@ -47,8 +51,12 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// verify qrToken
-	sessionID, err := auth.ValidateQRToken(qrToken)
+	// validate qr token
+	valid := auth.ValidateQRToken(qrToken, session.SecretKey)
+	if !valid {
+		ResponseWithError(w, http.StatusUnauthorized, "invalid token or token expired")
+		return
+	}
 
-	ResponseWithError(w, http.StatusNotImplemented, "not implemented yet")
+	
 }

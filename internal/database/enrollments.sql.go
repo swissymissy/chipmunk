@@ -99,6 +99,26 @@ func (q *Queries) GetEnrollmentsByStudent(ctx context.Context, studentID string)
 	return items, nil
 }
 
+const isEnrolled = `-- name: IsEnrolled :one
+SELECT EXISTS(
+    SELECT 1 FROM enrollments
+    WHERE student_id = ? AND course_id = ?
+) AS enrolled
+`
+
+type IsEnrolledParams struct {
+	StudentID string
+	CourseID  string
+}
+
+// check if a student enrolls in a specific course
+func (q *Queries) IsEnrolled(ctx context.Context, arg IsEnrolledParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, isEnrolled, arg.StudentID, arg.CourseID)
+	var enrolled int64
+	err := row.Scan(&enrolled)
+	return enrolled, err
+}
+
 const newEnrollment = `-- name: NewEnrollment :one
 INSERT INTO enrollments (student_id, course_id)
 VALUES (?,?)

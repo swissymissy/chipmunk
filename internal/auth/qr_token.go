@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -32,11 +31,11 @@ func GenerateQRToken(sessionID int64, secretKey string) (string, error) {
 }
 
 // validate the qr token
-func ValidateQRToken(token string, secretKey string) (bool, error) {
+func ValidateQRToken(token string, secretKey string) (bool) {
 	// split token into payload and signature
 	payload, signature, err := SplitToken(token)
 	if err != nil {
-		return false, fmt.Errorf("%s", err)
+		return false
 	}
 
 	// create an hmac from secretKey
@@ -47,20 +46,20 @@ func ValidateQRToken(token string, secretKey string) (bool, error) {
 	// validate
 	match := hmac.Equal(signature, expectedMAC)
 	if !match {
-		return false, fmt.Errorf("invalid token signature")
+		return false
 	}
 
 	payloadStr := string(payload)
 	_, timestamp, err := ExtractSessionIDTimestamp(payloadStr)
 	if err != nil {
-		return false, fmt.Errorf("%s", err)
+		return false
 	}
 
 	// 20s grace period ( 15s + 5s network buffer)
 	if time.Now().Unix()-timestamp > 20 {
-		return false, fmt.Errorf("token expired")
+		return false
 	}
 
-	return true, nil
+	return true
 }
 
