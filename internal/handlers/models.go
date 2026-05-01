@@ -100,3 +100,9 @@ type QRTokenResponse struct {
 	Token      string `json:"token"`
 	CheckInURL string `json:"checkin_url"`
 }
+
+type StudentCheckinReq struct{
+	QRToken string `json:"token"`
+	StudentLat float64 `json:"lat"`
+	StudentLng float64 `json:"lng"`
+}

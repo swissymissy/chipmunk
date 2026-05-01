@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -33,11 +32,45 @@ func GenerateQRToken(sessionID int64, secretKey string) (string, error) {
 }
 
 // decode the token
-func ValidateQRToken(token string, secretKey string) (int64, error) {
+func ValidateQRToken(token string, secretKey string) (bool, error) {
+	// split token into payload and signature
+	payload, signature, err := SplitToken(token)
+	if err != nil {
+		return false, fmt.Errorf("%s", err)
+	}
+
+	// create an hmac from secretKey
+	mac := hmac.New(sha256.New, []byte(secretKey))
+	mac.Write(payload)
+	expectedMAC := mac.Sum(nil)
+
+	// validate
+	match := hmac.Equal(signature, expectedMAC)
+	if !match {
+		return false, fmt.Errorf("invalid token signature")
+	}
+
+	payloadStr := string(payload)
+	_, timestamp, err := ExtractSessionIDTimestamp(payloadStr)
+	if err != nil {
+		return false, fmt.Errorf("%s", err)
+	}
+
+	// 20s grace period ( 15s + 5s network buffer)
+	if time.Now().Unix()-timestamp > 20 {
+		return false, fmt.Errorf("token expired")
+	}
+
+	return true, nil
+}
+
+
+// helper functions
+func SplitToken(token string) ([]byte, []byte, error) {
 	// split token into payload and signature to verify
 	split := strings.Split(token, ".")
 	if len(split) != 2 {
-		return -1, fmt.Errorf("malformed token")
+		return nil, nil, fmt.Errorf("malformed token")
 	}
 	payload64 := split[0]
 	signature := split[1]
@@ -45,46 +78,14 @@ func ValidateQRToken(token string, secretKey string) (int64, error) {
 	// decode signature to get hmac
 	sig, err := hex.DecodeString(signature)
 	if err != nil {
-		return -1, fmt.Errorf("error decoding hex string")
+		return nil, nil, fmt.Errorf("error decoding hex string")
 	}
+
 	// decode payload64
 	payload, err := base64.URLEncoding.DecodeString(payload64)
 	if err != nil {
-		return -1, fmt.Errorf("error decoding base64 payload")
+		return nil, nil, fmt.Errorf("error decoding base64 payload")
 	}
 
-	// create an hmac from secretKey
-	mac := hmac.New(sha256.New, []byte(secretKey))
-	mac.Write([]byte(payload))
-	expectedMAC := mac.Sum(nil)
-
-	// validate
-	match := hmac.Equal(sig, expectedMAC)
-	if !match {
-		return -1, fmt.Errorf("invalid token signature")
-	}
-
-	payloadStr := string(payload)
-	payloadSplit := strings.Split(payloadStr, ":")
-	if len(payloadSplit) != 2 {
-		return -1, fmt.Errorf("malformed payload")
-	}
-
-	// get session ID
-	sessionID, err := strconv.ParseInt(payloadSplit[0], 10, 64)
-	if err != nil {
-		return -1, fmt.Errorf("error converting string to int")
-	}
-	// get timestamp to check if token is expired
-	timestamp, err := strconv.ParseInt(payloadSplit[1], 10, 64)
-	if err != nil {
-		return -1, fmt.Errorf("error parsing timestamp")
-	}
-
-	// 20s grace period ( 15s + 5s network buffer)
-	if time.Now().Unix()-timestamp > 20 {
-		return -1, fmt.Errorf("token expired")
-	}
-
-	return sessionID, nil
+	return payload, sig, nil
 }
