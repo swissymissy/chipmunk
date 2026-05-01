@@ -48,7 +48,7 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 	}
 
 	// verify qrToken
-	sessionID, err := auth.ValidateQRToken(qrToken, )
+	sessionID, err := auth.ValidateQRToken(qrToken)
 
 	ResponseWithError(w, http.StatusNotImplemented, "not implemented yet")
 }
