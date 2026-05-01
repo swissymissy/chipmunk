@@ -82,6 +82,14 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// calculate the distance between student's coord and professor's coord
-
+	// calculate the distance between student's coord and classroom's coord
+	sP := Point{
+		Lat: req.StudentLat,
+		Lng: req.StudentLng,
+	}
+	cP := Point{
+		Lat: session.ClassroomLat.Float64,
+		Lng: session.ClassroomLng.Float64,
+	}
+	
 }

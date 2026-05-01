@@ -5,8 +5,7 @@ import (
 )
 
 const (
-	earthRMi = 3958 // radius of earth in miles
-	earthRKm = 6371 // r of earth in km
+	earthRM = 6371000.0 // r of earth in meters
 )
 
 // coordinate: latitude , longtitude
@@ -22,8 +21,8 @@ func degreesToRad(d float64) float64 {
 
 // calculate the shortest path between 2 points on earth
 // using haversine formula
-// this function returns 2 units of measure: miles, kilometers
-func Haversine(p1, p2 Point) (float64, float64) {
+// this function returns meters
+func Haversine(p1, p2 Point) float64 {
 	p1Lat := degreesToRad(p1.Lat)
 	p1Lng := degreesToRad(p1.Lng)
 
@@ -41,9 +40,8 @@ func Haversine(p1, p2 Point) (float64, float64) {
 	// angular distance in radians
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 
-	// convert to mile and km
-	mi := c * earthRMi
-	km := c * earthRKm
+	// convert to meters
+	m := c * earthRM
 
-	return mi, km
+	return m
 }
