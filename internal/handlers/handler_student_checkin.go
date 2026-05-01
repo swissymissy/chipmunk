@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/swissymissy/chipmunk/internal/auth"
+	"github.com/swissymissy/chipmunk/internal/database"
+	"github.com/swissymissy/chipmunk/internal/middleware"
 )
 
 func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Request) {
@@ -58,5 +60,28 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// get student ID
+	studentID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		ResponseWithError(w, http.StatusUnauthorized, "unorthorized")
+		return
+	}
 	
+	// check if student enroll in this course (only allows enrolled students)
+	enrolled, err := cfg.DB.IsEnrolled(r.Context(), database.IsEnrolledParams{
+		StudentID: studentID,
+		CourseID: session.CourseID,
+	})
+	if err != nil {
+		log.Printf("error checking if student enrolls in a course: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "something went wrong")
+		return
+	}
+	if enrolled != 1 {
+		ResponseWithError(w, http.StatusUnauthorized, "you are not enrolled in this course")
+		return
+	}
+
+	// calculate the distance between student's coord and professor's coord
+
 }
