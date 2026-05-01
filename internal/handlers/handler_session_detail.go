@@ -38,11 +38,11 @@ func (cfg *ApiConfig) HandlerSessionDetail(w http.ResponseWriter, r *http.Reques
 
 	// response
 	ResponseWithJSON(w, http.StatusOK, Session{
-		ID: session.ID,
-		CourseID: session.CourseID,
+		ID:          session.ID,
+		CourseID:    session.CourseID,
 		SessionDate: session.SessionDate,
-		Status: session.Status,
-		StartedAt: session.StartedAt,
-		EndedAt: session.EndedAt.String,
+		Status:      session.Status,
+		StartedAt:   session.StartedAt,
+		EndedAt:     session.EndedAt.String,
 	})
 }

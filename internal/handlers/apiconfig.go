@@ -7,4 +7,5 @@ type ApiConfig struct {
 	DB       *database.Queries
 	Platform string
 	JWT      string
+	BaseURL  string
 }

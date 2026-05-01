@@ -13,14 +13,14 @@ import (
 
 // generate qr token using hmac-sha256
 func GenerateQRToken(sessionID int64, secretKey string) (string, error) {
-	// get current time in integer 
+	// get current time in integer
 	now := time.Now().Unix()
 
 	// payload string = sessionID:timestamp
 	payload := fmt.Sprintf("%d:%d", sessionID, now)
 
-	mac := hmac.New(sha256.New, []byte(secretKey))	// create new hmac instance using sha256 and serectKey
-	mac.Write([]byte(payload))	// write data to be signed
+	mac := hmac.New(sha256.New, []byte(secretKey)) // create new hmac instance using sha256 and serectKey
+	mac.Write([]byte(payload))                     // write data to be signed
 	expectedMAC := mac.Sum(nil)
 	signature := hex.EncodeToString(expectedMAC) // encode the result hmac to hex string
 
@@ -73,7 +73,7 @@ func ValidateQRToken(token string, secretKey string) (int64, error) {
 	// get session ID
 	sessionID, err := strconv.ParseInt(payloadSplit[0], 10, 64)
 	if err != nil {
-		return	-1, fmt.Errorf("error converting string to int")
+		return -1, fmt.Errorf("error converting string to int")
 	}
 	// get timestamp to check if token is expired
 	timestamp, err := strconv.ParseInt(payloadSplit[1], 10, 64)
@@ -82,7 +82,7 @@ func ValidateQRToken(token string, secretKey string) (int64, error) {
 	}
 
 	// 20s grace period ( 15s + 5s network buffer)
-	if time.Now().Unix() - timestamp > 20 {
+	if time.Now().Unix()-timestamp > 20 {
 		return -1, fmt.Errorf("token expired")
 	}
 
