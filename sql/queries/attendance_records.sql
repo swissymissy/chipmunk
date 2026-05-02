@@ -6,7 +6,7 @@ WHERE e.course_id = ?;
 
 -- name: StudentCheckIn :one
 UPDATE attendance_records
-SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ?
+SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ? , accuracy = ?
 WHERE session_id = ? AND student_id = ?
 RETURNING *;
 

@@ -28,7 +28,7 @@ func (q *Queries) CreateRecords(ctx context.Context, arg CreateRecordsParams) er
 }
 
 const getRecordBySession = `-- name: GetRecordBySession :many
-SELECT r.id, r.session_id, r.student_id, r.status, r.check_in_at, r.student_lat, r.student_lng , s.first_name, s.last_name, s.student_id
+SELECT r.id, r.session_id, r.student_id, r.status, r.check_in_at, r.student_lat, r.student_lng, r.accuracy , s.first_name, s.last_name, s.student_id
 FROM attendance_records r
 JOIN students s ON r.student_id = s.id
 WHERE r.session_id = ?
@@ -42,6 +42,7 @@ type GetRecordBySessionRow struct {
 	CheckInAt   sql.NullString
 	StudentLat  sql.NullFloat64
 	StudentLng  sql.NullFloat64
+	Accuracy    sql.NullFloat64
 	FirstName   string
 	LastName    string
 	StudentID_2 string
@@ -65,6 +66,7 @@ func (q *Queries) GetRecordBySession(ctx context.Context, sessionID int64) ([]Ge
 			&i.CheckInAt,
 			&i.StudentLat,
 			&i.StudentLng,
+			&i.Accuracy,
 			&i.FirstName,
 			&i.LastName,
 			&i.StudentID_2,
@@ -93,14 +95,15 @@ func (q *Queries) ResetAttendanceRecords(ctx context.Context) error {
 
 const studentCheckIn = `-- name: StudentCheckIn :one
 UPDATE attendance_records
-SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ?
+SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ? , accuracy = ?
 WHERE session_id = ? AND student_id = ?
-RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy
 `
 
 type StudentCheckInParams struct {
 	StudentLat sql.NullFloat64
 	StudentLng sql.NullFloat64
+	Accuracy   sql.NullFloat64
 	SessionID  int64
 	StudentID  string
 }
@@ -109,6 +112,7 @@ func (q *Queries) StudentCheckIn(ctx context.Context, arg StudentCheckInParams) 
 	row := q.db.QueryRowContext(ctx, studentCheckIn,
 		arg.StudentLat,
 		arg.StudentLng,
+		arg.Accuracy,
 		arg.SessionID,
 		arg.StudentID,
 	)
@@ -121,6 +125,7 @@ func (q *Queries) StudentCheckIn(ctx context.Context, arg StudentCheckInParams) 
 		&i.CheckInAt,
 		&i.StudentLat,
 		&i.StudentLng,
+		&i.Accuracy,
 	)
 	return i, err
 }
@@ -129,7 +134,7 @@ const updateCheckIn = `-- name: UpdateCheckIn :one
 UPDATE attendance_records
 SET status = 'present', check_in_at = datetime('now')
 WHERE student_id = ? AND session_id = ?
-RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy
 `
 
 type UpdateCheckInParams struct {
@@ -148,6 +153,7 @@ func (q *Queries) UpdateCheckIn(ctx context.Context, arg UpdateCheckInParams) (A
 		&i.CheckInAt,
 		&i.StudentLat,
 		&i.StudentLng,
+		&i.Accuracy,
 	)
 	return i, err
 }

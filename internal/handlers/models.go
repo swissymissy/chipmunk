@@ -63,12 +63,12 @@ type Course struct {
 }
 
 type Session struct {
-	ID int64 `json:"id"`
-	CourseID string `json:"course_id"`
+	ID          int64  `json:"id"`
+	CourseID    string `json:"course_id"`
 	SessionDate string `json:"session_date"`
-	Status string `json:"status"`
-	StartedAt string `json:"started_at"`
-	EndedAt string `json:"ended_at"`
+	Status      string `json:"status"`
+	StartedAt   string `json:"started_at"`
+	EndedAt     string `json:"ended_at"`
 }
 
 type StartSessionRequest struct {
@@ -94,4 +94,21 @@ type CloseSessionResponse struct {
 	Status      string `json:"status"`
 	StartedAt   string `json:"started_at"`
 	EndedAt     string `json:"ended_at"`
+}
+
+type QRTokenResponse struct {
+	Token      string `json:"token"`
+	CheckInURL string `json:"checkin_url"`
+}
+
+type StudentCheckinReq struct {
+	QRToken    string  `json:"token"`
+	StudentLat float64 `json:"lat"`
+	StudentLng float64 `json:"lng"`
+	Accuracy   float64 `json:"accuracy"`
+}
+
+type StudentCheckInRep struct {
+	Status    string `json:"status"`
+	CheckInAt string `json:"check_in_at"`
 }

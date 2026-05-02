@@ -16,6 +16,13 @@ FROM students s
 JOIN enrollments e ON s.id = e.student_id
 WHERE e.course_id = ?;
 
+-- check if a student enrolls in a specific course
+-- name: IsEnrolled :one
+SELECT EXISTS(
+    SELECT 1 FROM enrollments
+    WHERE student_id = ? AND course_id = ?
+) AS enrolled;
+
 -- name: ResetEnrollment :exec
 DELETE FROM enrollments;
 
