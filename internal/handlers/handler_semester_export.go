@@ -57,7 +57,16 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 	defer f.Close()
 	
 	// set sheet name - CourseName_SectionDate_StartTime
-	sheetName := fmt.Sprintf("%s_%s_%s", course.CourseName, course.SectionDate, course.StartTime)
+	// sanitize course name and time to clean spaces and special characters
+	cleanCourseName := strings.ReplaceAll(course.CourseName, " ", "_")
+	cleanStartTime := strings.ReplaceAll(course.StartTime, ":", "")
+
+	sheetName := fmt.Sprintf("%s %s %s", cleanCourseName, course.SectionDate, cleanStartTime)
+	if len(sheetName) > 31 {
+    	sheetName = sheetName[:31]
+	}
+	f.SetSheetName("Sheet1", sheetName)
+
 	// design: merge cells to make a title
 	err = f.MergeCell(sheetName, "A1", "H1")
 	if err != nil {
@@ -101,14 +110,10 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 		})
 	}
 
-	// sanitize course name and time to clean spaces and special characters
-	cleanCourseName := strings.ReplaceAll(course.CourseName, " ", "_")
-	cleanStartTime := strings.ReplaceAll(course.StartTime, ":", "")
 	fileName := fmt.Sprintf("%s_%s_%s.xlsx", cleanCourseName, course.SectionDate, cleanStartTime)
-
 	// set up download headers
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") //this long string is the MIME type for xlsx file
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attatchment; filename=%s", fileName))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
 
 	// write file directly to response
 	_, err = f.WriteTo(w)
