@@ -16,7 +16,7 @@ type Point struct {
 
 // converts degrees to radians
 func degreesToRad(d float64) float64 {
-	return d * math.Pi/ 180
+	return d * math.Pi / 180
 }
 
 // calculate the shortest path between 2 points on earth
@@ -29,12 +29,12 @@ func Haversine(p1, p2 Point) float64 {
 	p2Lat := degreesToRad(p2.Lat)
 	p2Lng := degreesToRad(p2.Lng)
 
-	diffLat := p2Lat - p1Lat 
+	diffLat := p2Lat - p1Lat
 	diffLng := p2Lng - p1Lng
 
-	// haversine formula 
+	// haversine formula
 	// square of half the chord length
-	a := math.Pow(math.Sin(diffLat/2),2) + math.Cos(p1Lat)*math.Cos(p2Lat)*math.Pow(math.Sin(diffLng/2),2)
+	a := math.Pow(math.Sin(diffLat/2), 2) + math.Cos(p1Lat)*math.Cos(p2Lat)*math.Pow(math.Sin(diffLng/2), 2)
 
 	// calculate the central angle between 2 points
 	// angular distance in radians

@@ -106,3 +106,8 @@ type StudentCheckinReq struct {
 	StudentLat float64 `json:"lat"`
 	StudentLng float64 `json:"lng"`
 }
+
+type StudentCheckInRep struct {
+	Status    string `json:"status"`
+	CheckInAt string `json:"check_in_at"`
+}

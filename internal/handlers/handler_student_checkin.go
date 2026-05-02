@@ -66,11 +66,11 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		ResponseWithError(w, http.StatusUnauthorized, "unorthorized")
 		return
 	}
-	
+
 	// check if student enroll in this course (only allows enrolled students)
 	enrolled, err := cfg.DB.IsEnrolled(r.Context(), database.IsEnrolledParams{
 		StudentID: studentID,
-		CourseID: session.CourseID,
+		CourseID:  session.CourseID,
 	})
 	if err != nil {
 		log.Printf("error checking if student enrolls in a course: %s\n", err)
@@ -91,5 +91,28 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		Lat: session.ClassroomLat.Float64,
 		Lng: session.ClassroomLng.Float64,
 	}
-	
+	distance := Haversine(cP, sP)
+	if distance > float64(session.RadiusMeters.Int64) {
+		ResponseWithError(w, http.StatusBadRequest, "student is too far away from class")
+		return
+	}
+
+	// record attendance
+	checkin, err := cfg.DB.StudentCheckIn(r.Context(), database.StudentCheckInParams{
+		StudentLat: ToNullFloat(req.StudentLat),
+		StudentLng: ToNullFloat(req.StudentLng),
+		SessionID:  session.ID,
+		StudentID:  studentID,
+	})
+	if err != nil {
+		log.Printf("error updating student attendance record: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "failed to check-in")
+		return
+	}
+
+	// response
+	ResponseWithJSON(w, http.StatusOK, StudentCheckInRep{
+		Status:    checkin.Status,
+		CheckInAt: checkin.CheckInAt.String,
+	})
 }

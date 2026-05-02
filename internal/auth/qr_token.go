@@ -31,7 +31,7 @@ func GenerateQRToken(sessionID int64, secretKey string) (string, error) {
 }
 
 // validate the qr token
-func ValidateQRToken(token string, secretKey string) (bool) {
+func ValidateQRToken(token string, secretKey string) bool {
 	// split token into payload and signature
 	payload, signature, err := SplitToken(token)
 	if err != nil {
@@ -62,4 +62,3 @@ func ValidateQRToken(token string, secretKey string) (bool) {
 
 	return true
 }
-
