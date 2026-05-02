@@ -101,6 +101,7 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 	checkin, err := cfg.DB.StudentCheckIn(r.Context(), database.StudentCheckInParams{
 		StudentLat: ToNullFloat(req.StudentLat),
 		StudentLng: ToNullFloat(req.StudentLng),
+		Accuracy:   ToNullFloat(req.Accuracy),
 		SessionID:  session.ID,
 		StudentID:  studentID,
 	})

@@ -16,6 +16,7 @@ type AttendanceRecord struct {
 	CheckInAt  sql.NullString
 	StudentLat sql.NullFloat64
 	StudentLng sql.NullFloat64
+	Accuracy   sql.NullFloat64
 }
 
 type AttendanceSession struct {
