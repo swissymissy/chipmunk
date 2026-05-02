@@ -104,6 +104,9 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 		log.Printf("unable to merge cell from A1 to H1 to make title: %s\n", err)
 	}
 	f.SetCellValue(sheetName, "A1", sheetName)
+	styles := NewExcelStyles(f)
+	f.SetCellStyle(sheetName, "A1", "H1", styles.Title)
+	f.SetCellStyle(sheetName, "A2", "H2", styles.Header)
 
 	// set up columns headers
 	f.SetSheetRow(sheetName, "A2", &[]interface{}{
@@ -119,8 +122,13 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 
 	// build excel file using rows
 	for i, r := range rows {
-		cell := fmt.Sprintf("A%d", i+3)
+		rowNum := i + 3
+		cell := fmt.Sprintf("A%d", rowNum)
 		f.SetSheetRow(sheetName, cell, &r)
+
+		// fill colors based on status
+		status := r[7].(string)
+		applyStatusStyle(f, sheetName, rowNum, status, styles)
 	}
 
 	fileName := fmt.Sprintf("%s_%s_%s.xlsx", cleanCourseName, course.SectionDate, cleanStartTime)
@@ -163,5 +171,18 @@ func toExcelRow(studentID, firstName, lastName string, specialty sql.NullString,
 		totalSess,
 		avg,
 		status,
+	}
+}
+
+// helper to apply color to status cell
+func applyStatusStyle(f *excelize.File, sheet string, row int, status string, styles ExcelStyle) {
+	cell := fmt.Sprintf("H%d", row)
+	switch status {
+	case "Qualified":
+		f.SetCellStyle(sheet, cell, cell, styles.Qualified)
+	case "At Risk":
+		f.SetCellStyle(sheet, cell, cell, styles.AtRisk)
+	case "Not Qualified":
+		f.SetCellStyle(sheet, cell, cell, styles.NotQualified)
 	}
 }
