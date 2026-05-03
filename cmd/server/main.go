@@ -25,7 +25,6 @@ func main() {
 	baseURL := os.Getenv("BASE_URL")
 
 	dbURL := os.Getenv("DB_URL")
-
 	// open connection to database
 	db, err := sql.Open("sqlite", dbURL)
 	if err != nil {
@@ -43,7 +42,6 @@ func main() {
 			log.Fatalf("failed to set %s: %v", p, err)
 		}
 	}
-
 	// query
 	dbQuery := database.New(db)
 	log.Print("Database connected")
@@ -105,6 +103,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/reset/sessions", middleware.LocalOnly(cfg.HandlerResetSessions)) // reset attendance sessions table
 	mux.HandleFunc("DELETE /api/reset/records", middleware.LocalOnly(cfg.HandlerResetRecords)) // reset attendance records table
 	mux.HandleFunc("DELETE /api/reset/all", middleware.LocalOnly(cfg.HandlerResetAll)) // reset all tables in correct order
+	
 	// run server in background
 	go func() {
 		fmt.Printf("Serving on: %s:%s/\n", baseURL, port)
@@ -120,7 +119,6 @@ func main() {
 	<-sigChan
 
 	log.Println("Shutting down server...")
-
 	shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownRelease()
 
