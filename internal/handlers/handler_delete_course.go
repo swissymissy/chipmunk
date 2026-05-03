@@ -21,7 +21,7 @@ func (cfg *ApiConfig) HandlerResetCourses(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	ResponseWithJSON(w, http.StatusOK, struct{
+	ResponseWithJSON(w, http.StatusOK, struct {
 		Message string `json:"message"`
 	}{
 		Message: "Successfully reset all courses.",

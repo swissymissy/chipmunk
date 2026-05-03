@@ -97,13 +97,13 @@ func main() {
 	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT)) // students check in
 
 	// reset - only dev or prof
-	mux.HandleFunc("DELETE /api/reset/students", middleware.LocalOnly(cfg.HandlerResetStudents)) // reset students table
-	mux.HandleFunc("DELETE /api/reset/courses", middleware.LocalOnly(cfg.HandlerResetCourses)) // reset courses table
+	mux.HandleFunc("DELETE /api/reset/students", middleware.LocalOnly(cfg.HandlerResetStudents))       // reset students table
+	mux.HandleFunc("DELETE /api/reset/courses", middleware.LocalOnly(cfg.HandlerResetCourses))         // reset courses table
 	mux.HandleFunc("DELETE /api/reset/enrollments", middleware.LocalOnly(cfg.HandlerResetEnrollments)) // reset enrollments table
-	mux.HandleFunc("DELETE /api/reset/sessions", middleware.LocalOnly(cfg.HandlerResetSessions)) // reset attendance sessions table
-	mux.HandleFunc("DELETE /api/reset/records", middleware.LocalOnly(cfg.HandlerResetRecords)) // reset attendance records table
-	mux.HandleFunc("DELETE /api/reset/all", middleware.LocalOnly(cfg.HandlerResetAll)) // reset all tables in correct order
-	
+	mux.HandleFunc("DELETE /api/reset/sessions", middleware.LocalOnly(cfg.HandlerResetSessions))       // reset attendance sessions table
+	mux.HandleFunc("DELETE /api/reset/records", middleware.LocalOnly(cfg.HandlerResetRecords))         // reset attendance records table
+	mux.HandleFunc("DELETE /api/reset/all", middleware.LocalOnly(cfg.HandlerResetAll))                 // reset all tables in correct order
+
 	// run server in background
 	go func() {
 		fmt.Printf("Serving on: %s:%s/\n", baseURL, port)

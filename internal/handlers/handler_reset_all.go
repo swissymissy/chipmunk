@@ -15,7 +15,7 @@ func (cfg *ApiConfig) HandlerResetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 1. reset attendance_records table
-	err := cfg.DB.ResetAttendanceRecords(r.Context()) 
+	err := cfg.DB.ResetAttendanceRecords(r.Context())
 	if err != nil {
 		log.Printf("error reseting attendance_records: %s\n", err)
 		ResponseWithError(w, http.StatusInternalServerError, "failed to reset records tables")
@@ -51,7 +51,7 @@ func (cfg *ApiConfig) HandlerResetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ResponseWithJSON(w, http.StatusOK, struct{
+	ResponseWithJSON(w, http.StatusOK, struct {
 		Msg string `json:"message"`
 	}{
 		Msg: "Successfully reset all tables",
