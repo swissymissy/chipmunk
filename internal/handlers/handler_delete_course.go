@@ -6,6 +6,7 @@ import (
 )
 
 // reset courses table
+// reset this table after resetting enrollments table
 func (cfg *ApiConfig) HandlerResetCourses(w http.ResponseWriter, r *http.Request) {
 	// check
 	if cfg.Platform != "dev" && cfg.Platform != "prof" {
