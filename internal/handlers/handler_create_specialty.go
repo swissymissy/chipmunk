@@ -5,14 +5,10 @@ import (
 	"net/http"
 )
 
-type specialty struct {
-	Name string `json:"specialty_name"`
-}
-
 // professor create specialty list
 func (cfg *ApiConfig) HandlerCreateSpecialty(w http.ResponseWriter, r *http.Request) {
 	// decode req
-	var req specialty
+	var req CreateSpecialty
 	err := DecodeRequest(r, &req)
 	if err != nil {
 		log.Printf("error decoding new specialty request: %s\n", err)
@@ -33,7 +29,7 @@ func (cfg *ApiConfig) HandlerCreateSpecialty(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ResponseWithJSON(w, http.StatusOK, Specialty{
+	ResponseWithJSON(w, http.StatusCreated, Specialty{
 		ID: s.ID,
 		Name: s.Name,
 		CreatedAt: s.CreatedAt,

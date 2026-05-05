@@ -62,6 +62,10 @@ type Course struct {
 	Time       string `json:"time"`
 }
 
+type CreateSpecialty struct {
+	Name string `json:"specialty_name"`
+}
+
 type Specialty struct {
 	ID   int64  `json:"specialty_id"`
 	Name string `json:"name"`
