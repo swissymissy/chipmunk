@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Chipmunk - Register</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Chipmunk</h1>
+    <h2>Student Registration</h2>
+
+    <div id="error-msg"></div>
+    <div id="success-msg"></div>
+
+    <form id="register-form">
+        <label for="student_id">Student ID</label>
+        <input type="text" id="student_id" placeholder="e.g U12345678" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your_email@example.com" required>
+
+        <label for="password">Password</label>
+        <input type="text" id="password" placeholder="your password for this account" required>
+
+        <label for="first_name">First Name</label>
+        <input type="text" id="first_name" required>
+
+        <label for="last_name">Last Name</label>
+        <input type="text" id="last_name" required>
+
+        <label for="specialty">Specialty(Major)</label>
+        <input type="text" id="specialty" placeholder="e.g Ortodoncia">
+
+        <label for="course">Course</label>
+        <select id="course">
+            <option value="">Loading courses...</option>
+        </select>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a href="/checkin.html">Log in</a></p>
+
+    <script src="/js/register.js"></script>
+</body>
+</html>
+
+
