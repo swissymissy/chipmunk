@@ -1,6 +1,6 @@
 -- name: CreateSpecialty :one
-INSERT INTO specialties (id, name)
-VALUES (?,?)
+INSERT INTO specialties (name)
+VALUES (?)
 RETURNING *;
 
 -- name: ListAllSpecialties :many
