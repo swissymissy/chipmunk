@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type res struct {
+type SpecialtyListItem struct {
 	ID int64 `json:"id"`
 	Name string `json:"specialty_name"`
 }
@@ -13,7 +13,7 @@ type res struct {
 // list all specialties for students to pick during registration
 func (cfg *ApiConfig) HandlerGetAllSpecialties(w http.ResponseWriter, r *http.Request) {
 	// make a list for about 20 different majors
-	list := make([]res, 0, 20)
+	list := make([]SpecialtyListItem, 0, 20)
 
 	// get list of call specialties
 	specialties, err := cfg.DB.ListAllSpecialties(r.Context())
@@ -25,7 +25,7 @@ func (cfg *ApiConfig) HandlerGetAllSpecialties(w http.ResponseWriter, r *http.Re
 
 	// write in format response
 	for _, s := range specialties {
-		list = append(list, res{
+		list = append(list, SpecialtyListItem{
 			ID:   s.ID,
 			Name: s.Name,
 		})
