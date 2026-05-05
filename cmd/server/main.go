@@ -86,11 +86,14 @@ func main() {
 	mux.HandleFunc("GET /api/sessions/{id}/qr", middleware.LocalOnly(cfg.HandlerGetQRToken))                       // endpoint for professor to get fresh qr token
 	mux.HandleFunc("GET /api/export/semester/{course_id}", middleware.LocalOnly(cfg.HandlerExportSemesterRecords)) // export semester attendance records to excel file
 	mux.HandleFunc("GET /api/export/daily/{date}", middleware.LocalOnly(cfg.HandlerExportDailyRecord))             // export daily attendance records to excel file
+	mux.HandleFunc("POST /api/specialties", middleware.LocalOnly(cfg.HandlerCreateSpecialty))                      // professor create new specialty
+	mux.HandleFunc("DELETE /api/specialties/{id}", middleware.LocalOnly(cfg.HandlerDeleteSpecialty))               // professor delete a specialty in the list
 
-	// students
+	// students - public
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses)          // list courses to let students pick
 	mux.HandleFunc("POST /api/auth/login", cfg.HandlerStudentLogin)       // student login
 	mux.HandleFunc("POST /api/auth/register", cfg.HandlerStudentRegister) // student register new account
+	mux.HandleFunc("GET /api/specialties", cfg.HandlerGetAllSpecialties)  // let student see list of all specialties
 
 	// students - auth required
 	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))             // student enroll in a course
@@ -103,6 +106,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/reset/sessions", middleware.LocalOnly(cfg.HandlerResetSessions))       // reset attendance sessions table
 	mux.HandleFunc("DELETE /api/reset/records", middleware.LocalOnly(cfg.HandlerResetRecords))         // reset attendance records table
 	mux.HandleFunc("DELETE /api/reset/all", middleware.LocalOnly(cfg.HandlerResetAll))                 // reset all tables in correct order
+	mux.HandleFunc("DELETE /api/reset/specialties", middleware.LocalOnly(cfg.HandlerResetSpecialty))   // reset table specialties
 
 	// run server in background
 	go func() {

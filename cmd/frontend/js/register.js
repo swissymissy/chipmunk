@@ -28,6 +28,22 @@ async function loadCourses() {
     }
 }
 
+// fetch specialties from API and populate the dropdown
+async function loadSpecialties() {
+    const res = await fetch("/api/specialties");
+    const specialties = await res.json();
+
+    const select = document.getElementById("specialty");
+    select.innerHTML = '<option value="">-- Select your major --</option>';
+
+    for (const s of specialties) {
+        const option = document.createElement("option");
+        option.value = s.name;
+        option.textContent = s.name;
+        select.appendChild(option);
+    }
+}
+
 // handle the registration submit
 async function handleResgiter() {
     clearMessages();

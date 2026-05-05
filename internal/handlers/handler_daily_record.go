@@ -11,23 +11,14 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-type dateSummaryReq struct {
-	SessionDate string `json:"session_date"`
-}
 
 // export excel file for daily record
 func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Request) {
-	// decode request
-	var req dateSummaryReq
-	err := DecodeRequest(r, &req)
-	if err != nil {
-		log.Printf("error decoding daily record request: %s\n", err)
-		ResponseWithError(w, http.StatusBadRequest, "invalid date")
-		return
-	}
+	// get date from url
+	date := r.PathValue("date")
 
 	// fetching data
-	records, err := cfg.DB.GetAttendanceByDate(r.Context(), req.SessionDate)
+	records, err := cfg.DB.GetAttendanceByDate(r.Context(), date)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			ResponseWithError(w, http.StatusNotFound, "date not found")
@@ -106,7 +97,7 @@ func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	fileName := fmt.Sprintf("%s_report.xlsx", req.SessionDate)
+	fileName := fmt.Sprintf("%s_report.xlsx", date)
 
 	// download headers
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

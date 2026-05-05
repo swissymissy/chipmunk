@@ -45,6 +45,12 @@ type Enrollment struct {
 	CourseID  string
 }
 
+type Specialty struct {
+	ID        int64
+	Name      string
+	CreatedAt string
+}
+
 type Student struct {
 	ID           string
 	StudentID    string

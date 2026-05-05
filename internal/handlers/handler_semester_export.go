@@ -12,23 +12,13 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-type exportReq struct {
-	CourseID string `json:"course_id"`
-}
-
 // let professor export semester record into excel file
 func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *http.Request) {
-	// decode request
-	var req exportReq
-	err := DecodeRequest(r, &req)
-	if err != nil {
-		log.Printf("error decoding request: %s\n", err)
-		ResponseWithError(w, http.StatusInternalServerError, "failed to export")
-		return
-	}
+	// get course ID from url
+	courseID := r.PathValue("course_id")
 
 	// get course infor
-	course, err := cfg.DB.GetCourseByID(r.Context(), req.CourseID)
+	course, err := cfg.DB.GetCourseByID(r.Context(), courseID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			ResponseWithError(w, http.StatusNotFound, "course not found")
@@ -48,7 +38,7 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 
 	if from != "" && to != "" {
 		records, err := cfg.DB.GetAttendanceSummaryByCourseInDateRange(r.Context(), database.GetAttendanceSummaryByCourseInDateRangeParams{
-			CourseID:      req.CourseID,
+			CourseID:      courseID,
 			SessionDate:   from,
 			SessionDate_2: to,
 		})
@@ -67,7 +57,7 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 			rows = append(rows, toExcelRow(r.StudentID, r.FirstName, r.LastName, r.Specialty, r.TotalPresent, r.TotalSessions, r.Average))
 		}
 	} else {
-		records, err := cfg.DB.GetAttendanceSummaryByCourse(r.Context(), req.CourseID)
+		records, err := cfg.DB.GetAttendanceSummaryByCourse(r.Context(), courseID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				log.Printf("attempt to fetch non-existed or deleted course: %s\n", err)
