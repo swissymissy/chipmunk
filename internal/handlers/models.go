@@ -58,8 +58,8 @@ type NewCourseResponse struct {
 type Course struct {
 	ID         string `json:"course_id"`
 	CourseName string `json:"course_name"`
-	Section    string `json:"section"`
-	Time       string `json:"time"`
+	Section    string `json:"section_date"`
+	Time       string `json:"start_time"`
 }
 
 type CreateSpecialty struct {
