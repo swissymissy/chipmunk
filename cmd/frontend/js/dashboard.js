@@ -57,6 +57,7 @@ function showMsg(msg) {
 document.addEventListener("DOMContentLoaded", () => {
     loadCourses();
     loadSpecialties();
+    safe(checkForActiveSession);
 
     document.getElementById("create-course-form").addEventListener("submit", e => {
         e.preventDefault();
@@ -67,6 +68,26 @@ document.addEventListener("DOMContentLoaded", () => {
         safe(createSpecialty);
     });
 });
+
+function enterActiveSessionUI(session) {
+    currentSessionID = session.session_id;
+    document.getElementById("no-active-session").style.display = "none";
+    document.getElementById("active-session").style.display = "block";
+    const label = session.course_name
+        ? session.session_date + " (" + session.course_name + ")"
+        : session.session_date;
+    document.getElementById("session-info").textContent = "Session active — " + label;
+    safe(refreshQR);
+    qrInterval = setInterval(() => safe(refreshQR), 13000);
+}
+
+async function checkForActiveSession() {
+    const sessions = await api("GET", "/api/sessions/active");
+    if (sessions.length === 0) return;
+    if (sessions.length > 1) console.warn("multiple active sessions; resuming first", sessions);
+    enterActiveSessionUI(sessions[0]);
+}
+
 
 // === Tabs ===
 function showTab(tabName, btn) {
@@ -146,12 +167,7 @@ function startSession() {
                 classroom_lat: pos.coords.latitude,
                 classroom_lng: pos.coords.longitude,
             });
-            currentSessionID = session.session_id;
-            document.getElementById("no-active-session").style.display = "none";
-            document.getElementById("active-session").style.display = "block";
-            document.getElementById("session-info").textContent = "Session active — " + session.session_date;
-            refreshQR();
-            qrInterval = setInterval(refreshQR, 13000);
+            enterActiveSessionUI(session);
         }),
         () => showMsg("Location access required"),
         { enableHighAccuracy: true, timeout: 10000 }

@@ -32,6 +32,13 @@ WHERE course_id = ? AND status = 'active';
 SELECT * FROM attendance_sessions
 WHERE id = ?;
 
+-- list all active sessions in case professor forget to close session
+-- name: ListActiveSessions :many
+SELECT s.id, s.course_id, s.session_date, s.status, s.started_at, c.course_name
+FROM attendance_sessions s 
+JOIN courses c ON s.course_id = c.id
+WHERE s.status = 'active';
+
 -- name: DeleteSession :exec
 DELETE FROM attendance_sessions
 WHERE id = ?;

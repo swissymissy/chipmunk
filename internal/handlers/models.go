@@ -106,6 +106,15 @@ type CloseSessionResponse struct {
 	EndedAt     string `json:"ended_at"`
 }
 
+type ActiveSessionsView struct {
+	SessionID int64 `json:"session_id"`
+	CourseID string `json:"course_id"`
+	CourseName string `json:"course_name"`
+	SessionDate string `json:"session_date"`
+	Status string `json:"status"`
+	StartedAt string 	`json:"started_at"`
+}
+
 type QRTokenResponse struct {
 	Token      string `json:"token"`
 	CheckInURL string `json:"checkin_url"`

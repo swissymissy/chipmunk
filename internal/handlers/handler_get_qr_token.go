@@ -50,7 +50,7 @@ func (cfg *ApiConfig) HandlerGetQRToken(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// crafting checkin url with token
-	checkinURL := fmt.Sprintf("%s/checkin?t=%s", cfg.BaseURL, qrToken)
+	checkinURL := fmt.Sprintf("%s/checkin.html?t=%s", cfg.BaseURL, qrToken)
 
 	// response
 	ResponseWithJSON(w, http.StatusOK, QRTokenResponse{

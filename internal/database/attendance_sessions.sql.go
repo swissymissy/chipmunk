@@ -140,6 +140,53 @@ func (q *Queries) GetSessionByID(ctx context.Context, id int64) (AttendanceSessi
 	return i, err
 }
 
+const listActiveSessions = `-- name: ListActiveSessions :many
+SELECT s.id, s.course_id, s.session_date, s.status, s.started_at, c.course_name
+FROM attendance_sessions s 
+JOIN courses c ON s.course_id = c.id
+WHERE s.status = 'active'
+`
+
+type ListActiveSessionsRow struct {
+	ID          int64
+	CourseID    string
+	SessionDate string
+	Status      string
+	StartedAt   string
+	CourseName  string
+}
+
+// list all active sessions in case professor forget to close session
+func (q *Queries) ListActiveSessions(ctx context.Context) ([]ListActiveSessionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listActiveSessions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListActiveSessionsRow
+	for rows.Next() {
+		var i ListActiveSessionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CourseID,
+			&i.SessionDate,
+			&i.Status,
+			&i.StartedAt,
+			&i.CourseName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const reOpenSession = `-- name: ReOpenSession :one
 UPDATE attendance_sessions
 SET status = 'active', ended_at = NULL

@@ -88,6 +88,7 @@ func main() {
 	mux.HandleFunc("GET /api/export/daily/{date}", middleware.LocalOnly(cfg.HandlerExportDailyRecord))             // export daily attendance records to excel file
 	mux.HandleFunc("POST /api/specialties", middleware.LocalOnly(cfg.HandlerCreateSpecialty))                      // professor create new specialty
 	mux.HandleFunc("DELETE /api/specialties/{id}", middleware.LocalOnly(cfg.HandlerDeleteSpecialty))               // professor delete a specialty in the list
+	mux.HandleFunc("GET /api/sessions/active", middleware.LocalOnly(cfg.HandlerListActiveSession))	// get all active sessions to let professor close in case forget to to close session
 
 	// students - public
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses)          // list courses to let students pick
