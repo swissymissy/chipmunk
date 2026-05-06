@@ -55,8 +55,8 @@ function showMsg(msg) {
 
 // === Page load ===
 document.addEventListener("DOMContentLoaded", () => {
-    loadCourses();
-    loadSpecialties();
+    safe(loadCourses);
+    safe(loadSpecialties);
     safe(checkForActiveSession);
 
     document.getElementById("create-course-form").addEventListener("submit", e => {

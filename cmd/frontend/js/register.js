@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-    loadCourses();
-    loadSpecialties();
+    safe(loadCourses);
+    safe(loadSpecialties);
     document.getElementById("register-form").addEventListener("submit", e => {
         e.preventDefault();
         safe(handleRegister);

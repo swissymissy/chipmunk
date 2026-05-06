@@ -47,8 +47,5 @@ func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 		return "", fmt.Errorf("Token is expired or bad signature: %w", err)
 	}
 
-	// retrieve student ID from claim's subject
-	studentID := claim.Subject
-
-	return studentID, nil
+	return claim.Subject, nil
 }
