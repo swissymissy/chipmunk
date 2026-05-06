@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"time"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 // make jwt token for professor (12h)

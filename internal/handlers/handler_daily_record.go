@@ -11,7 +11,6 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-
 // export excel file for daily record
 func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Request) {
 	// get date from url

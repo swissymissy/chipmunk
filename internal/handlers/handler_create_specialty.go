@@ -30,8 +30,8 @@ func (cfg *ApiConfig) HandlerCreateSpecialty(w http.ResponseWriter, r *http.Requ
 	}
 
 	ResponseWithJSON(w, http.StatusCreated, Specialty{
-		ID: s.ID,
-		Name: s.Name,
+		ID:        s.ID,
+		Name:      s.Name,
 		CreatedAt: s.CreatedAt,
 	})
 }

@@ -40,10 +40,9 @@ func AuthRequired(next http.HandlerFunc, jwtSecret string) http.HandlerFunc {
 	})
 }
 
-
 // protect professor's endpoints
 func RequireProfessor(next http.HandlerFunc, jwtSecret string) http.HandlerFunc {
-	return http.HandlerFunc( func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check for token bearer header
 		token, err := auth.GetBearerToken(r.Header)
 		if err != nil {
@@ -55,7 +54,7 @@ func RequireProfessor(next http.HandlerFunc, jwtSecret string) http.HandlerFunc 
 		subject, err := auth.ValidateJWT(token, jwtSecret)
 		if err != nil || subject != "professor" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return 
+			return
 		}
 		next.ServeHTTP(w, r)
 	})
