@@ -30,7 +30,7 @@ func MakeJWT(studentID string, serverSecretToken string) (string, error) {
 	return signedToken, nil
 }
 
-// check student's token
+// check token
 func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 	// create new empty claim struct to be filled
 	claim := &jwt.RegisteredClaims{}
