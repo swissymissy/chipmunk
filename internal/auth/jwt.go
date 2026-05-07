@@ -30,7 +30,7 @@ func MakeJWT(studentID string, serverSecretToken string) (string, error) {
 	return signedToken, nil
 }
 
-// check student's token
+// check token
 func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 	// create new empty claim struct to be filled
 	claim := &jwt.RegisteredClaims{}
@@ -47,8 +47,5 @@ func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 		return "", fmt.Errorf("Token is expired or bad signature: %w", err)
 	}
 
-	// retrieve student ID from claim's subject
-	studentID := claim.Subject
-
-	return studentID, nil
+	return claim.Subject, nil
 }

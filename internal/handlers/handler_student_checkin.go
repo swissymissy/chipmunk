@@ -87,11 +87,17 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 		Lat: req.StudentLat,
 		Lng: req.StudentLng,
 	}
+	log.Printf("Student coords: %f, %f\n", sP.Lat, sP.Lng)
+
 	cP := Point{
 		Lat: session.ClassroomLat.Float64,
 		Lng: session.ClassroomLng.Float64,
 	}
+	log.Printf("Classroom coords: %f, %f\n", cP.Lat, cP.Lng)
+
 	distance := Haversine(cP, sP)
+	log.Printf("Distance: %f meters", distance)
+	log.Printf("Radius meters: %d meters", session.RadiusMeters.Int64)
 	if distance > float64(session.RadiusMeters.Int64) {
 		ResponseWithError(w, http.StatusBadRequest, "student is too far away from class")
 		return
@@ -114,6 +120,6 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 	// response
 	ResponseWithJSON(w, http.StatusOK, StudentCheckInRep{
 		Status:    checkin.Status,
-		CheckInAt: checkin.CheckInAt.String,
+		CheckInAt: LocalizeSQLiteTime(checkin.CheckInAt.String),
 	})
 }

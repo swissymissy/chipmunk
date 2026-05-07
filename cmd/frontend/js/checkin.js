@@ -1,5 +1,6 @@
 let jwtToken = null;
 let qrToken = null;
+let firstName = "";
 
 document.addEventListener("DOMContentLoaded", () => {
     qrToken = new URLSearchParams(window.location.search).get("t");
@@ -17,6 +18,7 @@ async function handleLogin() {
 
     const data = await api("POST", "/api/auth/login", { email, password });
     jwtToken = data.token;
+    firstName = data.first_name;
 
     document.getElementById("greeting").textContent = "Hi " + data.first_name + "!";
     showSection("loading-section");
@@ -37,8 +39,10 @@ function startCheckIn() {
 
 async function submitCheckin(lat, lng, accuracy) {
     const data = await api("POST", "/api/attendance/checkin", { token: qrToken, lat, lng, accuracy }, jwtToken);
-    document.getElementById("checkin-time").textContent = data.checkin_at;
+    document.getElementById("success-greeting").textContent = "Hi " + firstName + ", you've checked in!";
+    document.getElementById("checkin-time").textContent = "Checked in at " + data.check_in_at;
     showSection("success-section");
+    loadMyCourses();
 }
 
 function showSection(id) {
@@ -61,3 +65,50 @@ function showCheckinError(msg) {
 function clearError() { document.getElementById("error-msg").textContent = ""; }
 
 setErrorHandler(showCheckinError);
+
+async function loadMyCourses() {
+    try {
+        const [enrolled, all] = await Promise.all([
+            api("GET", "/api/enrollments", null, jwtToken),
+            api("GET", "/api/courses"),
+        ]);
+
+        const list = document.getElementById("enrolled-list");
+        list.innerHTML = "";
+        for (const c of enrolled) {
+            const li = document.createElement("li");
+            li.textContent = c.course_name + " — " + c.section_date + " " + c.start_time;
+            list.appendChild(li);
+        }
+
+        const enrolledIds = new Set(enrolled.map(c => c.course_id));
+        const select = document.getElementById("add-course");
+        select.innerHTML = '<option value="">-- Select a course --</option>';
+        for (const c of all) {
+            if (enrolledIds.has(c.course_id)) continue;
+            const opt = document.createElement("option");
+            opt.value = c.course_id;
+            opt.textContent = c.course_name + " — " + c.section_date + " " + c.start_time;
+            select.appendChild(opt);
+        }
+    } catch (err) {
+        document.getElementById("enrolled-list").innerHTML =
+            "<li>Couldn't load courses: " + err.message + "</li>";
+    }
+}
+
+async function addCourse() {
+    const courseID = document.getElementById("add-course").value;
+    if (!courseID) return;
+    const msgEl = document.getElementById("add-course-msg");
+    msgEl.textContent = "";
+    try {
+        await api("POST", "/api/enrollment", { course_id: courseID }, jwtToken);
+        msgEl.style.color = "green";
+        msgEl.textContent = "Course added!";
+        await loadMyCourses();
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    }
+}

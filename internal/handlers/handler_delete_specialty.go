@@ -8,7 +8,7 @@ import (
 
 // let professor delete a specialty in the list
 func (cfg *ApiConfig) HandlerDeleteSpecialty(w http.ResponseWriter, r *http.Request) {
-	// get specialty id 
+	// get specialty id
 	idStr := r.PathValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -23,7 +23,7 @@ func (cfg *ApiConfig) HandlerDeleteSpecialty(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ResponseWithJSON(w, http.StatusOK, struct{
+	ResponseWithJSON(w, http.StatusOK, struct {
 		Msg string `json:"msg"`
 	}{
 		Msg: "Specialty has been removed.",

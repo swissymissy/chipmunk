@@ -50,7 +50,7 @@ func (cfg *ApiConfig) HandlerStartSession(w http.ResponseWriter, r *http.Request
 		SecretKey:    secretKey,
 		ClassroomLat: ToNullFloat(req.ClassroomLat),
 		ClassroomLng: ToNullFloat(req.ClassroomLng),
-		RadiusMeters: sql.NullInt64{Int64: 50, Valid: true},
+		RadiusMeters: sql.NullInt64{Int64: 100, Valid: true},
 	})
 	if err != nil {
 		log.Printf("error creating new session: %s\n", err)
@@ -75,6 +75,6 @@ func (cfg *ApiConfig) HandlerStartSession(w http.ResponseWriter, r *http.Request
 		CourseID:    session.CourseID,
 		SessionDate: session.SessionDate,
 		Status:      session.Status,
-		StartedAt:   session.StartedAt,
+		StartedAt:   LocalizeSQLiteTime(session.StartedAt),
 	})
 }
