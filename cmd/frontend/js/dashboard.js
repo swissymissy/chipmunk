@@ -10,8 +10,7 @@ if (!professorToken) {
 setAuthToken(professorToken);
 
 function logout() {
-    localStorage.removeItem("professor_token");
-    window.location.href = "/prof_login.html";
+    clearProfessorAuth();
 }
 
 function buildTable(headers, rows) {
@@ -34,23 +33,6 @@ function buildTable(headers, rows) {
         table.appendChild(tr);
     }
     return table;
-}
-
-function fillDropdown(selectId, items, valueFn, labelFn) {
-    const select = document.getElementById(selectId);
-    const current = select.value;
-    select.innerHTML = '<option value="">-- Select --</option>';
-    for (const item of items) {
-        const opt = document.createElement("option");
-        opt.value = valueFn(item);
-        opt.textContent = labelFn(item);
-        select.appendChild(opt);
-    }
-    if (current) select.value = current;
-}
-
-function courseLabel(c) {
-    return c.course_name + " — " + c.section_date + " " + c.start_time;
 }
 
 function fillCourseDropdowns(courses) {
@@ -78,11 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("create-course-form").addEventListener("submit", e => {
         e.preventDefault();
-        safe(createCourse);
+        submitForm(e.target, createCourse);
     });
     document.getElementById("create-specialty-form").addEventListener("submit", e => {
         e.preventDefault();
-        safe(createSpecialty);
+        submitForm(e.target, createSpecialty);
     });
 });
 
@@ -124,6 +106,8 @@ function showTab(tabName, btn) {
             if (currentAttendanceSessionID) loadAttendanceRoster(currentAttendanceSessionID);
         }, 5000);
     }
+
+    if (tabName === "settings") renderIndividualResets();
 }
 
 // === Courses ===
@@ -259,8 +243,7 @@ async function downloadFile(url, fallbackName) {
         headers: token ? { Authorization: "Bearer " + token } : {},
     });
     if (res.status === 401) {
-        localStorage.removeItem("professor_token");
-        window.location.href = "/prof_login.html";
+        clearProfessorAuth();
         return;
     }
     if (!res.ok) throw new Error("Download failed (" + res.status + ")");
@@ -401,3 +384,75 @@ async function markPresent(studentID, sessionID) {
     }
 }
 
+// === Settings: destructive resets ===
+// Each row toggles its button enabled only when the matching input contains "RESET".
+// onResetConfirmInput is wired via inline oninput=...; rendered rows wire it dynamically.
+
+const INDIVIDUAL_RESETS = [
+    { key: "records",     label: "Attendance Records",   path: "/api/reset/records" },
+    { key: "sessions",    label: "Attendance Sessions",  path: "/api/reset/sessions" },
+    { key: "enrollments", label: "Enrollments",          path: "/api/reset/enrollments" },
+    { key: "courses",     label: "Courses",              path: "/api/reset/courses" },
+    { key: "students",    label: "Students",             path: "/api/reset/students" },
+    { key: "specialties", label: "Specialties",          path: "/api/reset/specialties" },
+];
+
+function onResetConfirmInput(inputId, btnId) {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    btn.disabled = input.value.trim() !== "RESET";
+}
+
+async function resetAll() {
+    await api("DELETE", "/api/reset/all");
+    document.getElementById("reset-all-confirm").value = "";
+    document.getElementById("reset-all-btn").disabled = true;
+    showMsg("Database reset for new semester");
+    // refresh views that depend on now-cleared data
+    safe(loadCourses);
+    safe(loadSpecialties);
+}
+
+async function resetTable(path, inputId, btnId) {
+    await api("DELETE", path);
+    document.getElementById(inputId).value = "";
+    document.getElementById(btnId).disabled = true;
+    showMsg("Reset complete");
+    safe(loadCourses);
+    safe(loadSpecialties);
+}
+
+function renderIndividualResets() {
+    const container = document.getElementById("individual-resets");
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = "1";
+
+    for (const r of INDIVIDUAL_RESETS) {
+        const inputId = `reset-${r.key}-confirm`;
+        const btnId = `reset-${r.key}-btn`;
+
+        const row = document.createElement("div");
+        row.className = "reset-row";
+
+        const label = document.createElement("label");
+        label.htmlFor = inputId;
+        label.textContent = r.label;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.id = inputId;
+        input.placeholder = "Type RESET";
+        input.autocomplete = "off";
+        input.oninput = () => onResetConfirmInput(inputId, btnId);
+
+        const btn = document.createElement("button");
+        btn.id = btnId;
+        btn.className = "danger-btn";
+        btn.textContent = "Reset";
+        btn.disabled = true;
+        btn.onclick = () => safe(() => resetTable(r.path, inputId, btnId));
+
+        row.append(label, input, btn);
+        container.appendChild(row);
+    }
+}

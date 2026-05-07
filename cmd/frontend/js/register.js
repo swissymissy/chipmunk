@@ -3,32 +3,18 @@ document.addEventListener("DOMContentLoaded", () => {
     safe(loadSpecialties);
     document.getElementById("register-form").addEventListener("submit", e => {
         e.preventDefault();
-        safe(handleRegister);
+        submitForm(e.target, handleRegister);
     });
 });
 
 async function loadCourses() {
     const courses = await api("GET", "/api/courses");
-    const select = document.getElementById("course");
-    select.innerHTML = '<option value="">-- Select a course --</option>';
-    for (const c of courses) {
-        const opt = document.createElement("option");
-        opt.value = c.course_id;
-        opt.textContent = c.course_name + " — " + c.section_date + " " + c.start_time;
-        select.appendChild(opt);
-    }
+    fillDropdown("course", courses, c => c.course_id, courseLabel, "-- Select a course --");
 }
 
 async function loadSpecialties() {
     const specialties = await api("GET", "/api/specialties");
-    const select = document.getElementById("specialty");
-    select.innerHTML = '<option value="">-- Select your major --</option>';
-    for (const s of specialties) {
-        const opt = document.createElement("option");
-        opt.value = s.specialty_name;
-        opt.textContent = s.specialty_name;
-        select.appendChild(opt);
-    }
+    fillDropdown("specialty", specialties, s => s.specialty_name, s => s.specialty_name, "-- Select your major --");
 }
 
 async function handleRegister() {

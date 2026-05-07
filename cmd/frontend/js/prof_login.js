@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("login-form").addEventListener("submit", e => {
         e.preventDefault();
-        safe(handleLogin);
+        submitForm(e.target, handleLogin);
     });
 });
 
