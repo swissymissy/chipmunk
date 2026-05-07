@@ -5,119 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chipmunk - Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
-    <h1>Chipmunk Dashboard</h1>
+<div class="layout">
 
-    <!-- tab button -->
-    <div class="tabs">
+    <aside class="sidebar">
+        <h1>Chipmunk</h1>
         <button class="tab-btn active" onclick="showTab('courses', this)">Courses</button>
         <button class="tab-btn" onclick="showTab('session', this)">Sessions</button>
         <button class="tab-btn" onclick="showTab('attendance', this)">Attendance</button>
         <button class="tab-btn" onclick="showTab('roster', this)">Roster</button>
         <button class="tab-btn" onclick="showTab('export', this)">Export</button>
-    </div>
+        <button class="logout-btn" onclick="logout()">Log out</button>
+    </aside>
 
-    <!-- courses/specialty tab -->
-    <div id="tab-courses" class="tab-content">
-        <h2>Courses/Specialties</h2>
-        <div id="course-list"></div>
+    <main class="content">
 
-        <h3>Add Course</h3>
-        <form id="create-course-form">
-            <label for="course-name">Course Name</label>
-            <input type="text" id="course-name" required>
+        <!-- courses/specialty tab -->
+        <div id="tab-courses" class="tab-content">
+            <h2>Courses & Specialties</h2>
+            <div class="grid-2col">
+                <section>
+                    <h3>Courses</h3>
+                    <div id="course-list"></div>
 
-            <label for="course-day">Day of Week</label>
-            <input type="text" id="course-day" placeholder="e.g. Monday, Wednesday" required>
+                    <h3>Add Course</h3>
+                    <form id="create-course-form">
+                        <label for="course-name">Course Name</label>
+                        <input type="text" id="course-name" required>
 
-            <label for="course-time">Start Time</label>
-            <input type="text" id="course-time" placeholder="e.g. 9AM, 11AM" required>
+                        <label for="course-day">Day of Week</label>
+                        <input type="text" id="course-day" placeholder="e.g. Monday, Wednesday" required>
 
-            <button type="submit">Create Course</button>
-        </form>
+                        <label for="course-time">Start Time</label>
+                        <input type="text" id="course-time" placeholder="e.g. 9AM, 11AM" required>
 
-        <h3>Specialties</h3>
-        <div id="specialty-list"></div>
-        <form id="create-specialty-form">
-            <label for="specialty-name">Specialty Name</label>
-            <input type="text" id="specialty-name" required>
-            <button type="submit">Add Specialty</button>
-        </form>
-    </div>
+                        <button type="submit">Create Course</button>
+                    </form>
+                </section>
 
-    <!-- Session tab -->
-    <div id="tab-session" class="tab-content" style="display: none;">
-        <h2>Attendance Session</h2>
+                <section>
+                    <h3>Specialties</h3>
+                    <div id="specialty-list"></div>
 
-        <div id="no-active-session">
-            <label for="session-course">Select Course</label>
-            <select id="session-course">
+                    <h3>Add Specialty</h3>
+                    <form id="create-specialty-form">
+                        <label for="specialty-name">Specialty Name</label>
+                        <input type="text" id="specialty-name" required>
+                        <button type="submit">Add Specialty</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+
+        <!-- Session tab -->
+        <div id="tab-session" class="tab-content" style="display: none;">
+            <h2>Attendance Session</h2>
+
+            <div id="no-active-session">
+                <label for="session-course">Select Course</label>
+                <select id="session-course">
+                    <option value="">-- Select a course --</option>
+                </select>
+                <button id="start-session-btn" onclick="startSession()">Start Session</button>
+            </div>
+
+            <div id="active-session" style="display: none;">
+                <h3 id="session-info"></h3>
+                <div id="qr-container"></div>
+                <p id="attendance-count"></p>
+                <button onclick="safe(closeSession)">Close Session</button>
+            </div>
+        </div>
+
+        <!-- attendance tab -->
+        <div id="tab-attendance" class="tab-content" style="display: none;">
+            <h2>Attendance</h2>
+            <div id="attendance-empty" style="display: none;">
+                No active sessions. Start one in the Sessions tab.
+            </div>
+            <div id="attendance-controls" style="display: none;">
+                <label for="attendance-session">Session</label>
+                <select id="attendance-session" onchange="onAttendanceSessionChange()"></select>
+            </div>
+            <div id="attendance-list"></div>
+            <div id="attendance-msg"></div>
+        </div>
+
+        <!-- roster tab -->
+        <div id="tab-roster" class="tab-content" style="display: none;">
+            <h2>Course Roster</h2>
+            <label for="roster-course">Select Course</label>
+            <select id="roster-course">
                 <option value="">-- Select a course --</option>
             </select>
-            <button id="start-session-btn" onclick="startSession()">Start Session</button>
+            <button onclick="loadRoster()">View Roster</button>
+            <div id="roster-list"></div>
         </div>
 
-        <div id="active-session" style="display: none;">
-            <h3 id="session-info"></h3>
-            <div id="qr-container"></div>
-            <p id="attendance-count"></p>
-            <button onclick="safe(closeSession)">Close Session</button>
+        <!-- Export tab -->
+        <div id="tab-export" class="tab-content" style="display: none;">
+            <h2>Export Records</h2>
+
+            <h3>Semester Report</h3>
+            <label for="export-course">Course</label>
+            <select id="export-course">
+                <option value="">-- Select a course --</option>
+            </select>
+
+            <label for="export-from">From (optional)</label>
+            <input type="date" id="export-from">
+
+            <label for="export-to">To (optional)</label>
+            <input type="date" id="export-to">
+            <button onclick="exportSemester()">Download Semester Report</button>
+
+            <h3>Daily Report</h3>
+            <label for="export-date">Date</label>
+            <input type="date" id="export-date">
+            <button onclick="exportDaily()">Download Daily Report</button>
         </div>
-    </div>
 
-    <!-- attendance tab -->
-    <div id="tab-attendance" class="tab-content" style="display: none;">
-        <h2>Attendance</h2>
-        <div id="attendance-empty" style="display: none;">
-            No active sessions. Start one in the Sessions tab.
-        </div>
-        <div id="attendance-controls" style="display: none;">
-            <label for="attendance-session">Session</label>
-            <select id="attendance-session" onchange="onAttendanceSessionChange()"></select>
-        </div>
-        <div id="attendance-list"></div>
-        <div id="attendance-msg"></div>
-    </div>
+    </main>
 
-    <!-- roster tab -->
-    <div id="tab-roster" class="tab-content" style="display: none;">
-        <h2>Course Roster</h2>
-        <label for="roster-course">Select Course</label>
-        <select id="roster-course">
-            <option value="">-- Select a course --</option>
-        </select>
-        <button onclick="loadRoster()">View Roster</button>
-        <div id="roster-list"></div>
-    </div>
+</div>
 
-    <!-- Export tab -->
-    <div id="tab-export" class="tab-content" style="display: none;">
-        <h2>Export Records</h2>
+<div id="dashboard-msg"></div>
 
-        <h3>Semester Report</h3>
-        <label for="export-course">Course</label>
-        <select id="export-course">
-            <option value="">-- Select a course --</option>
-        </select>
-
-        <label for="export-from">From (optional)</label>
-        <input type="date" id="export-from">
-
-        <label for="export-to">To (optional)</label>
-        <input type="date" id="export-to">
-        <button onclick="exportSemester()">Download Semester Report</button>
-
-        <h3>Daily Report</h3>
-        <label for="export-date">Date</label>
-        <input type="date" id="export-date">
-        <button onclick="exportDaily()">Download Daily Report</button>
-    </div>
-
-    <div id="dashboard-msg"></div>
-
-    <script src="/js/api.js"></script>
-    <script src="/js/dashboard.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
 </body>
 </html>
