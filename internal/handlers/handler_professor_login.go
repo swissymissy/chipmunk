@@ -25,14 +25,18 @@ func (cfg *ApiConfig) HandlerProfessorLogin(w http.ResponseWriter, r *http.Reque
 	}
 
 	if cfg.ProfessorPasswordHash == "" {
-		log.Printf("PROFESS_PASSWORD_HASH not set")
+		log.Printf("PROFESSOR_PASSWORD_HASH not set")
 		ResponseWithError(w, http.StatusInternalServerError, "server not configured")
 		return
 	}
 
 	match, err := auth.CheckPasswordHash(req.Password, cfg.ProfessorPasswordHash)
-	if err != nil || !match {
-		ResponseWithError(w, http.StatusUnauthorized, "unauthorized")
+	if err != nil {
+		log.Printf("password check error: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "something went wrong")
+	} 
+	if !match {
+		ResponseWithError(w, http.StatusUnauthorized, "incorrect password")
 		return
 	}
 

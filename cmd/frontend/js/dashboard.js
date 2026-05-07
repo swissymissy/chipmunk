@@ -1,6 +1,17 @@
 let currentSessionID = null;
 let qrInterval = null;
 
+const professorToken = localStorage.getItem("professor_token");
+if (!professorToken) {
+    window.location.href = "/prof_login.html";
+}
+setAuthToken(professorToken);
+
+function logout() {
+    localStorage.removeItem("professor_token");
+    window.location.href = "/prof_login.html";
+}
+
 function buildTable(headers, rows) {
     const table = document.createElement("table");
     const thead = document.createElement("tr");
