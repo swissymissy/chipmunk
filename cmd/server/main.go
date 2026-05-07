@@ -102,6 +102,7 @@ func main() {
 	// students - auth required
 	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))             // student enroll in a course
 	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT)) // students check in
+	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))     // show list of all courses student has enrolled in
 
 	// reset - only dev or prof
 	mux.HandleFunc("DELETE /api/reset/students", middleware.LocalOnly(cfg.HandlerResetStudents))       // reset students table
