@@ -18,6 +18,7 @@
         <button class="tab-btn" onclick="showTab('attendance', this)">Attendance</button>
         <button class="tab-btn" onclick="showTab('roster', this)">Roster</button>
         <button class="tab-btn" onclick="showTab('export', this)">Export</button>
+        <button class="tab-btn" onclick="showTab('settings', this)">Settings</button>
         <button class="logout-btn" onclick="logout()">Log out</button>
     </aside>
 
@@ -126,6 +127,30 @@
             <label for="export-date">Date</label>
             <input type="date" id="export-date">
             <button onclick="exportDaily()">Download Daily Report</button>
+        </div>
+
+        <!-- Settings tab -->
+        <div id="tab-settings" class="tab-content" style="display: none;">
+            <h2>Settings</h2>
+
+            <section class="danger-zone">
+                <h3>Reset for new semester</h3>
+                <p class="danger-note">
+                    Wipes attendance records, sessions, enrollments, courses, and students.
+                    Specialties are kept. <strong>All students will need to register again.</strong>
+                </p>
+                <label for="reset-all-confirm">Type <code>RESET</code> to enable the button</label>
+                <input type="text" id="reset-all-confirm" autocomplete="off"
+                    oninput="onResetConfirmInput('reset-all-confirm', 'reset-all-btn')">
+                <button id="reset-all-btn" class="danger-btn" disabled
+                    onclick="safe(() => resetAll())">Reset for new semester</button>
+            </section>
+
+            <details class="advanced-resets">
+                <summary>Individual table resets</summary>
+                <p class="danger-note">For finer control. Each requires its own confirmation.</p>
+                <div id="individual-resets"></div>
+            </details>
         </div>
 
     </main>

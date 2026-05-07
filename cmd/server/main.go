@@ -104,14 +104,14 @@ func main() {
 	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT)) // students check in
 	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))     // show list of all courses student has enrolled in
 
-	// reset - only dev or prof
-	mux.HandleFunc("DELETE /api/reset/students", middleware.LocalOnly(cfg.HandlerResetStudents))       // reset students table
-	mux.HandleFunc("DELETE /api/reset/courses", middleware.LocalOnly(cfg.HandlerResetCourses))         // reset courses table
-	mux.HandleFunc("DELETE /api/reset/enrollments", middleware.LocalOnly(cfg.HandlerResetEnrollments)) // reset enrollments table
-	mux.HandleFunc("DELETE /api/reset/sessions", middleware.LocalOnly(cfg.HandlerResetSessions))       // reset attendance sessions table
-	mux.HandleFunc("DELETE /api/reset/records", middleware.LocalOnly(cfg.HandlerResetRecords))         // reset attendance records table
-	mux.HandleFunc("DELETE /api/reset/all", middleware.LocalOnly(cfg.HandlerResetAll))                 // reset all tables in correct order
-	mux.HandleFunc("DELETE /api/reset/specialties", middleware.LocalOnly(cfg.HandlerResetSpecialty))   // reset table specialties
+	// reset - prof only (handlers also gate on PLATFORM env)
+	mux.HandleFunc("DELETE /api/reset/students", middleware.RequireProfessor(cfg.HandlerResetStudents, cfg.JWT))       // reset students table
+	mux.HandleFunc("DELETE /api/reset/courses", middleware.RequireProfessor(cfg.HandlerResetCourses, cfg.JWT))         // reset courses table
+	mux.HandleFunc("DELETE /api/reset/enrollments", middleware.RequireProfessor(cfg.HandlerResetEnrollments, cfg.JWT)) // reset enrollments table
+	mux.HandleFunc("DELETE /api/reset/sessions", middleware.RequireProfessor(cfg.HandlerResetSessions, cfg.JWT))       // reset attendance sessions table
+	mux.HandleFunc("DELETE /api/reset/records", middleware.RequireProfessor(cfg.HandlerResetRecords, cfg.JWT))         // reset attendance records table
+	mux.HandleFunc("DELETE /api/reset/all", middleware.RequireProfessor(cfg.HandlerResetAll, cfg.JWT))                 // reset all tables in correct order
+	mux.HandleFunc("DELETE /api/reset/specialties", middleware.RequireProfessor(cfg.HandlerResetSpecialty, cfg.JWT))   // reset table specialties
 
 	// run server in background
 	go func() {
