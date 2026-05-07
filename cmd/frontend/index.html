@@ -12,10 +12,11 @@
 
     <!-- tab button -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('courses')">Courses</button>
-        <button class="tab-btn" onclick="showTab('session')">Sessions</button>
-        <button class="tab-btn" onclick="showTab('roster')">Roster</button>
-        <button class="tab-btn" onclick="showTab('export')">Export</button>
+        <button class="tab-btn active" onclick="showTab('courses', this)">Courses</button>
+        <button class="tab-btn" onclick="showTab('session', this)">Sessions</button>
+        <button class="tab-btn" onclick="showTab('attendance', this)">Attendance</button>
+        <button class="tab-btn" onclick="showTab('roster', this)">Roster</button>
+        <button class="tab-btn" onclick="showTab('export', this)">Export</button>
     </div>
 
     <!-- courses/specialty tab -->
@@ -62,8 +63,22 @@
             <h3 id="session-info"></h3>
             <div id="qr-container"></div>
             <p id="attendance-count"></p>
-            <button onclick="closeSession()">Close Session</button>
+            <button onclick="safe(closeSession)">Close Session</button>
         </div>
+    </div>
+
+    <!-- attendance tab -->
+    <div id="tab-attendance" class="tab-content" style="display: none;">
+        <h2>Attendance</h2>
+        <div id="attendance-empty" style="display: none;">
+            No active sessions. Start one in the Sessions tab.
+        </div>
+        <div id="attendance-controls" style="display: none;">
+            <label for="attendance-session">Session</label>
+            <select id="attendance-session" onchange="onAttendanceSessionChange()"></select>
+        </div>
+        <div id="attendance-list"></div>
+        <div id="attendance-msg"></div>
     </div>
 
     <!-- roster tab -->
