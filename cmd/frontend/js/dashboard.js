@@ -10,8 +10,7 @@ if (!professorToken) {
 setAuthToken(professorToken);
 
 function logout() {
-    localStorage.removeItem("professor_token");
-    window.location.href = "/prof_login.html";
+    clearProfessorAuth();
 }
 
 function buildTable(headers, rows) {
@@ -34,23 +33,6 @@ function buildTable(headers, rows) {
         table.appendChild(tr);
     }
     return table;
-}
-
-function fillDropdown(selectId, items, valueFn, labelFn) {
-    const select = document.getElementById(selectId);
-    const current = select.value;
-    select.innerHTML = '<option value="">-- Select --</option>';
-    for (const item of items) {
-        const opt = document.createElement("option");
-        opt.value = valueFn(item);
-        opt.textContent = labelFn(item);
-        select.appendChild(opt);
-    }
-    if (current) select.value = current;
-}
-
-function courseLabel(c) {
-    return c.course_name + " — " + c.section_date + " " + c.start_time;
 }
 
 function fillCourseDropdowns(courses) {
@@ -78,11 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("create-course-form").addEventListener("submit", e => {
         e.preventDefault();
-        safe(createCourse);
+        submitForm(e.target, createCourse);
     });
     document.getElementById("create-specialty-form").addEventListener("submit", e => {
         e.preventDefault();
-        safe(createSpecialty);
+        submitForm(e.target, createSpecialty);
     });
 });
 
@@ -259,8 +241,7 @@ async function downloadFile(url, fallbackName) {
         headers: token ? { Authorization: "Bearer " + token } : {},
     });
     if (res.status === 401) {
-        localStorage.removeItem("professor_token");
-        window.location.href = "/prof_login.html";
+        clearProfessorAuth();
         return;
     }
     if (!res.ok) throw new Error("Download failed (" + res.status + ")");

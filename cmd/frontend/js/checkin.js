@@ -77,20 +77,13 @@ async function loadMyCourses() {
         list.innerHTML = "";
         for (const c of enrolled) {
             const li = document.createElement("li");
-            li.textContent = c.course_name + " — " + c.section_date + " " + c.start_time;
+            li.textContent = courseLabel(c);
             list.appendChild(li);
         }
 
         const enrolledIds = new Set(enrolled.map(c => c.course_id));
-        const select = document.getElementById("add-course");
-        select.innerHTML = '<option value="">-- Select a course --</option>';
-        for (const c of all) {
-            if (enrolledIds.has(c.course_id)) continue;
-            const opt = document.createElement("option");
-            opt.value = c.course_id;
-            opt.textContent = c.course_name + " — " + c.section_date + " " + c.start_time;
-            select.appendChild(opt);
-        }
+        const available = all.filter(c => !enrolledIds.has(c.course_id));
+        fillDropdown("add-course", available, c => c.course_id, courseLabel, "-- Select a course --");
     } catch (err) {
         document.getElementById("enrolled-list").innerHTML =
             "<li>Couldn't load courses: " + err.message + "</li>";
