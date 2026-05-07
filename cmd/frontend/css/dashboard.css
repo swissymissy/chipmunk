@@ -1,0 +1,159 @@
+/* Dashboard-only styles. Linked AFTER style.css so these win on conflict. */
+
+/* Override style.css's mobile-first body */
+body {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    color: #111;
+}
+
+/* === Layout: sidebar + content === */
+.layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+}
+
+.sidebar {
+    background: #1f2937;
+    color: #d1d5db;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar h1 {
+    font-size: 18px;
+    margin: 0 4px 16px 4px;
+    color: #fff;
+}
+
+.sidebar .tab-btn {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color: #d1d5db;
+    border: none;
+    padding: 10px 12px;
+    margin: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+}
+.sidebar .tab-btn:hover {
+    background: #374151;
+    color: #fff;
+}
+.sidebar .tab-btn.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+.sidebar .logout-btn {
+    margin-top: auto;
+    background: transparent;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.sidebar .logout-btn:hover { background: #374151; color: #fff; }
+
+.content {
+    padding: 24px 32px;
+    max-width: 1400px;
+}
+
+.tab-content h2 { margin-top: 0; }
+
+/* === Courses tab: 2-column split === */
+.grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+/* === Tables === */
+.content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px 0;
+    background: #fff;
+}
+.content th,
+.content td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.content th {
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+/* Buttons inside tables shouldn't be full-width like form buttons */
+.content table button {
+    width: auto;
+    padding: 6px 12px;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Buttons in the specialty list (delete) shouldn't be full-width either */
+#specialty-list button { width: auto; }
+
+/* Form inputs/selects keep style.css's 100% width — fine for the wide dashboard */
+/* But cap the width on isolated controls so they don't stretch absurdly */
+#attendance-controls select,
+#session-course,
+#roster-course,
+#export-course,
+#export-from, #export-to, #export-date {
+    max-width: 360px;
+}
+#start-session-btn,
+#tab-roster button,
+#tab-export button,
+#tab-session button {
+    max-width: 360px;
+}
+
+/* === Toast === */
+#dashboard-msg {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1f2937;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 4px;
+    max-width: 320px;
+    z-index: 1000;
+}
+#dashboard-msg:empty { display: none; }
+
+/* === Responsive: collapse to top nav under 768px === */
+@media (max-width: 768px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+    .sidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .sidebar h1 { width: 100%; }
+    .sidebar .logout-btn {
+        margin-top: 0;
+        margin-left: auto;
+    }
+    .grid-2col {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .content { padding: 16px; }
+}

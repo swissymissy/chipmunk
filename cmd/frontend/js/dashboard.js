@@ -1,5 +1,7 @@
 let currentSessionID = null;
 let qrInterval = null;
+let currentAttendanceSessionID = null;
+let attendanceInterval = null;
 
 const professorToken = localStorage.getItem("professor_token");
 if (!professorToken) {
@@ -25,7 +27,8 @@ function buildTable(headers, rows) {
         const tr = document.createElement("tr");
         for (const val of row) {
             const td = document.createElement("td");
-            td.textContent = val;
+            if (val instanceof Node) td.appendChild(val);
+            else td.textContent = val;
             tr.appendChild(td);
         }
         table.appendChild(tr);
@@ -33,8 +36,7 @@ function buildTable(headers, rows) {
     return table;
 }
 
-async function populateDropdown(selectId, url, valueFn, labelFn) {
-    const items = await api("GET", url);
+function fillDropdown(selectId, items, valueFn, labelFn) {
     const select = document.getElementById(selectId);
     const current = select.value;
     select.innerHTML = '<option value="">-- Select --</option>';
@@ -51,11 +53,15 @@ function courseLabel(c) {
     return c.course_name + " — " + c.section_date + " " + c.start_time;
 }
 
-function refreshAllDropdowns() {
-    const ids = ["session-course", "roster-course", "export-course"];
-    for (const id of ids) {
-        populateDropdown(id, "/api/courses", c => c.course_id, courseLabel);
+function fillCourseDropdowns(courses) {
+    for (const id of ["session-course", "roster-course", "export-course"]) {
+        fillDropdown(id, courses, c => c.course_id, courseLabel);
     }
+}
+
+async function refreshAllDropdowns() {
+    const courses = await api("GET", "/api/courses");
+    fillCourseDropdowns(courses);
 }
 
 function showMsg(msg) {
@@ -84,10 +90,7 @@ function enterActiveSessionUI(session) {
     currentSessionID = session.session_id;
     document.getElementById("no-active-session").style.display = "none";
     document.getElementById("active-session").style.display = "block";
-    const label = session.course_name
-        ? session.session_date + " (" + session.course_name + ")"
-        : session.session_date;
-    document.getElementById("session-info").textContent = "Session active — " + label;
+    document.getElementById("session-info").textContent = "Session active — " + session.session_date;
     safe(refreshQR);
     qrInterval = setInterval(() => safe(refreshQR), 13000);
 }
@@ -106,7 +109,21 @@ function showTab(tabName, btn) {
     document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
     document.getElementById("tab-" + tabName).style.display = "block";
     btn.classList.add("active");
+
+    // stop attendance polling if leaving
+    if (attendanceInterval) {
+        clearInterval(attendanceInterval);
+        attendanceInterval = null;
+    }
+
     if (["session", "roster", "export"].includes(tabName)) refreshAllDropdowns();
+
+    if (tabName === "attendance") {
+        loadAttendance();
+        attendanceInterval = setInterval(() => {
+            if (currentAttendanceSessionID) loadAttendanceRoster(currentAttendanceSessionID);
+        }, 5000);
+    }
 }
 
 // === Courses ===
@@ -119,7 +136,7 @@ async function loadCourses() {
         ["Name", "Day", "Time"],
         courses.map(c => [c.course_name, c.section_date, c.start_time])
     ));
-    refreshAllDropdowns();
+    fillCourseDropdowns(courses);
 }
 
 async function createCourse() {
@@ -218,6 +235,8 @@ async function loadRoster() {
 }
 
 // === Export ===
+// Exports use fetch + blob (not navigation) so the JWT travels in the
+// Authorization header. window.location.href would skip the header entirely.
 function exportSemester() {
     const courseID = document.getElementById("export-course").value;
     if (!courseID) { showMsg("Please select a course"); return; }
@@ -225,13 +244,160 @@ function exportSemester() {
     const from = document.getElementById("export-from").value;
     const to = document.getElementById("export-to").value;
     if (from && to) url += "?from=" + from + "&to=" + to;
-    window.location.href = url;
+    safe(() => downloadFile(url, "semester_report.xlsx"));
 }
 
 function exportDaily() {
     const date = document.getElementById("export-date").value;
     if (!date) { showMsg("Please select a date"); return; }
-    window.location.href = "/api/export/daily/" + date;
+    safe(() => downloadFile("/api/export/daily/" + date, date + "_report.xlsx"));
+}
+
+async function downloadFile(url, fallbackName) {
+    const token = localStorage.getItem("professor_token");
+    const res = await fetch(url, {
+        headers: token ? { Authorization: "Bearer " + token } : {},
+    });
+    if (res.status === 401) {
+        localStorage.removeItem("professor_token");
+        window.location.href = "/prof_login.html";
+        return;
+    }
+    if (!res.ok) throw new Error("Download failed (" + res.status + ")");
+
+    // server already sets Content-Disposition; read the filename from there
+    let filename = fallbackName;
+    const cd = res.headers.get("Content-Disposition");
+    if (cd) {
+        const m = cd.match(/filename="?([^"]+)"?/);
+        if (m) filename = m[1];
+    }
+
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
 }
 
 setErrorHandler(showMsg);
+
+// runs when Attendance tab is opened
+// fetches active sessions + course names in parallel
+// populate the pickers, then load the rosters
+async function loadAttendance() {
+    try {
+        const [sessions, courses] = await Promise.all([
+            api("GET", "/api/sessions/active"),
+            api("GET", "/api/courses"),
+        ]);
+
+        const empty = document.getElementById("attendance-empty");
+        const controls = document.getElementById("attendance-controls");
+        const list = document.getElementById("attendance-list");
+
+        if (sessions.length === 0) {
+            empty.style.display = "block";
+            controls.style.display = "none";
+            list.innerHTML = "";
+            currentAttendanceSessionID = null;
+            return;
+        }
+        empty.style.display = "none";
+
+        const courseName = new Map(courses.map(c => [c.course_id, c.course_name]));
+
+        const select = document.getElementById("attendance-session");
+        select.innerHTML = "";
+        for (const s of sessions) {
+            const opt = document.createElement("option");
+            opt.value = s.session_id;
+            opt.textContent = (courseName.get(s.course_id) || s.course_id) + " — " + s.session_date;
+            select.appendChild(opt);
+        }
+
+        controls.style.display = sessions.length > 1 ? "block" : "none";
+
+        // keep prior selection if still active, else default to first
+        const prev = currentAttendanceSessionID;
+        const ids = new Set(sessions.map(s => s.session_id));
+        currentAttendanceSessionID = (prev && ids.has(prev)) ? prev : sessions[0].session_id;
+        select.value = String(currentAttendanceSessionID);
+
+        await loadAttendanceRoster(currentAttendanceSessionID);
+    } catch (err) {
+        const msgEl = document.getElementById("attendance-msg");
+        msgEl.style.color = "";
+        msgEl.textContent = err.message;
+    }
+}
+
+// fired by the picker when prof changes selection
+function onAttendanceSessionChange() {
+    currentAttendanceSessionID = parseInt(document.getElementById("attendance-session").value);
+    loadAttendanceRoster(currentAttendanceSessionID);
+}
+
+// fetches the attendance roster for a session and renders the table.
+// "Mark Present" button only appears for absent rows.
+// uses local try/catch (not safe()) so errors stay in attendance-msg
+// instead of replacing the whole tab via the global error handler.
+async function loadAttendanceRoster(sessionID) {
+    if (!sessionID) return;
+    const msgEl = document.getElementById("attendance-msg");
+    try {
+        const rows = await api("GET", "/api/attendance/" + sessionID);
+        const list = document.getElementById("attendance-list");
+        list.innerHTML = "";
+        if (rows.length === 0) {
+            list.textContent = "No students enrolled.";
+            return;
+        }
+
+        const tableRows = rows.map(r => {
+            let action;
+            if (r.status === "absent") {
+                action = document.createElement("button");
+                action.textContent = "Mark Present";
+                action.onclick = () => markPresent(r.student_id, r.session_id);
+            } else {
+                action = "—";
+            }
+            return [
+                r.student_school_id,
+                r.first_name + " " + r.last_name,
+                r.status,
+                r.checkin_at || "—",
+                action,
+            ];
+        });
+
+        list.appendChild(buildTable(
+            ["Student ID", "Name", "Status", "Checked-in at", "Action"],
+            tableRows,
+        ));
+    } catch (err) {
+        msgEl.style.color = "";
+        msgEl.textContent = err.message;
+    }
+}
+
+// mark as 'present'
+// POST to override then re-render
+async function markPresent(studentID, sessionID) {
+    const msgEl = document.getElementById("attendance-msg");
+    msgEl.style.color = "";
+    msgEl.textContent = "";
+    try {
+        await api("PUT", "/api/attendance/override", { student_id: studentID, session_id: sessionID });
+        await loadAttendanceRoster(currentAttendanceSessionID);
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    }
+}
+
