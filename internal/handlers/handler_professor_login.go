@@ -34,7 +34,7 @@ func (cfg *ApiConfig) HandlerProfessorLogin(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		log.Printf("password check error: %s\n", err)
 		ResponseWithError(w, http.StatusInternalServerError, "something went wrong")
-	} 
+	}
 	if !match {
 		ResponseWithError(w, http.StatusUnauthorized, "incorrect password")
 		return

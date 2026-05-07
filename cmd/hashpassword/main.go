@@ -18,6 +18,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Copy and paste this hash to PROFESSOR_PASSWORD_HASH in .env file: %s\n",hash)
+	fmt.Printf("Copy and paste this hash to PROFESSOR_PASSWORD_HASH in .env file: %s\n", hash)
 }
-
