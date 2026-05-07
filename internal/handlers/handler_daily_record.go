@@ -89,7 +89,7 @@ func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Re
 				r.FirstName,
 				r.LastName,
 				r.Status,
-				r.CheckInAt.String,
+				LocalizeSQLiteTime(r.CheckInAt.String),
 				r.CourseName,
 				r.StartTime,
 			})
