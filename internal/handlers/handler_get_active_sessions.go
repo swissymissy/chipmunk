@@ -23,7 +23,7 @@ func (cfg *ApiConfig) HandlerListActiveSession(w http.ResponseWriter, r *http.Re
 			CourseID:    s.CourseID,
 			SessionDate: s.SessionDate,
 			Status:      s.Status,
-			StartedAt:   s.StartedAt,
+			StartedAt:   LocalizeSQLiteTime(s.StartedAt),
 		})
 	}
 	ResponseWithJSON(w, http.StatusOK, list)

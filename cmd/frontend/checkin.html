@@ -33,8 +33,20 @@
 
     <!-- Success -->
     <div id="success-section" style="display: none;">
-        <h2>You've checked in!</h2>
+        <h2 id="success-greeting"></h2>
         <p id="checkin-time"></p>
+
+        <hr>
+        
+        <h3>Your Courses</h3>
+        <ul id="enrolled-list"></ul>
+
+        <h3>Add a Course</h3>
+        <select id="add-course">
+            <option value="">-- Select a course --</option>
+        </select>
+        <button id="add-course-btn" onclick="addCourse()">Add Course</button>
+        <div id="add-course-msg"></div>
     </div>
 
     <!-- Error -->

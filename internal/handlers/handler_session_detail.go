@@ -42,7 +42,7 @@ func (cfg *ApiConfig) HandlerSessionDetail(w http.ResponseWriter, r *http.Reques
 		CourseID:    session.CourseID,
 		SessionDate: session.SessionDate,
 		Status:      session.Status,
-		StartedAt:   session.StartedAt,
-		EndedAt:     session.EndedAt.String,
+		StartedAt:   LocalizeSQLiteTime(session.StartedAt),
+		EndedAt:     LocalizeSQLiteTime(session.EndedAt.String),
 	})
 }

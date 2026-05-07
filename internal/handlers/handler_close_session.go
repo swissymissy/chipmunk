@@ -36,8 +36,8 @@ func (cfg *ApiConfig) HandlerCloseSession(w http.ResponseWriter, r *http.Request
 		CourseID:    session.CourseID,
 		SessionDate: session.SessionDate,
 		Status:      session.Status,
-		StartedAt:   session.StartedAt,
-		EndedAt:     session.EndedAt.String,
+		StartedAt:   LocalizeSQLiteTime(session.StartedAt),
+		EndedAt:     LocalizeSQLiteTime(session.EndedAt.String),
 	})
 
 }

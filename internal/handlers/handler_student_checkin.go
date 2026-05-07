@@ -120,6 +120,6 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 	// response
 	ResponseWithJSON(w, http.StatusOK, StudentCheckInRep{
 		Status:    checkin.Status,
-		CheckInAt: checkin.CheckInAt.String,
+		CheckInAt: LocalizeSQLiteTime(checkin.CheckInAt.String),
 	})
 }

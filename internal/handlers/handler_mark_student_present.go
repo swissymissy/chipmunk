@@ -44,6 +44,6 @@ func (cfg *ApiConfig) HandlerMarkStudentPresent(w http.ResponseWriter, r *http.R
 		SessionID: student.SessionID,
 		StudentID: student.StudentID,
 		Status:    student.Status,
-		CheckInAt: student.CheckInAt.String,
+		CheckInAt: LocalizeSQLiteTime(student.CheckInAt.String),
 	})
 }

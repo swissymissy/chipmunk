@@ -49,6 +49,6 @@ func (cfg *ApiConfig) HandlerReopenSession(w http.ResponseWriter, r *http.Reques
 		CourseID:    session.CourseID,
 		SessionDate: session.SessionDate,
 		Status:      session.Status,
-		StartedAt:   session.StartedAt,
+		StartedAt:   LocalizeSQLiteTime(session.StartedAt),
 	})
 }

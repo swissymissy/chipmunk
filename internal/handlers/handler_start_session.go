@@ -75,6 +75,6 @@ func (cfg *ApiConfig) HandlerStartSession(w http.ResponseWriter, r *http.Request
 		CourseID:    session.CourseID,
 		SessionDate: session.SessionDate,
 		Status:      session.Status,
-		StartedAt:   session.StartedAt,
+		StartedAt:   LocalizeSQLiteTime(session.StartedAt),
 	})
 }

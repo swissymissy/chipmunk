@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"time"
 )
 
 // helper function to wrap string to NullString
@@ -17,4 +18,17 @@ func ToNullFloat(f float64) sql.NullFloat64 {
 		Float64: f,
 		Valid:   true,
 	}
+}
+
+// convert a SQLite "YYYY-MM-DD HH:MM:SS" UTC timestamp into the server's local time.
+// returns the input unchanged if empty or unparseable.
+func LocalizeSQLiteTime(s string) string {
+	if s == "" {
+		return ""
+	}
+	t, err := time.Parse("2006-01-02 15:04:05", s)
+	if err != nil {
+		return s
+	}
+	return t.In(time.Local).Format("2006-01-02 15:04:05")
 }

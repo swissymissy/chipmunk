@@ -43,7 +43,7 @@ func (cfg *ApiConfig) HandlerAttendanceBySession(w http.ResponseWriter, r *http.
 			SessionID:  s.SessionID,
 			StudentID:  s.StudentID,
 			Status:     s.Status,
-			CheckInAt:  s.CheckInAt.String,
+			CheckInAt:  LocalizeSQLiteTime(s.CheckInAt.String),
 			FirstName:  s.FirstName,
 			LastName:   s.LastName,
 			StudentID2: s.StudentID_2,
