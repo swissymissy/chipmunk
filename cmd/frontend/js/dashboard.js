@@ -72,7 +72,7 @@ function enterActiveSessionUI(session) {
     currentSessionID = session.session_id;
     document.getElementById("no-active-session").style.display = "none";
     document.getElementById("active-session").style.display = "block";
-    document.getElementById("session-info").textContent = "Session active — " + session.session_date;
+    document.getElementById("session-info").textContent = "Session active — " + session.started_at;
     safe(refreshQR);
     qrInterval = setInterval(() => safe(refreshQR), 13000);
 }

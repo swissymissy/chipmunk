@@ -11,19 +11,20 @@ import (
 )
 
 const createStudent = `-- name: CreateStudent :one
-INSERT INTO students (id, student_id, email, password_hash, first_name, last_name, verified, specialty)
-VALUES (?,?,?,?,?,?, 1 ,?)
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at
+INSERT INTO students (id, student_id, email, password_hash, first_name, last_name, verified, specialty, registered_fingerprint)
+VALUES (?,?,?,?,?,?, 1 ,?, ?)
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
 `
 
 type CreateStudentParams struct {
-	ID           string
-	StudentID    string
-	Email        string
-	PasswordHash sql.NullString
-	FirstName    string
-	LastName     string
-	Specialty    sql.NullString
+	ID                    string
+	StudentID             string
+	Email                 string
+	PasswordHash          sql.NullString
+	FirstName             string
+	LastName              string
+	Specialty             sql.NullString
+	RegisteredFingerprint sql.NullString
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -35,6 +36,7 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		arg.FirstName,
 		arg.LastName,
 		arg.Specialty,
+		arg.RegisteredFingerprint,
 	)
 	var i Student
 	err := row.Scan(
@@ -48,6 +50,7 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		&i.Specialty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
 	)
 	return i, err
 }
@@ -63,7 +66,7 @@ func (q *Queries) DeleteStudent(ctx context.Context, id string) error {
 }
 
 const getByID = `-- name: GetByID :one
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
 WHERE id = ?
 `
 
@@ -81,12 +84,13 @@ func (q *Queries) GetByID(ctx context.Context, id string) (Student, error) {
 		&i.Specialty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
 	)
 	return i, err
 }
 
 const getStudentByEmail = `-- name: GetStudentByEmail :one
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
 WHERE email = ?
 `
 
@@ -104,12 +108,13 @@ func (q *Queries) GetStudentByEmail(ctx context.Context, email string) (Student,
 		&i.Specialty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
 	)
 	return i, err
 }
 
 const getStudentByID = `-- name: GetStudentByID :one
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
 WHERE student_id = ?
 `
 
@@ -127,12 +132,13 @@ func (q *Queries) GetStudentByID(ctx context.Context, studentID string) (Student
 		&i.Specialty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
 	)
 	return i, err
 }
 
 const listAllStudents = `-- name: ListAllStudents :many
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
 `
 
 func (q *Queries) ListAllStudents(ctx context.Context) ([]Student, error) {
@@ -155,6 +161,7 @@ func (q *Queries) ListAllStudents(ctx context.Context) ([]Student, error) {
 			&i.Specialty,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.RegisteredFingerprint,
 		); err != nil {
 			return nil, err
 		}
@@ -182,7 +189,7 @@ const updatePassword = `-- name: UpdatePassword :one
 UPDATE students
 SET password_hash = ?, updated_at = datetime('now'), verified = 1
 WHERE student_id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
 `
 
 type UpdatePasswordParams struct {
@@ -204,6 +211,7 @@ func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) 
 		&i.Specialty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
 	)
 	return i, err
 }
@@ -212,7 +220,7 @@ const updateStudentEmail = `-- name: UpdateStudentEmail :one
 UPDATE students
 SET email = ?, updated_at = datetime('now')
 WHERE student_id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
 `
 
 type UpdateStudentEmailParams struct {
@@ -234,6 +242,7 @@ func (q *Queries) UpdateStudentEmail(ctx context.Context, arg UpdateStudentEmail
 		&i.Specialty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
 	)
 	return i, err
 }
