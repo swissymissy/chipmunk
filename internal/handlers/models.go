@@ -145,7 +145,7 @@ type FlaggedStudent struct {
 
 type FlagGroups struct {
 	Fingerprint string           `json:"fingerprint"`
-	Students    []FlaggedStudent `json:"flagged_students"`
+	Students    []FlaggedStudent `json:"students"`
 }
 
 type AttendanceBySessionResponse struct {

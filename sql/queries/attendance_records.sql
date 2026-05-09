@@ -24,5 +24,13 @@ SET status = 'present', check_in_at = datetime('now')
 WHERE student_id = ? AND session_id = ?
 RETURNING *;
 
+-- flip a student's record back to 'absent' ( prof override afrer a flag review)
+-- clears all checkin metadata so the row looks like the student 'never checkin'
+-- name: RevertCheckin :one
+UPDATE attendance_records
+SET status = 'absent', check_in_at = NULL
+WHERE student_id = ? AND session_id = ?
+RETURNING *;
+
 -- name: ResetAttendanceRecords :exec
 DELETE FROM attendance_records;

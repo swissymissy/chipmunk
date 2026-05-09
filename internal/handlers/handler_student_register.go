@@ -39,13 +39,14 @@ func (cfg *ApiConfig) HandlerStudentRegister(w http.ResponseWriter, r *http.Requ
 
 	// create new student in database
 	student, err := cfg.DB.CreateStudent(r.Context(), database.CreateStudentParams{
-		ID:           studentUID,
-		StudentID:    req.StudentID,
-		Email:        req.Email,
-		PasswordHash: ToNullString(hash),
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
-		Specialty:    ToNullString(req.Specialty),
+		ID:                    studentUID,
+		StudentID:             req.StudentID,
+		Email:                 req.Email,
+		PasswordHash:          ToNullString(hash),
+		FirstName:             req.FirstName,
+		LastName:              req.LastName,
+		Specialty:             ToNullString(req.Specialty),
+		RegisteredFingerprint: ToNullString(req.DeviceFingerprint),
 	})
 	if err != nil {
 		log.Printf("error creating new student: %s\n", err)
