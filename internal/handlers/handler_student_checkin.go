@@ -105,11 +105,12 @@ func (cfg *ApiConfig) HandlerStudentCheckIn(w http.ResponseWriter, r *http.Reque
 
 	// record attendance
 	checkin, err := cfg.DB.StudentCheckIn(r.Context(), database.StudentCheckInParams{
-		StudentLat: ToNullFloat(req.StudentLat),
-		StudentLng: ToNullFloat(req.StudentLng),
-		Accuracy:   ToNullFloat(req.Accuracy),
-		SessionID:  session.ID,
-		StudentID:  studentID,
+		StudentLat:        ToNullFloat(req.StudentLat),
+		StudentLng:        ToNullFloat(req.StudentLng),
+		Accuracy:          ToNullFloat(req.Accuracy),
+		DeviceFingerprint: ToNullString(req.DeviceFingerprint),
+		SessionID:         session.ID,
+		StudentID:         studentID,
 	})
 	if err != nil {
 		log.Printf("error updating student attendance record: %s\n", err)

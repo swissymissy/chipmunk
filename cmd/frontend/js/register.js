@@ -30,9 +30,12 @@ async function handleRegister() {
     if (password.length < 8) { showError("Password should be at least 8 characters"); return; }
     if (!courseID) { showError("Please select a course"); return; }
 
+    const device_fingerprint = await getDeviceFingerprint();
+
     await api("POST", "/api/auth/register", {
         student_id: studentID, email, password,
         first_name: firstName, last_name: lastName, specialty,
+        device_fingerprint,
     });
 
     const loginData = await api("POST", "/api/auth/login", { email, password });

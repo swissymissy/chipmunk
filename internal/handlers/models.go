@@ -24,12 +24,13 @@ type StudentLoginResponse struct {
 }
 
 type StudentRegisterRequest struct {
-	StudentID string `json:"student_id"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Specialty string `json:"specialty"`
+	StudentID         string `json:"student_id"`
+	Email             string `json:"email"`
+	Password          string `json:"password"`
+	FirstName         string `json:"first_name"`
+	LastName          string `json:"last_name"`
+	Specialty         string `json:"specialty"`
+	DeviceFingerprint string `json:"device_fingerprint"`
 }
 type StudentRegisterResponse struct {
 	StudentID string `json:"student_id"`
@@ -121,13 +122,33 @@ type QRTokenResponse struct {
 }
 
 type StudentCheckinReq struct {
-	QRToken    string  `json:"token"`
-	StudentLat float64 `json:"lat"`
-	StudentLng float64 `json:"lng"`
-	Accuracy   float64 `json:"accuracy"`
+	QRToken           string  `json:"token"`
+	StudentLat        float64 `json:"lat"`
+	StudentLng        float64 `json:"lng"`
+	Accuracy          float64 `json:"accuracy"`
+	DeviceFingerprint string  `json:"device_fingerprint"`
 }
 
 type StudentCheckInRep struct {
 	Status    string `json:"status"`
 	CheckInAt string `json:"check_in_at"`
+}
+
+// === Flag ===
+type FlaggedStudent struct {
+	StudentID string `json:"student_id"`
+	SchoolID  string `json:"student_school_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	CheckInAt string `json:"check_in_at"`
+}
+
+type FlagGroups struct {
+	Fingerprint string           `json:"fingerprint"`
+	Students    []FlaggedStudent `json:"students"`
+}
+
+type AttendanceBySessionResponse struct {
+	Roster     []RosterRep  `json:"roster"`
+	FlagGroups []FlagGroups `json:"flag_groups"`
 }

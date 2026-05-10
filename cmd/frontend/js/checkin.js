@@ -38,7 +38,8 @@ function startCheckIn() {
 }
 
 async function submitCheckin(lat, lng, accuracy) {
-    const data = await api("POST", "/api/attendance/checkin", { token: qrToken, lat, lng, accuracy }, jwtToken);
+    const device_fingerprint = await getDeviceFingerprint();
+    const data = await api("POST", "/api/attendance/checkin", { token: qrToken, lat, lng, accuracy, device_fingerprint }, jwtToken);
     document.getElementById("success-greeting").textContent = "Hi " + firstName + ", you've checked in!";
     document.getElementById("checkin-time").textContent = "Checked in at " + data.check_in_at;
     showSection("success-section");

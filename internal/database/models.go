@@ -9,14 +9,15 @@ import (
 )
 
 type AttendanceRecord struct {
-	ID         int64
-	SessionID  int64
-	StudentID  string
-	Status     string
-	CheckInAt  sql.NullString
-	StudentLat sql.NullFloat64
-	StudentLng sql.NullFloat64
-	Accuracy   sql.NullFloat64
+	ID                int64
+	SessionID         int64
+	StudentID         string
+	Status            string
+	CheckInAt         sql.NullString
+	StudentLat        sql.NullFloat64
+	StudentLng        sql.NullFloat64
+	Accuracy          sql.NullFloat64
+	DeviceFingerprint sql.NullString
 }
 
 type AttendanceSession struct {
@@ -52,14 +53,15 @@ type Specialty struct {
 }
 
 type Student struct {
-	ID           string
-	StudentID    string
-	Email        string
-	PasswordHash sql.NullString
-	FirstName    string
-	LastName     string
-	Verified     int64
-	Specialty    sql.NullString
-	CreatedAt    string
-	UpdatedAt    string
+	ID                    string
+	StudentID             string
+	Email                 string
+	PasswordHash          sql.NullString
+	FirstName             string
+	LastName              string
+	Verified              int64
+	Specialty             sql.NullString
+	CreatedAt             string
+	UpdatedAt             string
+	RegisteredFingerprint sql.NullString
 }

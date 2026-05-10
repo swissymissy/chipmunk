@@ -6,7 +6,7 @@ WHERE e.course_id = ?;
 
 -- name: StudentCheckIn :one
 UPDATE attendance_records
-SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ? , accuracy = ?
+SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ? , accuracy = ?, device_fingerprint = ?
 WHERE session_id = ? AND student_id = ?
 RETURNING *;
 
@@ -21,6 +21,15 @@ WHERE r.session_id = ?;
 -- name: UpdateCheckIn :one
 UPDATE attendance_records
 SET status = 'present', check_in_at = datetime('now')
+WHERE student_id = ? AND session_id = ?
+RETURNING *;
+
+-- flip a student's record back to 'absent' (prof override after a flag review).
+-- preserves device_fingerprint and check_in_at so the flag history stays
+-- visible in GetFlaggedFingerprints.
+-- name: RevertCheckin :one
+UPDATE attendance_records
+SET status = 'absent'
 WHERE student_id = ? AND session_id = ?
 RETURNING *;
 

@@ -21,6 +21,7 @@ func (cfg *ApiConfig) HandlerListActiveSession(w http.ResponseWriter, r *http.Re
 		list = append(list, ActiveSessionsView{
 			SessionID:   s.ID,
 			CourseID:    s.CourseID,
+			CourseName:  s.CourseName, // i haven't found why this one is broken in the UI yet.
 			SessionDate: s.SessionDate,
 			Status:      s.Status,
 			StartedAt:   LocalizeSQLiteTime(s.StartedAt),
