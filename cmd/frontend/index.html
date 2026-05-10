@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chipmunk - Dashboard</title>
+    <link rel="icon" type="image/png" href="/images/chipmunk.png">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
@@ -12,7 +13,10 @@
 <div class="layout">
 
     <aside class="sidebar">
-        <h1>Chipmunk</h1>
+        <div class="logo-header">
+            <img src="/images/chipmunk.png" alt="Chipmunk logo" class="logo">
+            <h1>Chipmunk</h1>
+        </div>
         <button class="tab-btn active" onclick="showTab('courses', this)">Courses</button>
         <button class="tab-btn" onclick="showTab('session', this)">Sessions</button>
         <button class="tab-btn" onclick="showTab('attendance', this)">Attendance</button>

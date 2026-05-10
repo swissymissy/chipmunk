@@ -18,3 +18,15 @@ button {
     border-radius: 4px;
     cursor: pointer;
 }
+
+.logo-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+

@@ -229,3 +229,18 @@ body {
 }
 .flag-card ul { margin: 0; padding-left: 20px; }
 .flag-card li { margin: 4px 0; font-size: 14px; }
+
+.sidebar .logo-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 4px 16px 4px;
+}
+.sidebar .logo-header h1 {
+    margin: 0;
+}
+.sidebar .logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
