@@ -71,3 +71,16 @@ function setErrorHandler(fn) { errorHandler = fn; }
 async function safe(fn) {
     try { await fn(); } catch (err) { errorHandler(err.message); }
 }
+
+
+// fgprint helper
+async function getDeviceFingerprint(params) {
+    try {
+        if (typeof ThumbmarkJS === "undefined") return "";
+        const tm = new ThumbmarkJS.Thumbmark();
+        const result = await tm.get();
+        return result?.thumbmark || "";
+    } catch {
+        return "";
+    }
+}

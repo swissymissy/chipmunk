@@ -287,6 +287,7 @@ async function loadAttendance() {
             empty.style.display = "block";
             controls.style.display = "none";
             list.innerHTML = "";
+            renderFlagGroups([]);
             currentAttendanceSessionID = null;
             return;
         }
@@ -333,26 +334,43 @@ async function loadAttendanceRoster(sessionID) {
     if (!sessionID) return;
     const msgEl = document.getElementById("attendance-msg");
     try {
-        const rows = await api("GET", "/api/attendance/" + sessionID);
+        const data = await api("GET", "/api/attendance/" + sessionID);
+        const rows = data.roster || [];
+        const flagGroups = data.flag_groups || [];
+
         const list = document.getElementById("attendance-list");
         list.innerHTML = "";
         if (rows.length === 0) {
             list.textContent = "No students enrolled.";
+            renderFlagGroups([]); // clear any leftover card
             return;
         }
 
         const tableRows = rows.map(r => {
-            let action;
+            // Name cell - wrap in a span so we can add a badge
+            const nameCell = document.createElement("span");
+            nameCell.textContent = r.first_name + " " + r.last_name;
+            if (r.flagged) {
+                const badge = document.createElement("span");
+                badge.textContent = " ⚠";
+                badge.title = "Shares device with another student in this session";
+                badge.className = "flag-badge";
+                nameCell.appendChild(badge);
+            }
+
+            // Action cell - mark present (if absent) or mark absent (if present)
+            const action = document.createElement("button");
             if (r.status === "absent") {
-                action = document.createElement("button");
                 action.textContent = "Mark Present";
                 action.onclick = () => markPresent(r.student_id, r.session_id);
             } else {
-                action = "—";
+                action.textContent = "Mark Absent";
+                action.onclick = () => markAbsent(r.student_id, r.session_id);
             }
+
             return [
                 r.student_school_id,
-                r.first_name + " " + r.last_name,
+                nameCell,
                 r.status,
                 r.checkin_at || "—",
                 action,
@@ -363,26 +381,60 @@ async function loadAttendanceRoster(sessionID) {
             ["Student ID", "Name", "Status", "Checked-in at", "Action"],
             tableRows,
         ));
+
+        renderFlagGroups(flagGroups);
     } catch (err) {
         msgEl.style.color = "";
         msgEl.textContent = err.message;
     }
 }
 
-// mark as 'present'
-// POST to override then re-render
-async function markPresent(studentID, sessionID) {
+function renderFlagGroups(groups) {
+    const container = document.getElementById("attendance-flags");
+    container.innerHTML = "";
+    if (groups.length === 0) return;
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Suspicious Activity";
+    container.appendChild(heading);
+
+    for (const g of groups) {
+        const card = document.createElement("div");
+        card.className = "flag-card";
+
+        const title = document.createElement("div");
+        title.className = "flag-card-title";
+        title.textContent = `Shared device — ${g.students.length} students`;
+        card.appendChild(title);
+
+        const ul = document.createElement("ul");
+        for (const s of g.students) {
+            const li = document.createElement("li");
+            li.textContent = `${s.first_name} ${s.last_name} (${s.student_school_id}) — checked in ${s.check_in_at}`;
+            ul.appendChild(li);
+        }
+        card.appendChild(ul);
+        container.appendChild(card);
+    }
+}
+
+// flip a student's attendance status via the prof override endpoints.
+// shared by markPresent and markAbsent — they only differ in the URL.
+async function flipAttendance(path, studentID, sessionID) {
     const msgEl = document.getElementById("attendance-msg");
     msgEl.style.color = "";
     msgEl.textContent = "";
     try {
-        await api("PUT", "/api/attendance/override", { student_id: studentID, session_id: sessionID });
+        await api("PUT", path, { student_id: studentID, session_id: sessionID });
         await loadAttendanceRoster(currentAttendanceSessionID);
     } catch (err) {
         msgEl.style.color = "red";
         msgEl.textContent = err.message;
     }
 }
+
+const markPresent = (s, ses) => flipAttendance("/api/attendance/override", s, ses);
+const markAbsent  = (s, ses) => flipAttendance("/api/attendance/override/absent", s, ses);
 
 // === Settings: destructive resets ===
 // Each row toggles its button enabled only when the matching input contains "RESET".

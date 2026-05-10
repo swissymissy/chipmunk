@@ -97,7 +97,7 @@ func (q *Queries) ResetAttendanceRecords(ctx context.Context) error {
 
 const revertCheckin = `-- name: RevertCheckin :one
 UPDATE attendance_records
-SET status = 'absent', check_in_at = NULL
+SET status = 'absent'
 WHERE student_id = ? AND session_id = ?
 RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint
 `
@@ -107,8 +107,9 @@ type RevertCheckinParams struct {
 	SessionID int64
 }
 
-// flip a student's record back to 'absent' ( prof override afrer a flag review)
-// clears all checkin metadata so the row looks like the student 'never checkin'
+// flip a student's record back to 'absent' (prof override after a flag review).
+// preserves device_fingerprint and check_in_at so the flag history stays
+// visible in GetFlaggedFingerprints.
 func (q *Queries) RevertCheckin(ctx context.Context, arg RevertCheckinParams) (AttendanceRecord, error) {
 	row := q.db.QueryRowContext(ctx, revertCheckin, arg.StudentID, arg.SessionID)
 	var i AttendanceRecord

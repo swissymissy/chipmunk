@@ -11,7 +11,7 @@ import (
 )
 
 const getFlaggedFingerprints = `-- name: GetFlaggedFingerprints :many
-SELECT 
+SELECT
     a1.device_fingerprint,
     a1.student_id,
     s.student_id AS school_id,
@@ -21,7 +21,6 @@ SELECT
 FROM attendance_records a1
 JOIN students s ON s.id = a1.student_id
 WHERE a1.session_id = ?
-    AND a1.status = 'present'
     AND a1.device_fingerprint IS NOT NULL
     AND a1.device_fingerprint != ''
     AND EXISTS (
@@ -29,7 +28,6 @@ WHERE a1.session_id = ?
         WHERE a2.session_id = a1.session_id
             AND a2.device_fingerprint = a1.device_fingerprint
             AND a2.student_id != a1.student_id
-            AND a2.status = 'present'
     )
 ORDER BY a1.device_fingerprint, a1.check_in_at
 `
@@ -43,10 +41,10 @@ type GetFlaggedFingerprintsRow struct {
 	CheckInAt         sql.NullString
 }
 
-// find suspicious identical fingerprint for different accounts
-// returns present students whose fingerprint matches
-//
-//	at least 1 other student in same session
+// find suspicious identical fingerprint for different accounts.
+// returns students whose fingerprint matches at least 1 other student
+// in the same session, regardless of current status — so flag history
+// stays visible after the prof marks a cheater absent.
 func (q *Queries) GetFlaggedFingerprints(ctx context.Context, sessionID int64) ([]GetFlaggedFingerprintsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFlaggedFingerprints, sessionID)
 	if err != nil {
