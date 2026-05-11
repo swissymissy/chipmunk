@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -12,10 +13,13 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/swissymissy/chipmunk"
 	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/handlers"
 	"github.com/swissymissy/chipmunk/internal/middleware"
 	_ "modernc.org/sqlite"
+	"github.com/pressly/goose/v3"
+
 )
 
 func main() {
@@ -42,6 +46,18 @@ func main() {
 			log.Fatalf("failed to set %s: %v", p, err)
 		}
 	}
+
+	// run pending migrations from the embedded FS so the binary is self-contained
+	goose.SetBaseFS(chipmunk.SchemaFS)
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		log.Fatalf("goose set dialect: %v", err)
+	}
+	if err := goose.Up(db, "sql/schema"); err != nil {
+		log.Fatalf("goose migration: %v", err)
+	}
+	
+	log.Print("Migration applied.")
+	
 	// query
 	dbQuery := database.New(db)
 	log.Print("Database connected")
@@ -70,8 +86,12 @@ func main() {
 		Handler: mux,
 	}
 
-	homepage := http.FileServer(http.Dir("./cmd/frontend"))
-	mux.Handle("/", homepage)
+	// serve embedded frontend assets so the binary is fully self-contained.
+	frontendSub, err := fs.Sub(chipmunk.FrontendFS, "cmd/frontend")
+	if err != nil {
+		log.Fatalf("frontend embed sub: %v", err)
+	}
+	mux.Handle("/", http.FileServer(http.FS(frontendSub)))
 
 	// register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
