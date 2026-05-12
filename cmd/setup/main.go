@@ -20,7 +20,7 @@ func main() {
 func runSetup() {
 	// ensure .env exist -> copy frm .env.example if missing
 	if _, err := os.Stat(".env"); os.IsNotExist(err) {
-		if err := copyFile(".env.example", ".env"); err != nil {
+		if err := CopyFile(".env.example", ".env"); err != nil {
 			fmt.Fprintf(os.Stderr, "no .env and no .env.exmaple found: %v\n", err)
 			os.Exit(1)
 		}
