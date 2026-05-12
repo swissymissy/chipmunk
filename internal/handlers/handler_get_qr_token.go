@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/swissymissy/chipmunk/internal/auth"
 )
@@ -50,7 +51,12 @@ func (cfg *ApiConfig) HandlerGetQRToken(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// crafting checkin url with token
-	checkinURL := fmt.Sprintf("%s/checkin.html?t=%s", cfg.BaseURL, qrToken)
+	baseURL := cfg.GetBaseURL()
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://localhost:%s", cfg.Port)
+	}
+
+	checkinURL := fmt.Sprintf("%s/checkin.html?t=%s", strings.TrimRight(baseURL, "/"), qrToken)
 
 	// response
 	ResponseWithJSON(w, http.StatusOK, QRTokenResponse{

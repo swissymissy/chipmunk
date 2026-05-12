@@ -18,6 +18,7 @@ import (
 	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/handlers"
 	"github.com/swissymissy/chipmunk/internal/middleware"
+	"github.com/swissymissy/chipmunk/internal/tunnel"
 	_ "modernc.org/sqlite"
 )
 
@@ -71,9 +72,9 @@ func main() {
 		DB:                    dbQuery,
 		Platform:              platform,
 		JWT:                   jwt,
-		BaseURL:               baseURL,
 		ProfessorPasswordHash: professorHash,
 	}
+	cfg.SetBaseURL(baseURL)
 
 	// server mux
 	mux := http.NewServeMux()
@@ -141,6 +142,30 @@ func main() {
 		}
 	}()
 
+	// create quick tunnel
+	tunnelCtx, tunnelCancel := context.WithCancel(context.Background())
+	defer tunnelCancel()
+
+	quickTunnelCh := make(chan *tunnel.QuickTunnel, 1)
+
+	go func() {
+		// time for local server to start
+		time.Sleep(800 * time.Millisecond)
+
+		localURL := fmt.Sprintf("http://localhost:%s", cfg.Port)
+
+		log.Println("Creating Cloudflare tunnel...")
+		t, err := tunnel.StartQuickTunnel(tunnelCtx, localURL)
+		if err != nil {
+			log.Printf("Cloudflare tunnel failed: %v", err)
+			return
+		}
+
+		quickTunnelCh <- t
+		cfg.SetBaseURL(t.PublicURL)
+		log.Printf("Cloudflare tunnel is ready at: %s", t.PublicURL)
+	}()
+
 	// graceful shutdown
 	// block until os sends SIGTERM or SIGINT
 	sigChan := make(chan os.Signal, 1)
@@ -151,6 +176,16 @@ func main() {
 	shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownRelease()
 
+	// stop tunnel
+	select {
+	case quickTunnel := <-quickTunnelCh:
+		if quickTunnel != nil {
+			_ = quickTunnel.Stop()
+		}
+	default:
+	}
+
+	// shutdown server
 	if err := chipmunkServer.Shutdown(shutdownCtx); err != nil {
 		log.Fatalf("HTTP shutdown error. Forced shutdown: %s\n", err)
 	}

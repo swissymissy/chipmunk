@@ -60,7 +60,7 @@ func runSetup() {
 		os.Exit(1)
 	}
 	fmt.Println("Professor's password set")
-	fmt.Println("Setup is completed. You can now run chipmunk.exe")
+	fmt.Println("Setup is completed. You can now close this window and run chipmunk.exe")
 }
 
 // generate jwt secret
