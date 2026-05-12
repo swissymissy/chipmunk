@@ -26,6 +26,10 @@ func runSetup() {
 
 	// generate JWT_SECRET if empty
 	env, err := ReadEnvMap(".env")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to read .env: %v\n", err)
+		os.Exit(1)
+	}
 	if env["JWT_SECRET"] == "" || env["JWT_SECRET"] == `""` {
 		secret, err := generateSecret()
 		if err != nil {

@@ -22,7 +22,7 @@ func PromptPasswordTwice() string {
 		os.Exit(1)
 	}
 
-	fmt.Println("Confirm password: ")
+	fmt.Print("Confirm password: ")
 	pw2 , err := term.ReadPassword(int(os.Stdin.Fd()))
 	fmt.Println()
 	if err != nil {
