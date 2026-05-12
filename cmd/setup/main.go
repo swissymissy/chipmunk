@@ -37,7 +37,7 @@ func runSetup() {
 			os.Exit(1)
 		}
 
-		if err := PatchEnvLine(".env", "JWT_SECRET" , `"`+secret+`"`); err != nil {
+		if err := PatchEnvLine(".env", "JWT_SECRET", `"`+secret+`"`); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to save jwt secret: %v\n", err)
 			os.Exit(1)
 		}
@@ -55,7 +55,7 @@ func runSetup() {
 	}
 
 	// patch .env file with single-quote hash (double quote causes error)
-	if err := PatchEnvLine(".env", "PROFESSOR_PASSWORD_HASH" , "'"+hash+"'"); err != nil {
+	if err := PatchEnvLine(".env", "PROFESSOR_PASSWORD_HASH", "'"+hash+"'"); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to save professor password hash: %v\n", err)
 		os.Exit(1)
 	}
@@ -63,16 +63,13 @@ func runSetup() {
 	fmt.Println("Setup is completed. You can now run chipmunk.exe")
 }
 
-
-
 // generate jwt secret
 func generateSecret() (string, error) {
 	b := make([]byte, 64)
-	
+
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
 
 	return base64.StdEncoding.EncodeToString(b), nil
 }
-

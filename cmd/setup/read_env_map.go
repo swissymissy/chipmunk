@@ -15,11 +15,11 @@ func ReadEnvMap(path string) (map[string]string, error) {
 	env := make(map[string]string)
 	lines := strings.Split(string(content), "\n")
 
-	for _, line := range lines{
+	for _, line := range lines {
 		line := strings.TrimSpace(line)
 
 		// skip empty lines and comments
-		if line == "" || strings.HasPrefix(line,"#") {
+		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
 
@@ -37,4 +37,3 @@ func ReadEnvMap(path string) (map[string]string, error) {
 	}
 	return env, nil
 }
-

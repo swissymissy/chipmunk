@@ -6,7 +6,7 @@ import (
 )
 
 // replaces or appends KEY=value in .env file
-func PatchEnvLine(path, key, value string )error {
+func PatchEnvLine(path, key, value string) error {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -16,7 +16,7 @@ func PatchEnvLine(path, key, value string )error {
 	found := false
 	newLine := key + "=" + value
 
-	for i, line := range lines{
+	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
 
 		// skip comments
@@ -26,7 +26,7 @@ func PatchEnvLine(path, key, value string )error {
 
 		if strings.HasPrefix(trimmed, key+"=") {
 			lines[i] = newLine
-			found = true 
+			found = true
 			break
 		}
 	}
@@ -36,7 +36,7 @@ func PatchEnvLine(path, key, value string )error {
 	}
 	result := strings.Join(lines, "\n")
 
-	tmp :=  path + ".tmp"
+	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, []byte(result), 0600); err != nil {
 		return err
 	}

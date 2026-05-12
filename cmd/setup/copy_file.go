@@ -9,7 +9,7 @@ import (
 func CopyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
-		return  err
+		return err
 	}
 	defer sourceFile.Close()
 

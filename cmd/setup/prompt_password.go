@@ -23,13 +23,13 @@ func PromptPasswordTwice() string {
 	}
 
 	fmt.Print("Confirm password: ")
-	pw2 , err := term.ReadPassword(int(os.Stdin.Fd()))
+	pw2, err := term.ReadPassword(int(os.Stdin.Fd()))
 	fmt.Println()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading confirmation password: %v\n", err)
 		os.Exit(1)
-	} 
-	
+	}
+
 	// compare 2 passwords
 	if string(pw1) != string(pw2) {
 		fmt.Fprintln(os.Stderr, "passwords do not match")

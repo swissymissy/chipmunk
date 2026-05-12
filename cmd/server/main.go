@@ -13,13 +13,12 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/pressly/goose/v3"
 	"github.com/swissymissy/chipmunk"
 	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/handlers"
 	"github.com/swissymissy/chipmunk/internal/middleware"
 	_ "modernc.org/sqlite"
-	"github.com/pressly/goose/v3"
-
 )
 
 func main() {
@@ -55,9 +54,9 @@ func main() {
 	if err := goose.Up(db, "sql/schema"); err != nil {
 		log.Fatalf("goose migration: %v", err)
 	}
-	
+
 	log.Print("Migration applied.")
-	
+
 	// query
 	dbQuery := database.New(db)
 	log.Print("Database connected")
