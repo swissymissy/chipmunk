@@ -128,29 +128,36 @@ func (q *Queries) RevertCheckin(ctx context.Context, arg RevertCheckinParams) (A
 }
 
 const studentCheckIn = `-- name: StudentCheckIn :one
-UPDATE attendance_records
-SET status = 'present' , check_in_at = datetime('now'), student_lat = ?, student_lng = ? , accuracy = ?, device_fingerprint = ?
-WHERE session_id = ? AND student_id = ?
+INSERT INTO attendance_records (session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint)
+VALUES (?,?, 'present', datetime('now'), ?, ?, ? ,? )
+ON CONFLICT(session_id, student_id) DO UPDATE SET
+    status = 'present',
+    check_in_at = datetime('now'),
+    student_lat = excluded.student_lat,
+    student_lng = excluded.student_lng,
+    accuracy = excluded.accuracy,
+    device_fingerprint = excluded.device_fingerprint
 RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint
 `
 
 type StudentCheckInParams struct {
+	SessionID         int64
+	StudentID         string
 	StudentLat        sql.NullFloat64
 	StudentLng        sql.NullFloat64
 	Accuracy          sql.NullFloat64
 	DeviceFingerprint sql.NullString
-	SessionID         int64
-	StudentID         string
 }
 
+// using UPSERT to insert and update the new registered students
 func (q *Queries) StudentCheckIn(ctx context.Context, arg StudentCheckInParams) (AttendanceRecord, error) {
 	row := q.db.QueryRowContext(ctx, studentCheckIn,
+		arg.SessionID,
+		arg.StudentID,
 		arg.StudentLat,
 		arg.StudentLng,
 		arg.Accuracy,
 		arg.DeviceFingerprint,
-		arg.SessionID,
-		arg.StudentID,
 	)
 	var i AttendanceRecord
 	err := row.Scan(
