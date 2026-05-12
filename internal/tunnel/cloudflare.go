@@ -42,8 +42,6 @@ func StartQuickTunnel(ctx context.Context, localURL string) (*QuickTunnel, error
 	// channels to catch generated link, errors from stderr
 	urlChan := make(chan string, 1)
 
-	// errChan := make(chan error, 1)
-
 	// start a scanning for tunnel url in background
 	go scanForTunnelURL(stdout, urlChan)
 	go scanForTunnelURL(stderr, urlChan)
