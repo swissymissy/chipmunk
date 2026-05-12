@@ -5,18 +5,15 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"strings"
 
-	"golang.org/x/term"
 	"github.com/swissymissy/chipmunk/internal/auth"
 )
 
-// CLI helper that hash password and print hashespassword in terminal
+// setup file to let professor set up jwt secret and password
 func main() {
 	runSetup()
 }
 
-//
 func runSetup() {
 	// ensure .env exist -> copy frm .env.example if missing
 	if _, err := os.Stat(".env"); os.IsNotExist(err) {
@@ -44,7 +41,7 @@ func runSetup() {
 	}
 
 	// prompt for password
-	pw := promptPasswordTwice()
+	pw := PromptPasswordTwice()
 
 	// hash pw
 	hash, err := auth.HashPassword(pw)
@@ -54,7 +51,7 @@ func runSetup() {
 	}
 
 	// patch .env file with single-quote hash (double quote causes error)
-	if err := PatchEnvLine(".env", "PROFESSOR_PASSWORD_HASH" , "`"+hash+"`"); err != nil {
+	if err := PatchEnvLine(".env", "PROFESSOR_PASSWORD_HASH" , "'"+hash+"'"); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to save professor password hash: %v\n", err)
 		os.Exit(1)
 	}
@@ -62,34 +59,16 @@ func runSetup() {
 	fmt.Println("Setup is completed. You can now run chipmunk.exe")
 }
 
-// prompt for entering password twice
-func promptPasswordTwice() string {
-	fmt.Print("Enter new password: ")
-	pw1, err := term.ReadPassword(int(os.Stdin.Fd())) // read input from term
-	if err != nil {
-		fmt.Println("error reading password")
-		return ""
-	}
-	fmt.Println("Confirm password: ")
-	pw2 , err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		fmt.Println("error reading confirmation password")
-		return ""
-	} 
-	
-	// compare 2 passwords
-	if string(pw1) != string(pw2) {
-		fmt.Println("password 1 and password 2 do not match")
-		return ""
-	}
 
-	return string(pw1)
-}
 
 // generate jwt secret
-func generateSecret() string {
+func generateSecret() (string, error) {
 	b := make([]byte, 64)
-	rand.Read(b)
-	return base64.StdEncoding.EncodeToString(b)
+	
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(b), nil
 }
 
