@@ -97,15 +97,15 @@ go build -o chipmunk ./cmd/server
 ## Tech STack
 - Go 
 - SQLite
-- HTML/CSS/JavaScrip
+- HTML/CSS/JavaScript
 ----
 ### Privacy Notice: Device Signals and Fingerprint
 Chipmunk may collect limited device-related signal during attendance check-in, such as browser/device information, user agent, IP address, and optional device identifiers. 
-These signals are used only for attendance intergrity purposes, such as helping professors detect suspicious patterns like one device being used to check in for multiple students.
+These signals are **used only for attendance intergrity purposes**, such as **helping professors detect suspicious patterns like one device being used to check in for multiple students.**
 Device fingerprinting is not perfect and should not be treated as absolute proof of cheating. It is only a supporting signal for review.
-Chipmunk does not use device signals for advertising, tracking across websites, or any non-attendance purpose.
+**Chipmunk does not use device signals for advertising, tracking across websites, or any non-attendance purpose.**
 ### Intended Use
-Chipmunk is intended for adult students in higher-education or similar classroom settings.
+Chipmunk is intended for **adult students in higher-education or similar classroom settings.**
 Do not use Chipmunk with minors or underage students unless you fully understand and comply with all applicable school policies, privacy laws, parental consent requirements, and institutional rules.
 The developer is not responsible for how users deploy Chipmunk or collect student data.
 ### Disclaimer
