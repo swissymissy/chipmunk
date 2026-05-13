@@ -66,6 +66,8 @@ func main() {
 	jwt := os.Getenv("JWT_SECRET")
 	professorHash := os.Getenv("PROFESSOR_PASSWORD_HASH")
 
+	tunnelToken := os.Getenv("CLOUDFLARE_TUNNEL_TOKEN")
+
 	// server config
 	cfg := &handlers.ApiConfig{
 		Port:                  port,
@@ -152,9 +154,22 @@ func main() {
 		// time for local server to start
 		time.Sleep(800 * time.Millisecond)
 
+		// attempt to create named tunnel first
+		if tunnelToken != "" {
+			log.Println("Starting Cloudflare named tunnel....")
+			_, err = tunnel.StartNamedTunnel(tunnelCtx, tunnelToken)
+			if err != nil {
+				log.Printf("Named tunnel failed: %v", err)
+				return
+			}
+			log.Printf("Cloudflare named tunnel running. Web-app is reachable at: %s", baseURL)
+			return
+		}
+
+		// fallback to quick tunnel if no named tunnel created
 		localURL := fmt.Sprintf("http://localhost:%s", cfg.Port)
 
-		log.Println("Creating Cloudflare tunnel...")
+		log.Println("Creating Quick Cloudflare tunnel...")
 		t, err := tunnel.StartQuickTunnel(tunnelCtx, localURL)
 		if err != nil {
 			log.Printf("Cloudflare tunnel failed: %v", err)

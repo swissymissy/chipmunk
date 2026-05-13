@@ -15,13 +15,13 @@ func main() {
 }
 
 func runSetup() {
-	// ensure .env exist -> copy frm .env.example if missing
+	// ensure .env exist copy from .env.example if missing
 	if _, err := os.Stat(".env"); os.IsNotExist(err) {
 		if err := CopyFile(".env.example", ".env"); err != nil {
 			fmt.Fprintf(os.Stderr, "no .env and no .env.exmaple found: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println("Create .env frm .env.example")
+		fmt.Println("Create .env from .env.example")
 	}
 
 	// generate JWT_SECRET if empty
