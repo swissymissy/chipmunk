@@ -1,5 +1,7 @@
 # Chipmunk
 ![chipmunk logo](https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/chipmunk.png)
+
+
 Chipmunk is a hybrid student attendance web application designed to help professors save time taking in-class attendance while adding multiple layers to reduce cheating and improve attendance record accuracy.
 Chipmunk is designed as a local-first application. The professor runs the server on their own computer, and students check in through a QR code during class.
 
@@ -19,7 +21,11 @@ This mode does not require:
 - domain name
 - cloudlare account
 - hosting
+
+  
 _However, because the temporary URL uses the shared `trycloudflare.com` domain, some browsers may show a warning page such as "This site may be dangerous." This warning is related to the reputation of shared temporary tunnel domains, not necessarily Chipmunk itself_
+
+
 Quick Tunnel Mode is best for:
 - testing
 - demos
@@ -49,12 +55,30 @@ cloudflared.exe
 ```bash
 git clone https://github.com/swissymissy/chipmunk.git
 ```
-2. Download dependencies: `go mod tidy` 
-3. Create .env file (optional): `cp .env.example .env`
-4. Compile setup binary file: `go build -o setup ./cmd/setup`
-5. Compile chipmunk binary file: `go build -o chipmunk ./cmd/server`
-6. Run setup to generate jwt secret and password for professor: `./setup`
-7. Run the chipmunk server: `./chipmunk`
+2. Download dependencies:
+```bash
+go mod tidy
+``` 
+3. Create .env file (optional):
+```bash
+cp .env.example .env
+```
+4. Compile setup binary file:
+```bash
+go build -o setup ./cmd/setup
+```
+5. Compile chipmunk binary file:
+```bash
+go build -o chipmunk ./cmd/server
+```
+6. Run setup tool:
+```bash
+./setup
+```
+7. Run the chipmunk server:
+```bash
+./chipmunk
+```
 ## How Setup tool and Chipmunk server work:
 1. The setup tool will:
 - create .env file from .env.example 
@@ -74,7 +98,7 @@ git clone https://github.com/swissymissy/chipmunk.git
 - Go 
 - SQLite
 - HTML/CSS/JavaScrip
-
+----
 ### Privacy Notice: Device Signals and Fingerprint
 Chipmunk may collect limited device-related signal during attendance check-in, such as browser/device information, user agent, IP address, and optional device identifiers. 
 These signals are used only for attendance intergrity purposes, such as helping professors detect suspicious patterns like one device being used to check in for multiple students.
