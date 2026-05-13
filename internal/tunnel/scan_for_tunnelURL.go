@@ -2,7 +2,6 @@ package tunnel
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"regexp"
 )
@@ -16,7 +15,7 @@ func scanForTunnelURL(reader io.Reader, urlCh chan<- string) {
 		line := scanner.Text()
 
 		// print to debug
-		fmt.Println("[cloudflared] ", line)
+		// fmt.Println("[cloudflared] ", line)
 
 		match := re.FindString(line)
 		if match != "" {
