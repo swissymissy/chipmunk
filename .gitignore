@@ -4,3 +4,4 @@ chipmunk
 chipmunk.db-shm
 chipmunk.db-wal
 setup
+dist

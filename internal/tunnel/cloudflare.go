@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
-	"runtime"
+	"path/filepath"
 	"time"
 )
 
@@ -16,12 +17,13 @@ type QuickTunnel struct {
 
 // start a quick tunnel to localhost using cloudflare
 func StartQuickTunnel(ctx context.Context, localURL string) (*QuickTunnel, error) {
-	cloudflarePath := "cloudflared"
-	if runtime.GOOS == "windows" {
-		cloudflarePath = "cloudflared.exe"
+	// find cloudflare.exe 
+	exePath, err := os.Executable()
+	if err != nil {
+		return nil, err
 	}
-
-	// run cloudflared tunnel --url as child process
+	exeDir := filepath.Dir(exePath)
+	cloudflarePath := filepath.Join(exeDir, "cloudflared.exe")
 	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "--url", localURL)
 
 	// catch stdout
