@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 )
@@ -17,6 +19,11 @@ func (cfg *ApiConfig) HandlerRemoveCourse(w http.ResponseWriter, r *http.Request
 	// remove a course in the list
 	err := cfg.DB.DeleteCourse(r.Context(), course_id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("error removing course. Course id not found: %s\n", err)
+			ResponseWithError(w, http.StatusNotFound, "course not found or already deleted")
+			return
+		}
 		log.Printf("error removing a course in list: %s\n", err)
 		ResponseWithError(w, http.StatusInternalServerError, "failed to remove course")
 		return
