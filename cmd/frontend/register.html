@@ -12,41 +12,52 @@
             <img src="/images/chipmunk.png" alt="Chipmunk logo" class="logo">
             <h1>Chipmunk</h1>
     </div>
-    <h2>Student Registration</h2>
+    <div id="form-section">
+        <h2>Student Registration</h2>
 
-    <div id="error-msg"></div>
-    <div id="success-msg"></div>
+        <div id="error-msg"></div>
 
-    <form id="register-form">
-        <label for="student_id">Student ID</label>
-        <input type="text" id="student_id" placeholder="e.g U12345678" required>
+        <form id="register-form">
+            <label for="student_id">Student ID</label>
+            <input type="text" id="student_id" placeholder="e.g U12345678" required>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="your_email@example.com" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="your_email@example.com" required>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="your password for this account" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="your password for this account" required>
 
-        <label for="first_name">First Name</label>
-        <input type="text" id="first_name" required>
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" required>
 
-        <label for="last_name">Last Name</label>
-        <input type="text" id="last_name" required>
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" required>
 
-        <label for="specialty">Specialty(Major)</label>
-        <select id="specialty">
-            <option value="">Loading specialties...</option>
-        </select>
+            <label for="specialty">Specialty(Major)</label>
+            <select id="specialty">
+                <option value="">Loading specialties...</option>
+            </select>
 
-        <label for="course">Course</label>
-        <select id="course">
-            <option value="">Loading courses...</option>
-        </select>
+            <label for="course">Course</label>
+            <select id="course">
+                <option value="">Loading courses...</option>
+            </select>
 
-        <button type="submit">Register</button>
-    </form>
+            <button type="submit">Register</button>
+        </form>
 
-    <p>Already have an account? <a href="/checkin.html">Log in</a></p>
+        <p>Already have an account? <a href="/checkin.html">Log in</a></p>
+    </div>
+
+    <div id="success-section" style="display: none;">
+        <h2>Yay! You're all set!</h2>
+        <p id="success-greeting"></p>
+        <p>You're enrolled in <strong id="success-course"></strong>.</p>
+        
+        <p>Please scan the QR code again to login and check-in for this session.</p>
+
+        <p style="margin-top: 16px;"><a href="/checkin.html">Go to login page</a></p>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@thumbmarkjs/thumbmarkjs/dist/thumbmark.umd.js"></script>
     <script src="/js/api.js"></script>

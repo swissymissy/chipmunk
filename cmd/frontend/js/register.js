@@ -18,16 +18,18 @@ async function loadSpecialties() {
 }
 
 async function handleRegister() {
-    clearMessages();
+    clearError();
     const studentID = document.getElementById("student_id").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     const firstName = document.getElementById("first_name").value.trim();
     const lastName = document.getElementById("last_name").value.trim();
     const specialty = document.getElementById("specialty").value;
-    const courseID = document.getElementById("course").value;
 
-    if (password.length < 8) { showError("Password should be at least 8 characters"); return; }
+    const courseSelect = document.getElementById("course");
+    const courseID = courseSelect.value;
+    const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+
     if (!courseID) { showError("Please select a course"); return; }
 
     const device_fingerprint = await getDeviceFingerprint();
@@ -41,7 +43,15 @@ async function handleRegister() {
     const loginData = await api("POST", "/api/auth/login", { email, password });
     await api("POST", "/api/enrollment", { course_id: courseID }, loginData.token);
 
-    showSuccess("Registration complete! You are enrolled in the course.");
+    showSuccessSection(firstName, courseName);
+}
+
+function showSuccessSection(firstName, courseName) {
+    document.getElementById("form-section").style.display = "none";
+    document.getElementById("success-section").style.display = "block";
+    document.getElementById("success-greeting").textContent = `Welcome, ${firstName}!`;
+    document.getElementById("success-course").textContent = courseName;
+    window.scrollTo(0, 0);
 }
 
 function showError(msg) {
@@ -49,14 +59,8 @@ function showError(msg) {
     el.textContent = msg;
     el.style.color = "red";
 }
-function showSuccess(msg) {
-    const el = document.getElementById("success-msg");
-    el.textContent = msg;
-    el.style.color = "green";
-}
-function clearMessages() {
+function clearError() {
     document.getElementById("error-msg").textContent = "";
-    document.getElementById("success-msg").textContent = "";
 }
 
 setErrorHandler(showError);

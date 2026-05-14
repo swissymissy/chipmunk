@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"time"
 )
 
@@ -21,13 +20,11 @@ type NamedTunnel struct {
 
 // start a quick tunnel to localhost using cloudflare
 func StartQuickTunnel(ctx context.Context, localURL string) (*QuickTunnel, error) {
-	// find cloudflare.exe
-	exePath, err := os.Executable()
+	// find cloudflare
+	cloudflarePath, err := resolveCloudflaredPath()
 	if err != nil {
 		return nil, err
 	}
-	exeDir := filepath.Dir(exePath)
-	cloudflarePath := filepath.Join(exeDir, "cloudflared.exe")
 	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "--url", localURL)
 
 	// catch stdout
@@ -79,14 +76,11 @@ func (t *QuickTunnel) Stop() error {
 
 // start a named tunnel using a token from Cloudflare ZeroTrust
 func StartNamedTunnel(ctx context.Context, token string) (*NamedTunnel, error) {
-	// find cloudflare.exe
-	exePath, err := os.Executable()
+	// find cloudflare
+	cloudflarePath, err := resolveCloudflaredPath()
 	if err != nil {
 		return nil, err
 	}
-	exeDir := filepath.Dir(exePath)
-	cloudflarePath := filepath.Join(exeDir, "cloudflared.exe")
-
 	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "run", "--token", token)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
