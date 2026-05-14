@@ -5,3 +5,4 @@ chipmunk.db-shm
 chipmunk.db-wal
 setup
 dist
+dist_test
