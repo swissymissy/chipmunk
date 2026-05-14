@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -61,6 +62,8 @@ func runSetup() {
 	}
 	fmt.Println("Professor's password set")
 	fmt.Println("Setup is completed. You can now close this window and run chipmunk.exe")
+	fmt.Print("\nPress Enter to close...")
+	bufio.NewReader(os.Stdin).ReadString('\n')
 }
 
 // generate jwt secret
