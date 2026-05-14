@@ -101,6 +101,7 @@ func main() {
 
 	// professor only
 	mux.HandleFunc("POST /api/courses", middleware.RequireProfessor(cfg.HandleCreateCourse, cfg.JWT))                              // professor create new course
+	mux.HandleFunc("DELETE /api/courses/{id}", middleware.RequireProfessor(cfg.HandlerRemoveCourse, cfg.JWT))                      // delete a course from the list
 	mux.HandleFunc("POST /api/sessions/start", middleware.RequireProfessor(cfg.HandlerStartSession, cfg.JWT))                      // start a new session
 	mux.HandleFunc("PUT /api/sessions/close", middleware.RequireProfessor(cfg.HandlerCloseSession, cfg.JWT))                       // close an active session
 	mux.HandleFunc("PUT /api/sessions/reopen", middleware.RequireProfessor(cfg.HandlerReopenSession, cfg.JWT))                     // reopen a closed session
@@ -127,7 +128,7 @@ func main() {
 	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT)) // students check in
 	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))     // show list of all courses student has enrolled in
 
-	// reset - prof only (handlers also gate on PLATFORM env)
+	// reset - prof only
 	mux.HandleFunc("DELETE /api/reset/students", middleware.RequireProfessor(cfg.HandlerResetStudents, cfg.JWT))       // reset students table
 	mux.HandleFunc("DELETE /api/reset/courses", middleware.RequireProfessor(cfg.HandlerResetCourses, cfg.JWT))         // reset courses table
 	mux.HandleFunc("DELETE /api/reset/enrollments", middleware.RequireProfessor(cfg.HandlerResetEnrollments, cfg.JWT)) // reset enrollments table
