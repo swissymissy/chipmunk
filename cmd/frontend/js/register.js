@@ -41,7 +41,7 @@ async function handleRegister() {
     const loginData = await api("POST", "/api/auth/login", { email, password });
     await api("POST", "/api/enrollment", { course_id: courseID }, loginData.token);
 
-    showSuccess("Registration complete! You are enrolled in the course.");
+    showSuccess("Registration complete! You are enrolled in the course. Please scan the QR code again to log in and check-in.");
 }
 
 function showError(msg) {
