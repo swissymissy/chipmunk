@@ -5,9 +5,22 @@ let firstName = "";
 document.addEventListener("DOMContentLoaded", () => {
     qrToken = new URLSearchParams(window.location.search).get("t");
     if (!qrToken) { showCheckinError("No check-in code found. Please scan the QR code."); return; }
-    document.getElementById("login-form").addEventListener("submit", e => {
+
+    // Login form has its own inline error display (#error-msg next to the form)
+    // and disables the submit button while the request is in flight.
+    // We don't use submitForm here because we want errors to land inline,
+    // not in the full-page checkin-error-section that the global handler uses.
+    document.getElementById("login-form").addEventListener("submit", async e => {
         e.preventDefault();
-        safe(handleLogin);
+        const btn = e.target.querySelector("button[type=submit]");
+        if (btn) btn.disabled = true;
+        try {
+            await handleLogin();
+        } catch (err) {
+            showError(err.message);
+        } finally {
+            if (btn) btn.disabled = false;
+        }
     });
 });
 
@@ -94,8 +107,10 @@ async function loadMyCourses() {
 async function addCourse() {
     const courseID = document.getElementById("add-course").value;
     if (!courseID) return;
+    const btn = document.getElementById("add-course-btn");
     const msgEl = document.getElementById("add-course-msg");
     msgEl.textContent = "";
+    if (btn) btn.disabled = true;
     try {
         await api("POST", "/api/enrollment", { course_id: courseID }, jwtToken);
         msgEl.style.color = "green";
@@ -104,5 +119,7 @@ async function addCourse() {
     } catch (err) {
         msgEl.style.color = "red";
         msgEl.textContent = err.message;
+    } finally {
+        if (btn) btn.disabled = false;
     }
 }

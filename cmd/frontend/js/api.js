@@ -73,8 +73,10 @@ async function safe(fn) {
 }
 
 
-// fgprint helper
-async function getDeviceFingerprint(params) {
+// returns a device fingerprint hash via ThumbmarkJS, or "" if the library
+// isn't loaded or fingerprinting fails. callers treat "" as "no fingerprint" —
+// the server stores NULL and skips flag detection for that row.
+async function getDeviceFingerprint() {
     try {
         if (typeof ThumbmarkJS === "undefined") return "";
         const tm = new ThumbmarkJS.Thumbmark();
