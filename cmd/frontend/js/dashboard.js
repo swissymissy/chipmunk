@@ -98,7 +98,7 @@ function showTab(tabName, btn) {
         attendanceInterval = null;
     }
 
-    if (["session", "roster", "export"].includes(tabName)) refreshAllDropdowns();
+    if (["session", "roster", "export"].includes(tabName)) safe(refreshAllDropdowns);
 
     if (tabName === "attendance") {
         loadAttendance();
@@ -116,11 +116,28 @@ async function loadCourses() {
     const list = document.getElementById("course-list");
     list.innerHTML = "";
     if (courses.length === 0) { list.textContent = "No courses yet."; return; }
+
+    const rows = courses.map(c => {
+        const btn = document.createElement("button");
+        btn.textContent = "Delete";
+        btn.onclick = () => safe(() => deleteCourse(c.course_id, c.course_name));
+        return [c.course_name, c.section_date, c.start_time, btn];
+    });
+
     list.appendChild(buildTable(
-        ["Name", "Day", "Time"],
-        courses.map(c => [c.course_name, c.section_date, c.start_time])
+        ["Name", "Day", "Time", "Action"],
+        rows,
     ));
     fillCourseDropdowns(courses);
+}
+
+async function deleteCourse(courseID, courseName) {
+    if (!confirm(`Delete course "${courseName}"?\n\nThis will also delete all sessions, enrollments, and attendance records for this course.`)) {
+        return;
+    }
+    await api("DELETE", "/api/courses/" + courseID);
+    showMsg("Course deleted");
+    loadCourses();
 }
 
 async function createCourse() {
@@ -142,12 +159,11 @@ async function loadSpecialties() {
     if (specialties.length === 0) { list.textContent = "No specialties yet."; return; }
     for (const s of specialties) {
         const div = document.createElement("div");
-        div.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:4px";
+        div.className = "specialty-row";
         const name = document.createElement("span");
         name.textContent = s.specialty_name;
         const btn = document.createElement("button");
         btn.textContent = "Delete";
-        btn.style.cssText = "padding:2px 8px;font-size:12px";
         btn.onclick = () => safe(async () => {
             await api("DELETE", "/api/specialties/" + s.id);
             loadSpecialties();
@@ -172,16 +188,23 @@ function startSession() {
     if (!courseID) { showMsg("Please select a course"); return; }
     if (!navigator.geolocation) { showMsg("Location not supported"); return; }
 
+    const btn = document.getElementById("start-session-btn");
+    if (btn) btn.disabled = true;
+
     navigator.geolocation.getCurrentPosition(
         pos => safe(async () => {
-            const session = await api("POST", "/api/sessions/start", {
-                course_id: courseID,
-                classroom_lat: pos.coords.latitude,
-                classroom_lng: pos.coords.longitude,
-            });
-            enterActiveSessionUI(session);
+            try {
+                const session = await api("POST", "/api/sessions/start", {
+                    course_id: courseID,
+                    classroom_lat: pos.coords.latitude,
+                    classroom_lng: pos.coords.longitude,
+                });
+                enterActiveSessionUI(session);
+            } finally {
+                if (btn) btn.disabled = false;
+            }
         }),
-        () => showMsg("Location access required"),
+        () => { showMsg("Location access required"); if (btn) btn.disabled = false; },
         { enableHighAccuracy: true, timeout: 10000 }
     );
 }

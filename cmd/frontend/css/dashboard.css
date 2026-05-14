@@ -103,8 +103,18 @@ body {
     font-size: 14px;
 }
 
-/* Buttons in the specialty list (delete) shouldn't be full-width either */
-#specialty-list button { width: auto; }
+/* Specialty list rows: name on the left, small Delete button on the right */
+.specialty-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.specialty-row button {
+    width: auto;
+    padding: 2px 8px;
+    font-size: 12px;
+}
 
 /* Form inputs/selects keep style.css's 100% width — fine for the wide dashboard */
 /* But cap the width on isolated controls so they don't stretch absurdly */
