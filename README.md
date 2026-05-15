@@ -6,12 +6,46 @@
 Chipmunk is a tool to help professors take students attendance during classtime faster, save class time, and improve record accuracy with cheating prevention layers. It is a hybrid web-application that lets professors host the webapp on their computer (localhost) and use cloudflare to create a secured tunnel (https) to let student register/check-in by scanning a QR code. 
 
 ## Features
-- Rotating QR code check-in 
+- Rotating QR code check-in  
 - GPS/Location check
 - Student Login/Register system
 - Device fingerprint check during check-in time
 - Professor dashboard
 - Attendance records Excel export: daily report, semester report
+
+## Demo
+### Professor Dashboard
+- **Create a course**
+<p>
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/create-course.gif" width="700" />
+</p>
+
+- **Start attendance session and Rotating QR code**
+<p>
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/start-session.gif" width="700" />
+</p>
+
+- **Live attendance checking and see flag for suspicious activity**
+<p>
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/attendance.gif" width="700" />
+</p>
+
+- **See rosters of each course**
+<p>
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/roster.gif" width="700" />
+</p>
+
+- **Excel Export**
+<p>
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/daily%20export.gif" width="700" />
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/excel-example.gif" width="500" />
+</p>
+
+### Student
+- **Student Register**
+<p>
+  <img src="https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/student-register.gif" width="200" />
+</p>
 
 ## Deployment Options
 There are two ways to deploy the webapp using Cloudflare - Quick Tunnel or Named Tunnel
@@ -50,6 +84,7 @@ cloudflared.exe
 .env.example
 ```
 1. First, run: `setup.exe` to generate jwt secret for server and create password for professor. Note: It is normal that the terminal does not print inputs out. It hides the inputs intentionally. After first setup, you don't need to run this file again unless you want to change password.
+![setup](https://github.com/swissymissy/chipmunk/blob/main/cmd/frontend/images/demo/setup.gif)
 2. Then run `chipmunk.exe`. This is the main file to run server on localhost and create a secured tunnel with cloudflare.  
 
 ### Option B: Compile from source code:
