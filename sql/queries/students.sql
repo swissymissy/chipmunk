@@ -41,7 +41,7 @@ DELETE FROM students;
 -- Search for one student's profile by the UUID
 
 -- name: GetProfileByID :one
-SELECT id, student_id, first_name, last_name, specialty
+SELECT id, student_id, first_name, last_name, specialty, email
 FROM students WHERE id = ?;
 
 -- name: UpdateStudentSchoolID :one

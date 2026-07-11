@@ -44,7 +44,7 @@ func ValidateJWT(tokenString, serverSecretToken string) (string, error) {
 		},
 	)
 	if err != nil {
-		return "", fmt.Errorf("Token is expired or bad signature: %w", err)
+		return "", fmt.Errorf("token is expired or bad signature: %w", err)
 	}
 
 	return claim.Subject, nil

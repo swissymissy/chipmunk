@@ -91,7 +91,7 @@ func (q *Queries) GetByID(ctx context.Context, id string) (Student, error) {
 
 const getProfileByID = `-- name: GetProfileByID :one
 
-SELECT id, student_id, first_name, last_name, specialty
+SELECT id, student_id, first_name, last_name, specialty, email
 FROM students WHERE id = ?
 `
 
@@ -101,6 +101,7 @@ type GetProfileByIDRow struct {
 	FirstName string
 	LastName  string
 	Specialty sql.NullString
+	Email     string
 }
 
 // student editing profile feature
@@ -114,6 +115,7 @@ func (q *Queries) GetProfileByID(ctx context.Context, id string) (GetProfileByID
 		&i.FirstName,
 		&i.LastName,
 		&i.Specialty,
+		&i.Email,
 	)
 	return i, err
 }

@@ -165,7 +165,7 @@ type UpdateNameRequest struct {
 	LastName  string `json:"last_name"`
 }
 
-type ProfileResponse struct {
+type StudentProfileResponse struct {
 	SchoolID  string `json:"student_school_id"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`

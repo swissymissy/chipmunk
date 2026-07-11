@@ -127,7 +127,8 @@ func main() {
 	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))             // student enroll in a course
 	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT)) // students check in
 	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))     // show list of all courses student has enrolled in
-
+	mux.HandleFunc("GET /api/students/myprofile", middleware.AuthRequired(cfg.HandlerGetStudentProfile, cfg.JWT)) // let student see their profile page
+	
 	// reset - prof only
 	mux.HandleFunc("DELETE /api/reset/students", middleware.RequireProfessor(cfg.HandlerResetStudents, cfg.JWT))       // reset students table
 	mux.HandleFunc("DELETE /api/reset/courses", middleware.RequireProfessor(cfg.HandlerResetCourses, cfg.JWT))         // reset courses table

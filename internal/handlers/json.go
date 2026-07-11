@@ -11,7 +11,7 @@ func DecodeRequest[T any](r *http.Request, val *T) error {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(val); err != nil {
-		return fmt.Errorf("Error decoding request: %w", err)
+		return fmt.Errorf("error decoding request: %w", err)
 	}
 	return nil
 }
