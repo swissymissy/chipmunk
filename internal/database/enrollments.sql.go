@@ -137,6 +137,21 @@ func (q *Queries) NewEnrollment(ctx context.Context, arg NewEnrollmentParams) (E
 	return i, err
 }
 
+const removeACourse = `-- name: RemoveACourse :exec
+DELETE FROM enrollments WHERE student_id =? AND course_id = ?
+`
+
+type RemoveACourseParams struct {
+	StudentID string
+	CourseID  string
+}
+
+// let student remove a course from their list
+func (q *Queries) RemoveACourse(ctx context.Context, arg RemoveACourseParams) error {
+	_, err := q.db.ExecContext(ctx, removeACourse, arg.StudentID, arg.CourseID)
+	return err
+}
+
 const resetEnrollment = `-- name: ResetEnrollment :exec
 DELETE FROM enrollments
 `

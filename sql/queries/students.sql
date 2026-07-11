@@ -36,3 +36,30 @@ WHERE id = ?;
 
 -- name: ResetStudents :exec
 DELETE FROM students;
+
+-- student editing profile feature
+-- Search for one student's profile by the UUID
+
+-- name: GetProfileByID :one
+SELECT id, student_id, first_name, last_name, specialty
+FROM students WHERE id = ?;
+
+-- name: UpdateStudentSchoolID :one
+UPDATE students 
+SET student_id = ? , updated_at = datetime('now')
+WHERE id = ?
+RETURNING *;
+
+-- name: UpdateStudentEmailByID :one
+UPDATE students 
+SET email = ?, updated_at = datetime('now')
+WHERE id = ?
+RETURNING *;
+
+-- name: UpdateStudentName :one
+UPDATE students 
+SET first_name = ?, last_name = ? , updated_at = datetime('now')
+WHERE id = ?
+RETURNING *;
+
+

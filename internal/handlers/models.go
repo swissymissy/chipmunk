@@ -152,3 +152,27 @@ type AttendanceBySessionResponse struct {
 	Roster     []RosterRep  `json:"roster"`
 	FlagGroups []FlagGroups `json:"flag_groups"`
 }
+
+// === Edit Student Profile ===
+type UpdateSchoolIDRequest struct {
+	SchoolID string `json:"student_school_id"`
+}
+type UpdateEmailRequest struct {
+	Email string `json:"email"`
+}
+type UpdateNameRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+type ProfileResponse struct {
+	SchoolID  string `json:"student_school_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Specialty string `json:"specialty"`
+}
+
+type RemoveEnrollmentRequest struct {
+	CourseID string `json:"course_id"`
+}
