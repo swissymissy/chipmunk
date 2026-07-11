@@ -27,9 +27,10 @@ func (cfg *ApiConfig) HandlerGetStudentProfile(w http.ResponseWriter, r *http.Re
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Printf("student does not exist: %s\n", err)
 			ResponseWithError(w, http.StatusNotFound, "unable to find student profile")
+			return
 		}
 		log.Printf("error getting student profile from db: %s\n", err)
-		ResponseWithError(w, http.StatusUnauthorized, "unauthorized")
+		ResponseWithError(w, http.StatusInternalServerError, "unable to get student profile")
 		return
 	}
 
