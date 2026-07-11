@@ -172,7 +172,3 @@ type StudentProfileResponse struct {
 	Email     string `json:"email"`
 	Specialty string `json:"specialty"`
 }
-
-type RemoveEnrollmentRequest struct {
-	CourseID string `json:"course_id"`
-}

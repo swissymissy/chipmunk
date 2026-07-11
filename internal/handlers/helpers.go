@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -31,4 +33,25 @@ func LocalizeSQLiteTime(s string) string {
 		return s
 	}
 	return t.In(time.Local).Format("2006-01-02 15:04:05")
+}
+
+// check student's email
+func EmailCheck(s string) (string, error) {
+	str := strings.TrimSpace(s)
+	if str == "" {
+		return "", fmt.Errorf("email can't be empty string")
+	}
+	if !strings.Contains(str, "@") {
+		return "", fmt.Errorf("malformed email")
+	}
+	return str, nil
+}
+
+// check student's name
+func NameCheck(s string) (string, error) {
+	str := strings.TrimSpace(s)
+	if str == "" {
+		return "", fmt.Errorf("name can't be empty")
+	}
+	return str, nil
 }

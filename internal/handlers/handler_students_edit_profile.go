@@ -77,8 +77,14 @@ func (cfg *ApiConfig) HandlerStudentUpdateEmail(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// check student's input
+	email, err := EmailCheck(newEmail.Email)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "email can't be empty or malformed")
+		return
+	}
 	// update student email
-	studentProfile, err := cfg.DB.UpdateStudentEmailByID(r.Context(), database.UpdateStudentEmailByIDParams{Email: newEmail.Email, ID: studentID})
+	studentProfile, err := cfg.DB.UpdateStudentEmailByID(r.Context(), database.UpdateStudentEmailByIDParams{Email: email, ID: studentID})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Printf("student not found: %s\n", err)
@@ -122,10 +128,22 @@ func (cfg *ApiConfig) HandlerStudentUpdateName(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// check student's name input
+	firstName, err := NameCheck(newName.FirstName)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "name can't be empty")
+		return
+	}
+	lastName, err := NameCheck(newName.LastName)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "name can't be empty")
+		return
+	}
+
 	// update student name
 	studentProfile, err := cfg.DB.UpdateStudentName(r.Context(), database.UpdateStudentNameParams{
-		FirstName: newName.FirstName,
-		LastName:  newName.LastName,
+		FirstName: firstName,
+		LastName:  lastName,
 		ID:        studentID,
 	})
 	if err != nil {
@@ -157,17 +175,15 @@ func (cfg *ApiConfig) HandlerStudentRemoveACourse(w http.ResponseWriter, r *http
 		return
 	}
 
-	// decode remove course request
-	var courseID RemoveEnrollmentRequest
-	err := DecodeRequest(r, &courseID)
-	if err != nil {
-		log.Printf("error decoding remove course request: %s\n", err)
-		ResponseWithError(w, http.StatusBadRequest, "unable to remove course")
+	// get course id from url
+	course_id := r.PathValue("id")
+	if course_id == "" {
+		ResponseWithError(w, http.StatusBadRequest, "course id can't be empty")
 		return
 	}
 
 	// remove course from student's course list
-	err = cfg.DB.RemoveACourse(r.Context(), database.RemoveACourseParams{StudentID: studentID, CourseID: courseID.CourseID})
+	err := cfg.DB.RemoveACourse(r.Context(), database.RemoveACourseParams{StudentID: studentID, CourseID: course_id})
 	if err != nil {
 		log.Printf("error removing course from student's course list: %s\n", err)
 		ResponseWithError(w, http.StatusInternalServerError, "unable to remove course")
