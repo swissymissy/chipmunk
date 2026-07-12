@@ -37,8 +37,15 @@ func (cfg *ApiConfig) HandlerStudentUpdateSchoolID(w http.ResponseWriter, r *htt
 		return
 	}
 
+	// check student's input
+	schoolID, err := SchoolIDCheck(newSchoolID.SchoolID)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "incorrect form of school ID")
+		return
+	}
+
 	// update student school ID
-	studentProfile, err := cfg.DB.UpdateStudentSchoolID(r.Context(), database.UpdateStudentSchoolIDParams{StudentID: newSchoolID.SchoolID, ID: studentID})
+	studentProfile, err := cfg.DB.UpdateStudentSchoolID(r.Context(), database.UpdateStudentSchoolIDParams{StudentID: schoolID, ID: studentID})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Printf("student not found: %s\n", err)

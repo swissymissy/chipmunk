@@ -55,3 +55,20 @@ func NameCheck(s string) (string, error) {
 	}
 	return str, nil
 }
+
+// check student's school ID input
+func SchoolIDCheck(s string) (string, error) {
+	schoolID := strings.TrimSpace(strings.ToUpper(s))
+	if schoolID == "" {
+		return "", fmt.Errorf("school ID can't be empty")
+	}
+	if len(schoolID) != 9 {
+		return "", fmt.Errorf("school ID too long")
+	}
+	for _, r := range schoolID[1:] {
+		if r < '0' || r > '9' {
+			return "", fmt.Errorf("school ID must contains digit after U. Example: U12345678")
+		}
+	}
+	return schoolID, nil
+}
