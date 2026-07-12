@@ -63,7 +63,7 @@ func SchoolIDCheck(s string) (string, error) {
 		return "", fmt.Errorf("school ID can't be empty")
 	}
 	if len(schoolID) != 9 {
-		return "", fmt.Errorf("school ID too long")
+		return "", fmt.Errorf("school ID must be 9 characters: U + 8 digits")
 	}
 	for _, r := range schoolID[1:] {
 		if r < '0' || r > '9' {
