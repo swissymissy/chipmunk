@@ -14,7 +14,7 @@ func MakeJWT(studentID string, serverSecretToken string) (string, error) {
 	claim := jwt.RegisteredClaims{
 		Issuer:    "chipmunk-access",
 		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(15 * time.Minute)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(30 * time.Minute)),
 		Subject:   studentID,
 	}
 

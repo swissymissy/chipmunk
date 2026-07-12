@@ -30,3 +30,69 @@ button {
     border-radius: 50%;
 }
 
+/* landing page */
+.landing-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0;
+}
+.landing-btn {
+    display: block;
+    padding: 12px;
+    text-align: center;
+    background: #2563eb;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+}
+.landing-btn:hover {
+    background: #1d4ed8;
+}
+
+/* profile page */
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+}
+.profile-field .field-msg {
+    font-size: 14px;
+    min-height: 18px;
+}
+.field-actions {
+    display: flex;
+    gap: 8px;
+}
+.field-actions button {
+    width: auto;
+    margin: 4px 0;
+    padding: 8px 16px;
+}
+.field-actions .cancel-btn {
+    background: #6b7280;
+}
+.field-actions .cancel-btn:hover {
+    background: #4b5563;
+}
+.course-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 0;
+}
+.course-row button {
+    width: auto;
+    margin: 0;
+    padding: 6px 12px;
+    background: #dc2626;
+    font-size: 14px;
+}
+.secondary-link {
+    display: inline-block;
+    margin-top: 12px;
+}
+

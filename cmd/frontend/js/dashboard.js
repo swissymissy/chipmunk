@@ -8,6 +8,7 @@ if (!professorToken) {
     window.location.href = "/prof_login.html";
 }
 setAuthToken(professorToken);
+setUnauthorizedHandler(clearProfessorAuth);
 
 function logout() {
     clearProfessorAuth();
