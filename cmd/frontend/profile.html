@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chipmunk - My Profile</title>
+    <link rel="icon" type="image/png" href="/images/chipmunk.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="logo-header">
+            <img src="/images/chipmunk.png" alt="Chipmunk logo" class="logo">
+            <h1>Chipmunk</h1>
+    </div>
+    <h2>My Profile</h2>
+
+    <div id="profile-msg"></div>
+
+    <!-- Specialty is set at registration and shown read-only -->
+    <p>Specialty: <strong id="specialty-display"></strong></p>
+
+    <!-- School ID -->
+    <div class="profile-field">
+        <label for="school-id">Student ID</label>
+        <input type="text" id="school-id" placeholder="e.g U12345678" readonly>
+        <div class="field-actions">
+            <button type="button" id="school-id-edit">Edit</button>
+            <button type="button" id="school-id-save" style="display: none;">Save</button>
+            <button type="button" id="school-id-cancel" class="cancel-btn" style="display: none;">Cancel</button>
+        </div>
+        <div id="school-id-msg" class="field-msg"></div>
+    </div>
+
+    <!-- Email -->
+    <div class="profile-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" readonly>
+        <div class="field-actions">
+            <button type="button" id="email-edit">Edit</button>
+            <button type="button" id="email-save" style="display: none;">Save</button>
+            <button type="button" id="email-cancel" class="cancel-btn" style="display: none;">Cancel</button>
+        </div>
+        <div id="email-msg" class="field-msg"></div>
+    </div>
+
+    <!-- Name -->
+    <div class="profile-field">
+        <label for="first-name">First Name</label>
+        <input type="text" id="first-name" readonly>
+        <label for="last-name">Last Name</label>
+        <input type="text" id="last-name" readonly>
+        <div class="field-actions">
+            <button type="button" id="name-edit">Edit</button>
+            <button type="button" id="name-save" style="display: none;">Save</button>
+            <button type="button" id="name-cancel" class="cancel-btn" style="display: none;">Cancel</button>
+        </div>
+        <div id="name-msg" class="field-msg"></div>
+    </div>
+
+    <hr>
+
+    <!-- Courses -->
+    <h3>My Courses</h3>
+    <ul id="enrolled-list"></ul>
+
+    <h4>Add a Course</h4>
+    <select id="add-course">
+        <option value="">-- Select a course --</option>
+    </select>
+    <button id="add-course-btn" onclick="addCourse()">Add Course</button>
+    <div id="add-course-msg"></div>
+
+    <hr>
+
+    <button class="logout-btn" onclick="logout()">Log out</button>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/profile.js"></script>
+</body>
+</html>

@@ -25,6 +25,27 @@ func (cfg *ApiConfig) HandlerStudentRegister(w http.ResponseWriter, r *http.Requ
 		ResponseWithError(w, http.StatusBadRequest, "please fill up required information")
 		return
 	}
+	// check student school ID
+	schoolID, err := SchoolIDCheck(req.StudentID)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "incorrect form of school ID")
+		return
+	}
+	email, err := EmailCheck(req.Email)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "email can't be empty or malformed")
+		return
+	}
+	firstName, err := NameCheck(req.FirstName)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "name can't be empty")
+		return
+	}
+	lastName, err := NameCheck(req.LastName)
+	if err != nil {
+		ResponseWithError(w, http.StatusBadRequest, "name can't be empty")
+		return
+	}
 
 	// hash password
 	hash, err := auth.HashPassword(req.Password)
@@ -40,11 +61,11 @@ func (cfg *ApiConfig) HandlerStudentRegister(w http.ResponseWriter, r *http.Requ
 	// create new student in database
 	student, err := cfg.DB.CreateStudent(r.Context(), database.CreateStudentParams{
 		ID:                    studentUID,
-		StudentID:             req.StudentID,
-		Email:                 req.Email,
+		StudentID:             schoolID,
+		Email:                 email,
 		PasswordHash:          ToNullString(hash),
-		FirstName:             req.FirstName,
-		LastName:              req.LastName,
+		FirstName:             firstName,
+		LastName:              lastName,
 		Specialty:             ToNullString(req.Specialty),
 		RegisteredFingerprint: ToNullString(req.DeviceFingerprint),
 	})

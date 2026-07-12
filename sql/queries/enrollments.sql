@@ -26,3 +26,7 @@ SELECT EXISTS(
 -- name: ResetEnrollment :exec
 DELETE FROM enrollments;
 
+-- let student remove a course from their list
+-- name: RemoveACourse :exec
+DELETE FROM enrollments WHERE student_id =? AND course_id = ?;
+

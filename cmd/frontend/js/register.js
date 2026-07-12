@@ -52,6 +52,8 @@ function showSuccessSection(firstName, courseName) {
     document.getElementById("success-greeting").textContent = `Welcome, ${firstName}!`;
     document.getElementById("success-course").textContent = courseName;
     window.scrollTo(0, 0);
+    // let them read the confirmation, then send them to the student login page
+    setTimeout(() => { window.location.href = "/student_login.html"; }, 2500);
 }
 
 function showError(msg) {

@@ -10,9 +10,12 @@ async function api(method, url, body, token) {
 
     const res = await fetch(url, opts);
 
-    // dashboard auth expired or missing -> bounce to login
+    // auth expired or missing -> let the current page decide where to bounce.
+    // each authed page registers its own handler via setUnauthorizedHandler
+    // (professor -> prof login, student -> student login) so a student 401
+    // never clears the professor session and vice versa.
     if (res.status === 401 && authToken) {
-        clearProfessorAuth();
+        onUnauthorized();
         return;
     }
     if (!res.ok) {
@@ -24,12 +27,25 @@ async function api(method, url, body, token) {
     if (res.headers.get("Content-Type")?.includes("json")) return res.json();
 }
 
+// on-unauthorized handler: what a 401 does depends on which page we're on.
+// defaults to a no-op; authed pages register their own via setUnauthorizedHandler.
+let onUnauthorized = () => {};
+function setUnauthorizedHandler(fn) { onUnauthorized = fn; }
+
 // clear stored professor auth and redirect to login.
-// used by 401 handlers and the logout button.
+// used by the professor 401 handler and the logout button.
 function clearProfessorAuth() {
     localStorage.removeItem("professor_token");
     authToken = null;
     window.location.href = "/prof_login.html";
+}
+
+// clear stored student auth and redirect to student login.
+// used by the student 401 handler and the profile logout button.
+function clearStudentAuth() {
+    localStorage.removeItem("student_token");
+    authToken = null;
+    window.location.href = "/student_login.html";
 }
 
 // shared course label format used across dashboard, register, checkin.

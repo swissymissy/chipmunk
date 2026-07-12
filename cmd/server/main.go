@@ -124,9 +124,14 @@ func main() {
 	mux.HandleFunc("GET /api/specialties", cfg.HandlerGetAllSpecialties)  // let student see list of all specialties
 
 	// students - auth required
-	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))             // student enroll in a course
-	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT)) // students check in
-	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))     // show list of all courses student has enrolled in
+	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))                                  // student enroll in a course
+	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT))                      // students check in
+	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))                          // show list of all courses student has enrolled in
+	mux.HandleFunc("GET /api/students/myprofile", middleware.AuthRequired(cfg.HandlerGetStudentProfile, cfg.JWT))                    // let student see their profile page
+	mux.HandleFunc("PUT /api/students/myprofile/schoolid", middleware.AuthRequired(cfg.HandlerStudentUpdateSchoolID, cfg.JWT))       // let student update their school ID
+	mux.HandleFunc("PUT /api/students/myprofile/email", middleware.AuthRequired(cfg.HandlerStudentUpdateEmail, cfg.JWT))             // let students update their email
+	mux.HandleFunc("PUT /api/students/myprofile/name", middleware.AuthRequired(cfg.HandlerStudentUpdateName, cfg.JWT))               // let students update their name
+	mux.HandleFunc("DELETE /api/students/myprofile/courses/{id}", middleware.AuthRequired(cfg.HandlerStudentRemoveACourse, cfg.JWT)) // let students remove a course from their course list
 
 	// reset - prof only
 	mux.HandleFunc("DELETE /api/reset/students", middleware.RequireProfessor(cfg.HandlerResetStudents, cfg.JWT))       // reset students table

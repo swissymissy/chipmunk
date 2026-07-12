@@ -89,6 +89,37 @@ func (q *Queries) GetByID(ctx context.Context, id string) (Student, error) {
 	return i, err
 }
 
+const getProfileByID = `-- name: GetProfileByID :one
+
+SELECT id, student_id, first_name, last_name, specialty, email
+FROM students WHERE id = ?
+`
+
+type GetProfileByIDRow struct {
+	ID        string
+	StudentID string
+	FirstName string
+	LastName  string
+	Specialty sql.NullString
+	Email     string
+}
+
+// student editing profile feature
+// Search for one student's profile by the UUID
+func (q *Queries) GetProfileByID(ctx context.Context, id string) (GetProfileByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getProfileByID, id)
+	var i GetProfileByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Specialty,
+		&i.Email,
+	)
+	return i, err
+}
+
 const getStudentByEmail = `-- name: GetStudentByEmail :one
 SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
 WHERE email = ?
@@ -230,6 +261,100 @@ type UpdateStudentEmailParams struct {
 
 func (q *Queries) UpdateStudentEmail(ctx context.Context, arg UpdateStudentEmailParams) (Student, error) {
 	row := q.db.QueryRowContext(ctx, updateStudentEmail, arg.Email, arg.StudentID)
+	var i Student
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Verified,
+		&i.Specialty,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
+	)
+	return i, err
+}
+
+const updateStudentEmailByID = `-- name: UpdateStudentEmailByID :one
+UPDATE students 
+SET email = ?, updated_at = datetime('now')
+WHERE id = ?
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+`
+
+type UpdateStudentEmailByIDParams struct {
+	Email string
+	ID    string
+}
+
+func (q *Queries) UpdateStudentEmailByID(ctx context.Context, arg UpdateStudentEmailByIDParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, updateStudentEmailByID, arg.Email, arg.ID)
+	var i Student
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Verified,
+		&i.Specialty,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
+	)
+	return i, err
+}
+
+const updateStudentName = `-- name: UpdateStudentName :one
+UPDATE students 
+SET first_name = ?, last_name = ? , updated_at = datetime('now')
+WHERE id = ?
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+`
+
+type UpdateStudentNameParams struct {
+	FirstName string
+	LastName  string
+	ID        string
+}
+
+func (q *Queries) UpdateStudentName(ctx context.Context, arg UpdateStudentNameParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, updateStudentName, arg.FirstName, arg.LastName, arg.ID)
+	var i Student
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Verified,
+		&i.Specialty,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.RegisteredFingerprint,
+	)
+	return i, err
+}
+
+const updateStudentSchoolID = `-- name: UpdateStudentSchoolID :one
+UPDATE students 
+SET student_id = ? , updated_at = datetime('now')
+WHERE id = ?
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+`
+
+type UpdateStudentSchoolIDParams struct {
+	StudentID string
+	ID        string
+}
+
+func (q *Queries) UpdateStudentSchoolID(ctx context.Context, arg UpdateStudentSchoolIDParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, updateStudentSchoolID, arg.StudentID, arg.ID)
 	var i Student
 	err := row.Scan(
 		&i.ID,

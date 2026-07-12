@@ -13,7 +13,7 @@ func (cfg *ApiConfig) HandlerEnrollment(w http.ResponseWriter, r *http.Request) 
 	// check for studentID
 	studentID, ok := middleware.GetUserID(r.Context())
 	if !ok {
-		ResponseWithError(w, http.StatusUnauthorized, "unorthorized")
+		ResponseWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
