@@ -237,9 +237,27 @@ async function loadRoster() {
     list.innerHTML = "";
     if (students.length === 0) { list.textContent = "No students enrolled."; return; }
     list.appendChild(buildTable(
-        ["Student ID", "Name", "Email", "Specialty"],
-        students.map(s => [s.student_id, s.first_name + " " + s.last_name, s.email, s.specialty || ""])
+        ["Student ID", "Name", "Email", "Specialty", "Action"],
+        students.map(s => {
+            // Remove button — unenrolls the student from this course only.
+            // s.id is the internal student id that enrollments key on
+            // (not s.student_id, which is the school ID).
+            const remove = document.createElement("button");
+            remove.textContent = "Remove";
+            remove.onclick = () => removeStudentFromCourse(courseID, s.id, s.first_name + " " + s.last_name);
+            return [s.student_id, s.first_name + " " + s.last_name, s.email, s.specialty || "", remove];
+        })
     ));
+}
+
+// unenroll a student from a course (does not delete their account).
+async function removeStudentFromCourse(courseID, studentID, name) {
+    if (!confirm(`Remove ${name} from this course? This only unenrolls them — their account is kept.`)) return;
+    await safe(async () => {
+        await api("DELETE", "/api/roster/" + courseID + "/students/" + studentID);
+        showMsg("Student removed from course");
+        await loadRoster();
+    });
 }
 
 // === Export ===
