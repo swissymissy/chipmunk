@@ -88,7 +88,9 @@ cloudflared.exe
 2. Then run `chipmunk.exe`. This is the main file to run server on localhost and create a secured tunnel with cloudflare.  
 
 ### Option B: Compile from source code:
-- Requirement: [Go](https://go.dev/doc/install)
+#### Requirement:
+- [Go](https://go.dev/doc/install)
+- [CloudFlare](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/)
 1. Clone the git repo to your computer: 
 ```bash
 git clone https://github.com/swissymissy/chipmunk.git
