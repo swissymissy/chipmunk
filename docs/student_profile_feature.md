@@ -155,6 +155,24 @@ Save persists (and re-locks on success; stays open on error so they can fix it);
 reverts to the original value with no request. One reusable controller
 (`setupEditableField`) drives all three field groups, including the two-input name group.
 
+### 4.11 A login loop in production — Cloudflare's edge cache
+After deploying, the professor hit a login loop: entering her password bounced her to the
+landing page instead of the dashboard, over and over. The backend logged a successful login,
+her browser's incognito mode didn't help, and we couldn't reproduce it on local machines.
+
+Root cause: the production deployment runs behind a **Cloudflare named tunnel**, so the app
+sits behind Cloudflare's CDN, which **edge-caches static `.js`/`.css` by default**. The app
+serves its embedded frontend with **no `Cache-Control` header**, so Cloudflare kept serving
+the *old* `prof_login.js` (whose redirect pointed at `/`, now the landing page). The tells:
+incognito didn't help (the stale copy was at the CDN edge, not the browser); local testing
+couldn't reproduce (no CDN in the path); and `curl -I .../js/prof_login.js` showed
+`cf-cache-status: HIT`.
+
+Immediate fix: purge the Cloudflare cache. Durable fix (recommended): send `Cache-Control:
+no-cache` from the static handler in `cmd/server/main.go` so Cloudflare revalidates and
+auto-picks-up new builds. Until that header is added, **every frontend redeploy needs a
+manual Cloudflare cache purge.**
+
 ---
 
 ## 5. Final Architecture
