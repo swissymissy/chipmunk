@@ -93,7 +93,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("frontend embed sub: %v", err)
 	}
-	mux.Handle("/", http.FileServer(http.FS(frontendSub)))
+	mux.Handle("/", middleware.NoCache(http.FileServer(http.FS(frontendSub))))
 
 	// register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)
