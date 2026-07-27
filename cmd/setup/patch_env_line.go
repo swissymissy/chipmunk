@@ -7,7 +7,7 @@ import (
 
 // replaces or appends KEY=value in .env file
 func PatchEnvLine(path, key, value string) error {
-	content, err := os.ReadFile(path)
+	content, err := os.ReadFile(path) // #nosec 304 -- local setup tool, operator-provided path
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func PatchEnvLine(path, key, value string) error {
 	result := strings.Join(lines, "\n")
 
 	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, []byte(result), 0600); err != nil {
+	if err := os.WriteFile(tmp, []byte(result), 0600); err != nil { // #nosec G703 -- local setup tool, operator-provided path
 		return err
 	}
 

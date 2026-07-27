@@ -84,8 +84,9 @@ func main() {
 	// new http server
 	address := fmt.Sprintf(":%s", port)
 	chipmunkServer := http.Server{
-		Addr:    address,
-		Handler: mux,
+		Addr:              address,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	// serve embedded frontend assets so the binary is fully self-contained.
