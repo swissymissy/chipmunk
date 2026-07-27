@@ -41,7 +41,7 @@ DELETE FROM students;
 -- Search for one student's profile by the UUID
 
 -- name: GetProfileByID :one
-SELECT id, student_id, first_name, last_name, specialty, email
+SELECT id, student_id, first_name, last_name, specialty, email, must_change_password
 FROM students WHERE id = ?;
 
 -- name: UpdateStudentSchoolID :one
@@ -62,4 +62,17 @@ SET first_name = ?, last_name = ? , updated_at = datetime('now')
 WHERE id = ?
 RETURNING *;
 
+-- let student modify their password
+-- it clears the flag
+-- name: UpdateStudentPasswordByID :exec
+UPDATE students
+SET password_hash = ?, must_change_password = 0, updated_at = datetime('now')
+WHERE id = ?;
+
+-- let professor reset student's password
+-- it sets the flag
+-- name: ResetStudentPassword :exec 
+UPDATE students 
+SET password_hash = ?, must_change_password = 1, updated_at = datetime('now')
+WHERE id = ?;
 

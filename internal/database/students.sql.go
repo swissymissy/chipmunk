@@ -13,7 +13,7 @@ import (
 const createStudent = `-- name: CreateStudent :one
 INSERT INTO students (id, student_id, email, password_hash, first_name, last_name, verified, specialty, registered_fingerprint)
 VALUES (?,?,?,?,?,?, 1 ,?, ?)
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password
 `
 
 type CreateStudentParams struct {
@@ -51,6 +51,7 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
@@ -66,7 +67,7 @@ func (q *Queries) DeleteStudent(ctx context.Context, id string) error {
 }
 
 const getByID = `-- name: GetByID :one
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password FROM students
 WHERE id = ?
 `
 
@@ -85,23 +86,25 @@ func (q *Queries) GetByID(ctx context.Context, id string) (Student, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
 
 const getProfileByID = `-- name: GetProfileByID :one
 
-SELECT id, student_id, first_name, last_name, specialty, email
+SELECT id, student_id, first_name, last_name, specialty, email, must_change_password
 FROM students WHERE id = ?
 `
 
 type GetProfileByIDRow struct {
-	ID        string
-	StudentID string
-	FirstName string
-	LastName  string
-	Specialty sql.NullString
-	Email     string
+	ID                 string
+	StudentID          string
+	FirstName          string
+	LastName           string
+	Specialty          sql.NullString
+	Email              string
+	MustChangePassword int64
 }
 
 // student editing profile feature
@@ -116,12 +119,13 @@ func (q *Queries) GetProfileByID(ctx context.Context, id string) (GetProfileByID
 		&i.LastName,
 		&i.Specialty,
 		&i.Email,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
 
 const getStudentByEmail = `-- name: GetStudentByEmail :one
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password FROM students
 WHERE email = ?
 `
 
@@ -140,12 +144,13 @@ func (q *Queries) GetStudentByEmail(ctx context.Context, email string) (Student,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
 
 const getStudentByID = `-- name: GetStudentByID :one
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password FROM students
 WHERE student_id = ?
 `
 
@@ -164,12 +169,13 @@ func (q *Queries) GetStudentByID(ctx context.Context, studentID string) (Student
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
 
 const listAllStudents = `-- name: ListAllStudents :many
-SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint FROM students
+SELECT id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password FROM students
 `
 
 func (q *Queries) ListAllStudents(ctx context.Context) ([]Student, error) {
@@ -193,6 +199,7 @@ func (q *Queries) ListAllStudents(ctx context.Context) ([]Student, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.RegisteredFingerprint,
+			&i.MustChangePassword,
 		); err != nil {
 			return nil, err
 		}
@@ -205,6 +212,24 @@ func (q *Queries) ListAllStudents(ctx context.Context) ([]Student, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const resetStudentPassword = `-- name: ResetStudentPassword :exec
+UPDATE students 
+SET password_hash = ?, must_change_password = 1, updated_at = datetime('now')
+WHERE id = ?
+`
+
+type ResetStudentPasswordParams struct {
+	PasswordHash sql.NullString
+	ID           string
+}
+
+// let professor reset student's password
+// it sets the flag
+func (q *Queries) ResetStudentPassword(ctx context.Context, arg ResetStudentPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, resetStudentPassword, arg.PasswordHash, arg.ID)
+	return err
 }
 
 const resetStudents = `-- name: ResetStudents :exec
@@ -220,7 +245,7 @@ const updatePassword = `-- name: UpdatePassword :one
 UPDATE students
 SET password_hash = ?, updated_at = datetime('now'), verified = 1
 WHERE student_id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password
 `
 
 type UpdatePasswordParams struct {
@@ -243,6 +268,7 @@ func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
@@ -251,7 +277,7 @@ const updateStudentEmail = `-- name: UpdateStudentEmail :one
 UPDATE students
 SET email = ?, updated_at = datetime('now')
 WHERE student_id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password
 `
 
 type UpdateStudentEmailParams struct {
@@ -274,6 +300,7 @@ func (q *Queries) UpdateStudentEmail(ctx context.Context, arg UpdateStudentEmail
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
@@ -282,7 +309,7 @@ const updateStudentEmailByID = `-- name: UpdateStudentEmailByID :one
 UPDATE students 
 SET email = ?, updated_at = datetime('now')
 WHERE id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password
 `
 
 type UpdateStudentEmailByIDParams struct {
@@ -305,6 +332,7 @@ func (q *Queries) UpdateStudentEmailByID(ctx context.Context, arg UpdateStudentE
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
@@ -313,7 +341,7 @@ const updateStudentName = `-- name: UpdateStudentName :one
 UPDATE students 
 SET first_name = ?, last_name = ? , updated_at = datetime('now')
 WHERE id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password
 `
 
 type UpdateStudentNameParams struct {
@@ -337,15 +365,34 @@ func (q *Queries) UpdateStudentName(ctx context.Context, arg UpdateStudentNamePa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
+}
+
+const updateStudentPasswordByID = `-- name: UpdateStudentPasswordByID :exec
+UPDATE students
+SET password_hash = ?, must_change_password = 0, updated_at = datetime('now')
+WHERE id = ?
+`
+
+type UpdateStudentPasswordByIDParams struct {
+	PasswordHash sql.NullString
+	ID           string
+}
+
+// let student modify their password
+// it clears the flag
+func (q *Queries) UpdateStudentPasswordByID(ctx context.Context, arg UpdateStudentPasswordByIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateStudentPasswordByID, arg.PasswordHash, arg.ID)
+	return err
 }
 
 const updateStudentSchoolID = `-- name: UpdateStudentSchoolID :one
 UPDATE students 
 SET student_id = ? , updated_at = datetime('now')
 WHERE id = ?
-RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint
+RETURNING id, student_id, email, password_hash, first_name, last_name, verified, specialty, created_at, updated_at, registered_fingerprint, must_change_password
 `
 
 type UpdateStudentSchoolIDParams struct {
@@ -368,6 +415,7 @@ func (q *Queries) UpdateStudentSchoolID(ctx context.Context, arg UpdateStudentSc
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RegisteredFingerprint,
+		&i.MustChangePassword,
 	)
 	return i, err
 }
