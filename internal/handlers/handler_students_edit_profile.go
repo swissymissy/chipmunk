@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/swissymissy/chipmunk/internal/auth"
 	"github.com/swissymissy/chipmunk/internal/database"
 	"github.com/swissymissy/chipmunk/internal/middleware"
 )
@@ -201,5 +202,72 @@ func (cfg *ApiConfig) HandlerStudentRemoveACourse(w http.ResponseWriter, r *http
 		Msg string `json:"msg"`
 	}{
 		Msg: "Course has been removed",
+	})
+}
+
+// let students change their password
+func (cfg *ApiConfig) HandleStudentChangePassword(w http.ResponseWriter, r *http.Request) {
+	// get student ID from the context
+	studentID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		ResponseWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	// decode request
+	var newPassword StudentChangePasswordRequest
+	err := DecodeRequest(r, &newPassword)
+	if err != nil {
+		log.Printf("error decoding update password request: %s\n", err)
+		ResponseWithError(w, http.StatusBadRequest, "unable to update password")
+		return
+	}
+
+	// get current password from db to compare with user's current password input
+	student, err := cfg.DB.GetByID(r.Context(), studentID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("student does not exist: %s\n", err)
+			ResponseWithError(w, http.StatusNotFound, "unable to change password. student not found")
+			return
+		}
+		log.Printf("error updating student password: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "unable to change student password")
+		return
+	}
+
+	// check user's password input with password in db
+	match, err := auth.CheckPasswordHash(newPassword.CurrentPassword, student.PasswordHash.String)
+	if err != nil {
+		log.Printf("error checking password hash: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "unable to change password")
+		return
+	}
+	if !match {
+		ResponseWithError(w, http.StatusBadRequest, "current password is incorrect")
+		return
+	}
+
+	// hash new password
+	hashedpw, err := auth.HashPassword(newPassword.NewPassword)
+	if err != nil {
+		log.Printf("error hashing new password: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "unable to change password")
+		return
+	}
+
+	// update new password in db
+	err = cfg.DB.UpdateStudentPasswordByID(r.Context(), database.UpdateStudentPasswordByIDParams{ID: studentID, PasswordHash: ToNullString(hashedpw)})
+	if err != nil {
+		log.Printf("error updating password in db: %s\n", err)
+		ResponseWithError(w, http.StatusInternalServerError, "unable to update student password")
+		return
+	}
+
+	// response
+	ResponseWithJSON(w, http.StatusOK, struct {
+		Msg string `json:"msg"`
+	}{
+		Msg: "Password is updated",
 	})
 }
