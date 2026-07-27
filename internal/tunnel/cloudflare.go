@@ -25,7 +25,7 @@ func StartQuickTunnel(ctx context.Context, localURL string) (*QuickTunnel, error
 	if err != nil {
 		return nil, err
 	}
-	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "--url", localURL)
+	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "--url", localURL) // #nosec G204 -- path resolved from app dir or PATH, not user input
 
 	// catch stdout
 	stdout, err := cmd.StdoutPipe()
@@ -81,7 +81,7 @@ func StartNamedTunnel(ctx context.Context, token string) (*NamedTunnel, error) {
 	if err != nil {
 		return nil, err
 	}
-	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "run", "--token", token)
+	cmd := exec.CommandContext(ctx, cloudflarePath, "tunnel", "run", "--token", token) // #nosec G204 -- path resolved from app dir or PATH, not user input
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

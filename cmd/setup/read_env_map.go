@@ -7,7 +7,7 @@ import (
 
 // reads a .env file and save values into a map
 func ReadEnvMap(path string) (map[string]string, error) {
-	content, err := os.ReadFile(path)
+	content, err := os.ReadFile(path) // #nosec G304 -- local setup tool, operator-provided path
 	if err != nil {
 		return nil, err
 	}
