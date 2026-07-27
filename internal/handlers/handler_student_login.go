@@ -69,5 +69,6 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 		Verified:  student.Verified,
 		Specialty: student.Specialty.String,
 		Token:     token,
+		MustChangePassword: student.MustChangePassword == 1,
 	})
 }
