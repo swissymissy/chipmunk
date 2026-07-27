@@ -14,13 +14,14 @@ type StudentLoginRequest struct {
 	Password string `json:"password"`
 }
 type StudentLoginResponse struct {
-	StudentID string `json:"student_id"`
-	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Verified  int64  `json:"verified"`
-	Specialty string `json:"specialty"`
-	Token     string `json:"token"`
+	StudentID          string `json:"student_id"`
+	Email              string `json:"email"`
+	FirstName          string `json:"first_name"`
+	LastName           string `json:"last_name"`
+	Verified           int64  `json:"verified"`
+	Specialty          string `json:"specialty"`
+	Token              string `json:"token"`
+	MustChangePassword bool   `json:"must_change_password"`
 }
 
 type StudentRegisterRequest struct {
@@ -166,9 +167,21 @@ type UpdateNameRequest struct {
 }
 
 type StudentProfileResponse struct {
-	SchoolID  string `json:"student_school_id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Specialty string `json:"specialty"`
+	SchoolID           string `json:"student_school_id"`
+	FirstName          string `json:"first_name"`
+	LastName           string `json:"last_name"`
+	Email              string `json:"email"`
+	Specialty          string `json:"specialty"`
+	MustChangePassword bool   `json:"must_change_password"`
+}
+
+// students modify their password
+type StudentChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+// professor type temp password
+type TempPasswordRequest struct {
+	NewPassword string `json:"new_password"`
 }
