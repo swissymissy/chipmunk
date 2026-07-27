@@ -7,7 +7,7 @@ import (
 
 // replaces or appends KEY=value in .env file
 func PatchEnvLine(path, key, value string) error {
-	content, err := os.ReadFile(path)
+	content, err := os.ReadFile(path) // nosec 304 -- local setup tool, operator-provided path
 	if err != nil {
 		return err
 	}

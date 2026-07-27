@@ -86,6 +86,7 @@ func main() {
 	chipmunkServer := http.Server{
 		Addr:    address,
 		Handler: mux,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	// serve embedded frontend assets so the binary is fully self-contained.
