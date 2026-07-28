@@ -42,7 +42,8 @@ SELECT
     s.first_name,
     s.last_name,
     r.status,
-    r.check_in_at
+    r.check_in_at,
+    r.note
 FROM attendance_records r 
 JOIN students s ON r.student_id = s.id 
 JOIN attendance_sessions sess ON r.session_id = sess.id 
