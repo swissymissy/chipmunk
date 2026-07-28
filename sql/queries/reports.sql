@@ -50,3 +50,15 @@ JOIN courses c ON sess.course_id = c.id
 WHERE sess.session_date = ?
 ORDER BY c.start_time, s.last_name, s.first_name;
 
+-- get attendance information for student to keep track of their atttendance
+-- name: GetStudentAttendanceProgress :many
+SELECT c.id AS course_id, c.course_name,
+    COUNT(CASE WHEN r.status = 'present' THEN 1 END) AS present,
+    COUNT(CASE WHEN r.status = 'late' THEN 1 END) AS late,
+    COUNT(CASE WHEN r.status = 'absent' THEN 1 END) AS absent,
+    COUNT(r.id) AS total_sessions
+FROM attendance_records r
+JOIN attendance_sessions sess ON r.session_id = sess.id
+JOIN courses c ON sess.course_id = c.id
+WHERE r.student = ?
+GROUP BY c.id ORDER BY c.course_name;
