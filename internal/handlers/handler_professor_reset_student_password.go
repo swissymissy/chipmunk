@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
-	"errors"
 	"log"
 	"net/http"
 
@@ -39,11 +37,6 @@ func (cfg *ApiConfig) HandlerProfessorResetStudentPassword(w http.ResponseWriter
 	// update password
 	err = cfg.DB.ResetStudentPassword(r.Context(), database.ResetStudentPasswordParams{PasswordHash: ToNullString(hash), ID: studentID})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			log.Printf("error updating password. student not found: %s\n", err)
-			ResponseWithError(w, http.StatusNotFound, "unable to reset password. Student not found")
-			return
-		}
 		log.Printf("error updating password: %s\n", err)
 		ResponseWithError(w, http.StatusInternalServerError, "unable to reset password. Something went wrong")
 		return
