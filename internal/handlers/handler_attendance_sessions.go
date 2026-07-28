@@ -16,6 +16,7 @@ type RosterRep struct {
 	LastName   string `json:"last_name"`
 	StudentID2 string `json:"student_school_id"` // student's school id
 	Flagged    bool   `json:"flagged"`           // flagged students that has same fingerprint with another student
+	Note       string `json:"note"`
 }
 
 // let professor see all the rosters in the specific session and check their status
@@ -92,6 +93,7 @@ func (cfg *ApiConfig) HandlerAttendanceBySession(w http.ResponseWriter, r *http.
 			LastName:   s.LastName,
 			StudentID2: s.StudentID_2,
 			Flagged:    flagged[s.StudentID], // return true or false
+			Note:       s.Note.String,
 		})
 	}
 
