@@ -36,6 +36,37 @@ function buildTable(headers, rows) {
     return table;
 }
 
+// Filter a student table (roster / attendance / edit-records) to rows whose
+// Student ID or Name matches the query. Those two are always the first two
+// columns, so we match against cells 0-1 only — that keeps the search from
+// hitting button labels ("Mark Present"), statuses, notes, or emails.
+// Updates an optional "<containerId>-count" element with "showing X of Y".
+function filterStudentTable(containerId, query) {
+    const q = query.trim().toLowerCase();
+    const table = document.getElementById(containerId).querySelector("table");
+    if (!table) return;
+    let shown = 0, total = 0;
+    for (const row of table.querySelectorAll("tr")) {
+        const cells = row.querySelectorAll("td");
+        if (cells.length === 0) continue;              // header row (th only)
+        total++;
+        const hay = (cells[0].textContent + " " + cells[1].textContent).toLowerCase();
+        const match = hay.includes(q);
+        row.style.display = match ? "" : "none";
+        if (match) shown++;
+    }
+    const count = document.getElementById(containerId + "-count");
+    if (count) count.textContent = q ? `Showing ${shown} of ${total}` : "";
+}
+
+// Re-apply an active search after a table is rebuilt. The attendance roster
+// re-renders every 5s (polling) and the roster/records tables rebuild when the
+// prof changes course/session — without this, hidden rows reappear.
+function reapplyFilter(searchId, containerId) {
+    const input = document.getElementById(searchId);
+    if (input && input.value) filterStudentTable(containerId, input.value);
+}
+
 function fillCourseDropdowns(courses) {
     for (const id of ["session-course", "roster-course", "export-course", "records-course"]) {
         fillDropdown(id, courses, c => c.course_id, courseLabel);
@@ -67,6 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         submitForm(e.target, createSpecialty);
     });
+
+    // return to the tab the prof was last on (survives a page refresh).
+    // guard against a stale/removed tab name so we don't crash on a bad value.
+    const savedTab = localStorage.getItem("dashboard_tab");
+    if (savedTab && document.getElementById("tab-" + savedTab)) {
+        showTab(savedTab);
+    }
 });
 
 function enterActiveSessionUI(session) {
@@ -91,7 +129,14 @@ function showTab(tabName, btn) {
     document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
     document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
     document.getElementById("tab-" + tabName).style.display = "block";
-    btn.classList.add("active");
+
+    // btn is the clicked button; on a refresh-restore there is none, so look it
+    // up by data-tab to highlight the right sidebar entry.
+    if (!btn) btn = document.querySelector('.tab-btn[data-tab="' + tabName + '"]');
+    if (btn) btn.classList.add("active");
+
+    // remember the tab so refreshing the page returns here instead of Courses
+    localStorage.setItem("dashboard_tab", tabName);
 
     // stop attendance polling if leaving
     if (attendanceInterval) {
@@ -258,6 +303,7 @@ async function loadRoster() {
             return [s.student_id, name, s.email, s.specialty || "", actions];
         })
     ));
+    reapplyFilter("roster-search", "roster-list");
 }
 
 // professor sets a temp password for a student and forces a change at next login.
@@ -446,6 +492,7 @@ async function loadAttendanceRoster(sessionID) {
         ));
 
         renderFlagGroups(flagGroups);
+        reapplyFilter("attendance-search", "attendance-list");
     } catch (err) {
         msgEl.style.color = "";
         msgEl.textContent = err.message;
@@ -562,6 +609,7 @@ async function loadRecordEditor() {
                 return [r.student_school_id, r.first_name + " " + r.last_name, sel, note, save];
             }),
         ));
+        reapplyFilter("records-search", "records-list");
     } catch (err) {
         msgEl.style.color = "red";
         msgEl.textContent = err.message;

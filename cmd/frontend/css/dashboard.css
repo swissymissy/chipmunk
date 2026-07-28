@@ -109,6 +109,19 @@ body {
     gap: 6px;
 }
 
+/* Search box above a student list — filters rows client-side as the prof types */
+.student-search {
+    max-width: 360px;
+    margin: 12px 0 4px 0;
+}
+.search-count {
+    display: block;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+.search-count:empty { display: none; }
+
 /* Edit Records: keep the inline status dropdown + note input compact */
 #records-list select,
 #records-list input {

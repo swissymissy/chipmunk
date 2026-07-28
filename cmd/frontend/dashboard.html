@@ -17,13 +17,13 @@
             <img src="/images/chipmunk.png" alt="Chipmunk logo" class="logo">
             <h1>Chipmunk</h1>
         </div>
-        <button class="tab-btn active" onclick="showTab('courses', this)">Courses</button>
-        <button class="tab-btn" onclick="showTab('session', this)">Sessions</button>
-        <button class="tab-btn" onclick="showTab('attendance', this)">Attendance</button>
-        <button class="tab-btn" onclick="showTab('records', this)">Edit Records</button>
-        <button class="tab-btn" onclick="showTab('roster', this)">Roster</button>
-        <button class="tab-btn" onclick="showTab('export', this)">Export</button>
-        <button class="tab-btn" onclick="showTab('settings', this)">Settings</button>
+        <button class="tab-btn active" data-tab="courses" onclick="showTab('courses', this)">Courses</button>
+        <button class="tab-btn" data-tab="session" onclick="showTab('session', this)">Sessions</button>
+        <button class="tab-btn" data-tab="attendance" onclick="showTab('attendance', this)">Attendance</button>
+        <button class="tab-btn" data-tab="records" onclick="showTab('records', this)">Edit Records</button>
+        <button class="tab-btn" data-tab="roster" onclick="showTab('roster', this)">Roster</button>
+        <button class="tab-btn" data-tab="export" onclick="showTab('export', this)">Export</button>
+        <button class="tab-btn" data-tab="settings" onclick="showTab('settings', this)">Settings</button>
         <button class="logout-btn" onclick="logout()">Log out</button>
     </aside>
 
@@ -96,6 +96,10 @@
                 <label for="attendance-session">Session</label>
                 <select id="attendance-session" onchange="onAttendanceSessionChange()"></select>
             </div>
+            <input type="text" id="attendance-search" class="student-search"
+                placeholder="Search by name or ID…"
+                oninput="filterStudentTable('attendance-list', this.value)">
+            <span id="attendance-list-count" class="search-count"></span>
             <div id="attendance-list"></div>
             <div id="attendance-flags"></div>
             <div id="attendance-msg"></div>
@@ -114,6 +118,10 @@
             <select id="records-session" onchange="loadRecordEditor()">
                 <option value="">-- Select a session --</option>
             </select>
+            <input type="text" id="records-search" class="student-search"
+                placeholder="Search by name or ID…"
+                oninput="filterStudentTable('records-list', this.value)">
+            <span id="records-list-count" class="search-count"></span>
             <div id="records-list"></div>
             <div id="records-msg"></div>
         </div>
@@ -126,6 +134,10 @@
                 <option value="">-- Select a course --</option>
             </select>
             <button onclick="loadRoster()">View Roster</button>
+            <input type="text" id="roster-search" class="student-search"
+                placeholder="Search by name or ID…"
+                oninput="filterStudentTable('roster-list', this.value)">
+            <span id="roster-list-count" class="search-count"></span>
             <div id="roster-list"></div>
         </div>
 
