@@ -1,6 +1,6 @@
 -- find suspicious identical fingerprint for different accounts.
 -- returns students whose fingerprint matches at least 1 other student
--- in the same session, regardless of current status — so flag history
+-- in the same session, regardless of current status - so flag history
 -- stays visible after the prof marks a cheater absent.
 -- name: GetFlaggedFingerprints :many
 SELECT

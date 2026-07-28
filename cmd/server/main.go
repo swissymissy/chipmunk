@@ -102,6 +102,7 @@ func main() {
 
 	// professor only
 	mux.HandleFunc("POST /api/courses", middleware.RequireProfessor(cfg.HandleCreateCourse, cfg.JWT))                                                // professor create new course
+	mux.HandleFunc("GET /api/courses/{course_id}/sessions", middleware.RequireProfessor(cfg.HandlerListAllSessions, cfg.JWT))                        // professor see all  session from a specific course
 	mux.HandleFunc("DELETE /api/courses/{id}", middleware.RequireProfessor(cfg.HandlerRemoveCourse, cfg.JWT))                                        // delete a course from the list
 	mux.HandleFunc("POST /api/sessions/start", middleware.RequireProfessor(cfg.HandlerStartSession, cfg.JWT))                                        // start a new session
 	mux.HandleFunc("PUT /api/sessions/close", middleware.RequireProfessor(cfg.HandlerCloseSession, cfg.JWT))                                         // close an active session
@@ -111,6 +112,7 @@ func main() {
 	mux.HandleFunc("GET /api/attendance/{session_id}", middleware.RequireProfessor(cfg.HandlerAttendanceBySession, cfg.JWT))                         // view who is present/absent in a specific session
 	mux.HandleFunc("PUT /api/attendance/override", middleware.RequireProfessor(cfg.HandlerMarkStudentPresent, cfg.JWT))                              // manually mark a student present
 	mux.HandleFunc("PUT /api/attendance/override/absent", middleware.RequireProfessor(cfg.HandlerMarkStudentAbsent, cfg.JWT))                        // professor flip student back to be absent if they are found cheating
+	mux.HandleFunc("PUT /api/attendance/record", middleware.RequireProfessor(cfg.HandlerUpdateAttendanceRecord, cfg.JWT))                            // let professor edit past session record of a course - mark student as 'late' and add note
 	mux.HandleFunc("GET /api/sessions/{id}/qr", middleware.RequireProfessor(cfg.HandlerGetQRToken, cfg.JWT))                                         // endpoint for professor to get fresh qr token
 	mux.HandleFunc("GET /api/export/semester/{course_id}", middleware.RequireProfessor(cfg.HandlerExportSemesterRecords, cfg.JWT))                   // export semester attendance records to excel file
 	mux.HandleFunc("GET /api/export/daily/{date}", middleware.RequireProfessor(cfg.HandlerExportDailyRecord, cfg.JWT))                               // export daily attendance records to excel file

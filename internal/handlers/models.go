@@ -126,6 +126,21 @@ type AllSessionByCourseResponse struct {
 	EndedAt     string `json:"ended_at"`
 }
 
+type UpdateAttendanceRecordRequest struct {
+	SessionID int64  `json:"session_id"`
+	StudentID string `json:"student_id"`
+	Status    string `json:"status"`
+	Note      string `json:"note"`
+}
+
+type AttendanceRecordResponse struct {
+	Msg       string `json:"msg"`
+	SessionID int64  `json:"session_id"`
+	StudentID string `json:"student_id"`
+	Status    string `json:"status"`
+	Note      string `json:"note"`
+}
+
 // =============================================================
 
 type QRTokenResponse struct {
