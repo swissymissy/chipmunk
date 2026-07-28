@@ -3,13 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
 func DecodeRequest[T any](r *http.Request, val *T) error {
 	defer r.Body.Close()
 
-	decoder := json.NewDecoder(r.Body)
+	decoder := json.NewDecoder(io.LimitReader(r.Body, 1<<20)) // 1 MB cap
 	if err := decoder.Decode(val); err != nil {
 		return fmt.Errorf("error decoding request: %w", err)
 	}
