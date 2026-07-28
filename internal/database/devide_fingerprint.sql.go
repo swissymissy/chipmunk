@@ -43,7 +43,7 @@ type GetFlaggedFingerprintsRow struct {
 
 // find suspicious identical fingerprint for different accounts.
 // returns students whose fingerprint matches at least 1 other student
-// in the same session, regardless of current status — so flag history
+// in the same session, regardless of current status - so flag history
 // stays visible after the prof marks a cheater absent.
 func (q *Queries) GetFlaggedFingerprints(ctx context.Context, sessionID int64) ([]GetFlaggedFingerprintsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFlaggedFingerprints, sessionID)

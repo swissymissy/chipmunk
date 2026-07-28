@@ -187,6 +187,50 @@ func (q *Queries) ListActiveSessions(ctx context.Context) ([]ListActiveSessionsR
 	return items, nil
 }
 
+const listAllSessionsByCourse = `-- name: ListAllSessionsByCourse :many
+SELECT id, session_date, status, started_at, ended_at
+FROM attendance_sessions WHERE course_id = ?
+ORDER BY session_date DESC, started_at DESC
+`
+
+type ListAllSessionsByCourseRow struct {
+	ID          int64
+	SessionDate string
+	Status      string
+	StartedAt   string
+	EndedAt     sql.NullString
+}
+
+// list all sessions by course (past sessions to present)
+func (q *Queries) ListAllSessionsByCourse(ctx context.Context, courseID string) ([]ListAllSessionsByCourseRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAllSessionsByCourse, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAllSessionsByCourseRow
+	for rows.Next() {
+		var i ListAllSessionsByCourseRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionDate,
+			&i.Status,
+			&i.StartedAt,
+			&i.EndedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const reOpenSession = `-- name: ReOpenSession :one
 UPDATE attendance_sessions
 SET status = 'active', ended_at = NULL

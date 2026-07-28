@@ -19,7 +19,8 @@ SELECT
     s.first_name,
     s.last_name,
     r.status,
-    r.check_in_at
+    r.check_in_at,
+    r.note
 FROM attendance_records r 
 JOIN students s ON r.student_id = s.id 
 JOIN attendance_sessions sess ON r.session_id = sess.id 
@@ -37,6 +38,7 @@ type GetAttendanceByDateRow struct {
 	LastName    string
 	Status      string
 	CheckInAt   sql.NullString
+	Note        sql.NullString
 }
 
 // daily report: all records for sessions on a specific date
@@ -58,6 +60,7 @@ func (q *Queries) GetAttendanceByDate(ctx context.Context, sessionDate string) (
 			&i.LastName,
 			&i.Status,
 			&i.CheckInAt,
+			&i.Note,
 		); err != nil {
 			return nil, err
 		}
@@ -79,6 +82,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -95,6 +100,8 @@ type GetAttendanceSummaryByCourseRow struct {
 	LastName      string
 	Specialty     sql.NullString
 	TotalPresent  int64
+	TotalLate     int64
+	TotalAbsent   int64
 	TotalSessions int64
 	Average       float64
 }
@@ -115,6 +122,8 @@ func (q *Queries) GetAttendanceSummaryByCourse(ctx context.Context, courseID str
 			&i.LastName,
 			&i.Specialty,
 			&i.TotalPresent,
+			&i.TotalLate,
+			&i.TotalAbsent,
 			&i.TotalSessions,
 			&i.Average,
 		); err != nil {
@@ -138,6 +147,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -160,6 +171,8 @@ type GetAttendanceSummaryByCourseInDateRangeRow struct {
 	LastName      string
 	Specialty     sql.NullString
 	TotalPresent  int64
+	TotalLate     int64
+	TotalAbsent   int64
 	TotalSessions int64
 	Average       float64
 }
@@ -180,8 +193,63 @@ func (q *Queries) GetAttendanceSummaryByCourseInDateRange(ctx context.Context, a
 			&i.LastName,
 			&i.Specialty,
 			&i.TotalPresent,
+			&i.TotalLate,
+			&i.TotalAbsent,
 			&i.TotalSessions,
 			&i.Average,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStudentAttendanceProgress = `-- name: GetStudentAttendanceProgress :many
+SELECT c.id AS course_id, c.course_name,
+    COUNT(CASE WHEN r.status = 'present' THEN 1 END) AS present,
+    COUNT(CASE WHEN r.status = 'late' THEN 1 END) AS late,
+    COUNT(CASE WHEN r.status = 'absent' THEN 1 END) AS absent,
+    COUNT(r.id) AS total_sessions
+FROM attendance_records r
+JOIN attendance_sessions sess ON r.session_id = sess.id
+JOIN courses c ON sess.course_id = c.id
+WHERE r.student_id = ?
+GROUP BY c.id ORDER BY c.course_name
+`
+
+type GetStudentAttendanceProgressRow struct {
+	CourseID      string
+	CourseName    string
+	Present       int64
+	Late          int64
+	Absent        int64
+	TotalSessions int64
+}
+
+// get attendance information for student to keep track of their atttendance
+func (q *Queries) GetStudentAttendanceProgress(ctx context.Context, studentID string) ([]GetStudentAttendanceProgressRow, error) {
+	rows, err := q.db.QueryContext(ctx, getStudentAttendanceProgress, studentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStudentAttendanceProgressRow
+	for rows.Next() {
+		var i GetStudentAttendanceProgressRow
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.CourseName,
+			&i.Present,
+			&i.Late,
+			&i.Absent,
+			&i.TotalSessions,
 		); err != nil {
 			return nil, err
 		}

@@ -74,6 +74,7 @@ type Specialty struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// ======== SESSION =========
 type Session struct {
 	ID          int64  `json:"id"`
 	CourseID    string `json:"course_id"`
@@ -117,6 +118,31 @@ type ActiveSessionsView struct {
 	StartedAt   string `json:"started_at"`
 }
 
+type AllSessionByCourseResponse struct {
+	ID          int64  `json:"id"`
+	SessionDate string `json:"session_date"`
+	Status      string `json:"status"`
+	StartedAt   string `json:"started_at"`
+	EndedAt     string `json:"ended_at"`
+}
+
+type UpdateAttendanceRecordRequest struct {
+	SessionID int64  `json:"session_id"`
+	StudentID string `json:"student_id"`
+	Status    string `json:"status"`
+	Note      string `json:"note"`
+}
+
+type AttendanceRecordResponse struct {
+	Msg       string `json:"msg"`
+	SessionID int64  `json:"session_id"`
+	StudentID string `json:"student_id"`
+	Status    string `json:"status"`
+	Note      string `json:"note"`
+}
+
+// =============================================================
+
 type QRTokenResponse struct {
 	Token      string `json:"token"`
 	CheckInURL string `json:"checkin_url"`
@@ -154,7 +180,7 @@ type AttendanceBySessionResponse struct {
 	FlagGroups []FlagGroups `json:"flag_groups"`
 }
 
-// === Edit Student Profile ===
+// ====== Edit Student Profile ======
 type UpdateSchoolIDRequest struct {
 	SchoolID string `json:"student_school_id"`
 }
@@ -185,3 +211,14 @@ type StudentChangePasswordRequest struct {
 type TempPasswordRequest struct {
 	NewPassword string `json:"new_password"`
 }
+
+type StudentAttendanceProgressResponse struct {
+	CourseID      string `json:"course_id"`
+	CourseName    string `json:"course_name"`
+	Present       int64  `json:"present"`
+	Late          int64  `json:"late"`
+	Absent        int64  `json:"absent"`
+	TotalSessions int64  `json:"total_sessions"`
+}
+
+// ====================================================

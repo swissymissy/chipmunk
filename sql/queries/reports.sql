@@ -6,6 +6,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -23,6 +25,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -42,7 +46,8 @@ SELECT
     s.first_name,
     s.last_name,
     r.status,
-    r.check_in_at
+    r.check_in_at,
+    r.note
 FROM attendance_records r 
 JOIN students s ON r.student_id = s.id 
 JOIN attendance_sessions sess ON r.session_id = sess.id 
@@ -50,3 +55,15 @@ JOIN courses c ON sess.course_id = c.id
 WHERE sess.session_date = ?
 ORDER BY c.start_time, s.last_name, s.first_name;
 
+-- get attendance information for student to keep track of their atttendance
+-- name: GetStudentAttendanceProgress :many
+SELECT c.id AS course_id, c.course_name,
+    COUNT(CASE WHEN r.status = 'present' THEN 1 END) AS present,
+    COUNT(CASE WHEN r.status = 'late' THEN 1 END) AS late,
+    COUNT(CASE WHEN r.status = 'absent' THEN 1 END) AS absent,
+    COUNT(r.id) AS total_sessions
+FROM attendance_records r
+JOIN attendance_sessions sess ON r.session_id = sess.id
+JOIN courses c ON sess.course_id = c.id
+WHERE r.student_id = ?
+GROUP BY c.id ORDER BY c.course_name;

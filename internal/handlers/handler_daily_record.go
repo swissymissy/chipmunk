@@ -64,11 +64,11 @@ func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Re
 		}
 
 		// title
-		f.MergeCell(sheetName, "A1", "G1")
+		f.MergeCell(sheetName, "A1", "H1")
 		f.SetCellValue(sheetName, "A1", sheetName)
-		f.SetCellStyle(sheetName, "A1", "G1", styles.Title)
+		f.SetCellStyle(sheetName, "A1", "H1", styles.Title)
 
-		// headers
+		// headers row
 		f.SetSheetRow(sheetName, "A2", &[]interface{}{
 			"Student ID",
 			"First Name",
@@ -77,10 +77,11 @@ func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Re
 			"Check-in Time",
 			"Course",
 			"Start time",
+			"Note",
 		})
-		f.SetCellStyle(sheetName, "A2", "G2", styles.Header)
+		f.SetCellStyle(sheetName, "A2", "H2", styles.Header)
 
-		// write rows
+		// write rows - data rows
 		for i, r := range courseRecords {
 			rowNum := i + 3
 			cell := fmt.Sprintf("A%d", rowNum)
@@ -92,6 +93,7 @@ func (cfg *ApiConfig) HandlerExportDailyRecord(w http.ResponseWriter, r *http.Re
 				LocalizeSQLiteTime(r.CheckInAt.String),
 				r.CourseName,
 				r.StartTime,
+				r.Note.String,
 			})
 		}
 	}

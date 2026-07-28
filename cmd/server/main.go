@@ -102,6 +102,7 @@ func main() {
 
 	// professor only
 	mux.HandleFunc("POST /api/courses", middleware.RequireProfessor(cfg.HandleCreateCourse, cfg.JWT))                                                // professor create new course
+	mux.HandleFunc("GET /api/courses/{course_id}/sessions", middleware.RequireProfessor(cfg.HandlerListAllSessions, cfg.JWT))                        // professor see all  session from a specific course
 	mux.HandleFunc("DELETE /api/courses/{id}", middleware.RequireProfessor(cfg.HandlerRemoveCourse, cfg.JWT))                                        // delete a course from the list
 	mux.HandleFunc("POST /api/sessions/start", middleware.RequireProfessor(cfg.HandlerStartSession, cfg.JWT))                                        // start a new session
 	mux.HandleFunc("PUT /api/sessions/close", middleware.RequireProfessor(cfg.HandlerCloseSession, cfg.JWT))                                         // close an active session
@@ -111,6 +112,7 @@ func main() {
 	mux.HandleFunc("GET /api/attendance/{session_id}", middleware.RequireProfessor(cfg.HandlerAttendanceBySession, cfg.JWT))                         // view who is present/absent in a specific session
 	mux.HandleFunc("PUT /api/attendance/override", middleware.RequireProfessor(cfg.HandlerMarkStudentPresent, cfg.JWT))                              // manually mark a student present
 	mux.HandleFunc("PUT /api/attendance/override/absent", middleware.RequireProfessor(cfg.HandlerMarkStudentAbsent, cfg.JWT))                        // professor flip student back to be absent if they are found cheating
+	mux.HandleFunc("PUT /api/attendance/record", middleware.RequireProfessor(cfg.HandlerUpdateAttendanceRecord, cfg.JWT))                            // let professor edit past session record of a course - mark student as 'late' and add note
 	mux.HandleFunc("GET /api/sessions/{id}/qr", middleware.RequireProfessor(cfg.HandlerGetQRToken, cfg.JWT))                                         // endpoint for professor to get fresh qr token
 	mux.HandleFunc("GET /api/export/semester/{course_id}", middleware.RequireProfessor(cfg.HandlerExportSemesterRecords, cfg.JWT))                   // export semester attendance records to excel file
 	mux.HandleFunc("GET /api/export/daily/{date}", middleware.RequireProfessor(cfg.HandlerExportDailyRecord, cfg.JWT))                               // export daily attendance records to excel file
@@ -127,15 +129,16 @@ func main() {
 	mux.HandleFunc("GET /api/specialties", cfg.HandlerGetAllSpecialties)  // let student see list of all specialties
 
 	// students - auth required
-	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))                                  // student enroll in a course
-	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT))                      // students check in
-	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))                          // show list of all courses student has enrolled in
-	mux.HandleFunc("GET /api/students/myprofile", middleware.AuthRequired(cfg.HandlerGetStudentProfile, cfg.JWT))                    // let student see their profile page
-	mux.HandleFunc("PUT /api/students/myprofile/schoolid", middleware.AuthRequired(cfg.HandlerStudentUpdateSchoolID, cfg.JWT))       // let student update their school ID
-	mux.HandleFunc("PUT /api/students/myprofile/email", middleware.AuthRequired(cfg.HandlerStudentUpdateEmail, cfg.JWT))             // let students update their email
-	mux.HandleFunc("PUT /api/students/myprofile/name", middleware.AuthRequired(cfg.HandlerStudentUpdateName, cfg.JWT))               // let students update their name
-	mux.HandleFunc("DELETE /api/students/myprofile/courses/{id}", middleware.AuthRequired(cfg.HandlerStudentRemoveACourse, cfg.JWT)) // let students remove a course from their course list
-	mux.HandleFunc("PUT /api/students/myprofile/password", middleware.AuthRequired(cfg.HandlerStudentChangePassword, cfg.JWT))       // student update their password
+	mux.HandleFunc("POST /api/enrollment", middleware.AuthRequired(cfg.HandlerEnrollment, cfg.JWT))                                   // student enroll in a course
+	mux.HandleFunc("POST /api/attendance/checkin", middleware.AuthRequired(cfg.HandlerStudentCheckIn, cfg.JWT))                       // students check in
+	mux.HandleFunc("GET /api/enrollments", middleware.AuthRequired(cfg.HandlerStudentEnrollments, cfg.JWT))                           // show list of all courses student has enrolled in
+	mux.HandleFunc("GET /api/students/myprofile", middleware.AuthRequired(cfg.HandlerGetStudentProfile, cfg.JWT))                     // let student see their profile page
+	mux.HandleFunc("PUT /api/students/myprofile/schoolid", middleware.AuthRequired(cfg.HandlerStudentUpdateSchoolID, cfg.JWT))        // let student update their school ID
+	mux.HandleFunc("PUT /api/students/myprofile/email", middleware.AuthRequired(cfg.HandlerStudentUpdateEmail, cfg.JWT))              // let students update their email
+	mux.HandleFunc("PUT /api/students/myprofile/name", middleware.AuthRequired(cfg.HandlerStudentUpdateName, cfg.JWT))                // let students update their name
+	mux.HandleFunc("DELETE /api/students/myprofile/courses/{id}", middleware.AuthRequired(cfg.HandlerStudentRemoveACourse, cfg.JWT))  // let students remove a course from their course list
+	mux.HandleFunc("PUT /api/students/myprofile/password", middleware.AuthRequired(cfg.HandlerStudentChangePassword, cfg.JWT))        // student update their password
+	mux.HandleFunc("GET /api/students/myprofile/attendance", middleware.AuthRequired(cfg.HandlerStudentsAttendanceProgress, cfg.JWT)) // let students see their attendance progress during semester
 
 	// reset - prof only
 	mux.HandleFunc("DELETE /api/reset/students", middleware.RequireProfessor(cfg.HandlerResetStudents, cfg.JWT))       // reset students table

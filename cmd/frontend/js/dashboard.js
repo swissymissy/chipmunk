@@ -36,8 +36,39 @@ function buildTable(headers, rows) {
     return table;
 }
 
+// Filter a student table (roster / attendance / edit-records) to rows whose
+// Student ID or Name matches the query. Those two are always the first two
+// columns, so we match against cells 0-1 only — that keeps the search from
+// hitting button labels ("Mark Present"), statuses, notes, or emails.
+// Updates an optional "<containerId>-count" element with "showing X of Y".
+function filterStudentTable(containerId, query) {
+    const q = query.trim().toLowerCase();
+    const table = document.getElementById(containerId).querySelector("table");
+    if (!table) return;
+    let shown = 0, total = 0;
+    for (const row of table.querySelectorAll("tr")) {
+        const cells = row.querySelectorAll("td");
+        if (cells.length === 0) continue;              // header row (th only)
+        total++;
+        const hay = (cells[0].textContent + " " + cells[1].textContent).toLowerCase();
+        const match = hay.includes(q);
+        row.style.display = match ? "" : "none";
+        if (match) shown++;
+    }
+    const count = document.getElementById(containerId + "-count");
+    if (count) count.textContent = q ? `Showing ${shown} of ${total}` : "";
+}
+
+// Re-apply an active search after a table is rebuilt. The attendance roster
+// re-renders every 5s (polling) and the roster/records tables rebuild when the
+// prof changes course/session — without this, hidden rows reappear.
+function reapplyFilter(searchId, containerId) {
+    const input = document.getElementById(searchId);
+    if (input && input.value) filterStudentTable(containerId, input.value);
+}
+
 function fillCourseDropdowns(courses) {
-    for (const id of ["session-course", "roster-course", "export-course"]) {
+    for (const id of ["session-course", "roster-course", "export-course", "records-course"]) {
         fillDropdown(id, courses, c => c.course_id, courseLabel);
     }
 }
@@ -67,6 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         submitForm(e.target, createSpecialty);
     });
+
+    // return to the tab the prof was last on (survives a page refresh).
+    // guard against a stale/removed tab name so we don't crash on a bad value.
+    const savedTab = localStorage.getItem("dashboard_tab");
+    if (savedTab && document.getElementById("tab-" + savedTab)) {
+        showTab(savedTab);
+    }
 });
 
 function enterActiveSessionUI(session) {
@@ -91,7 +129,14 @@ function showTab(tabName, btn) {
     document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
     document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
     document.getElementById("tab-" + tabName).style.display = "block";
-    btn.classList.add("active");
+
+    // btn is the clicked button; on a refresh-restore there is none, so look it
+    // up by data-tab to highlight the right sidebar entry.
+    if (!btn) btn = document.querySelector('.tab-btn[data-tab="' + tabName + '"]');
+    if (btn) btn.classList.add("active");
+
+    // remember the tab so refreshing the page returns here instead of Courses
+    localStorage.setItem("dashboard_tab", tabName);
 
     // stop attendance polling if leaving
     if (attendanceInterval) {
@@ -99,7 +144,7 @@ function showTab(tabName, btn) {
         attendanceInterval = null;
     }
 
-    if (["session", "roster", "export"].includes(tabName)) safe(refreshAllDropdowns);
+    if (["session", "roster", "export", "records"].includes(tabName)) safe(refreshAllDropdowns);
 
     if (tabName === "attendance") {
         loadAttendance();
@@ -258,6 +303,7 @@ async function loadRoster() {
             return [s.student_id, name, s.email, s.specialty || "", actions];
         })
     ));
+    reapplyFilter("roster-search", "roster-list");
 }
 
 // professor sets a temp password for a student and forces a change at next login.
@@ -446,6 +492,7 @@ async function loadAttendanceRoster(sessionID) {
         ));
 
         renderFlagGroups(flagGroups);
+        reapplyFilter("attendance-search", "attendance-list");
     } catch (err) {
         msgEl.style.color = "";
         msgEl.textContent = err.message;
@@ -498,6 +545,94 @@ async function flipAttendance(path, studentID, sessionID) {
 
 const markPresent = (s, ses) => flipAttendance("/api/attendance/override", s, ses);
 const markAbsent  = (s, ses) => flipAttendance("/api/attendance/override/absent", s, ses);
+
+// === Edit Records (past sessions) ===
+// fired when the prof picks a course: list all its sessions (past + active).
+async function loadCourseSessions() {
+    const courseID = document.getElementById("records-course").value;
+    const sessionSel = document.getElementById("records-session");
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    document.getElementById("records-list").innerHTML = "";
+    sessionSel.innerHTML = '<option value="">-- Select a session --</option>';
+    if (!courseID) return;
+    try {
+        const sessions = await api("GET", "/api/courses/" + courseID + "/sessions");
+        for (const s of sessions) {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = s.session_date + " (" + s.status + ")";
+            sessionSel.appendChild(opt);
+        }
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    }
+}
+
+// fired when the prof picks a session: render an editable roster. Each row has a
+// status dropdown (defaulted to the current status) and a note input (prefilled
+// with the existing note, so a status change doesn't wipe it) + a Save button.
+async function loadRecordEditor() {
+    const sessionID = document.getElementById("records-session").value;
+    const list = document.getElementById("records-list");
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    list.innerHTML = "";
+    if (!sessionID) return;
+    try {
+        const data = await api("GET", "/api/attendance/" + sessionID);
+        const rows = data.roster || [];
+        if (rows.length === 0) { list.textContent = "No students in this session."; return; }
+
+        list.appendChild(buildTable(
+            ["Student ID", "Name", "Status", "Note", ""],
+            rows.map(r => {
+                const sel = document.createElement("select");
+                for (const st of ["present", "late", "absent"]) {
+                    const opt = document.createElement("option");
+                    opt.value = st;
+                    opt.textContent = st;
+                    if (r.status === st) opt.selected = true;
+                    sel.appendChild(opt);
+                }
+
+                const note = document.createElement("input");
+                note.type = "text";
+                note.value = r.note || "";        // prefill so status-only edits keep the note
+                note.placeholder = "note (optional)";
+
+                const save = document.createElement("button");
+                save.textContent = "Save";
+                save.onclick = () => saveRecord(r.session_id, r.student_id, sel.value, note.value, save);
+
+                return [r.student_school_id, r.first_name + " " + r.last_name, sel, note, save];
+            }),
+        ));
+        reapplyFilter("records-search", "records-list");
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    }
+}
+
+async function saveRecord(sessionID, studentID, status, note, btn) {
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    if (btn) btn.disabled = true;
+    try {
+        const rec = await api("PUT", "/api/attendance/record", {
+            session_id: sessionID, student_id: studentID, status, note,
+        });
+        msgEl.style.color = "green";
+        msgEl.textContent = `Saved: ${rec.status}` + (rec.note ? " (note added)" : "");
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
 
 // === Settings: destructive resets ===
 // Each row toggles its button enabled only when the matching input contains "RESET".
