@@ -24,6 +24,13 @@ button {
     align-items: center;
     gap: 12px;
 }
+/* make the Chipmunk header a link back to the landing page without looking like one */
+.logo-link {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
 .logo {
     width: 48px;
     height: 48px;
