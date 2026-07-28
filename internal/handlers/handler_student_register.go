@@ -46,7 +46,7 @@ func (cfg *ApiConfig) HandlerStudentRegister(w http.ResponseWriter, r *http.Requ
 		ResponseWithError(w, http.StatusBadRequest, "name can't be empty")
 		return
 	}
-	if !MaxLenOK(req.Password) {
+	if !MaxLenOK(req.Password, 128) {
 		ResponseWithError(w, http.StatusBadRequest, "password is too long")
 		return
 	}

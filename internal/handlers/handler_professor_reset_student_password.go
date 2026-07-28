@@ -27,7 +27,7 @@ func (cfg *ApiConfig) HandlerProfessorResetStudentPassword(w http.ResponseWriter
 	}
 
 	// password length
-	if !MaxLenOK(resetPassword.NewPassword) {
+	if !MaxLenOK(resetPassword.NewPassword, 128) {
 		ResponseWithError(w, http.StatusBadRequest, "password is too long")
 		return
 	}

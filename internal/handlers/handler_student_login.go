@@ -41,7 +41,7 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 
 	// check password length
 	// this is for prevent resouce-exhausted for when server hash a too long password
-	if !MaxLenOK(loginReq.Password) {
+	if !MaxLenOK(loginReq.Password, 128) {
 		ResponseWithError(w, http.StatusBadRequest, "incorrect password or password is too long")
 		return
 	}
