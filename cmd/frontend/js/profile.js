@@ -35,6 +35,11 @@ function fillProfile(p) {
 
 async function loadProfile() {
     const p = await api("GET", "/api/students/myprofile");
+    // still-pending forced change (e.g. student navigated here directly) -> bounce.
+    if (p.must_change_password) {
+        window.location.href = "/change_password.html";
+        return;
+    }
     fillProfile(p);
 }
 

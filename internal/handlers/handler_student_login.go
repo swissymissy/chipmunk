@@ -62,13 +62,13 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 	log.Printf("Student %s %s has logged in\n", student.FirstName, student.LastName)
 	// respond
 	ResponseWithJSON(w, http.StatusOK, StudentLoginResponse{
-		StudentID: student.StudentID,
-		Email:     student.Email,
-		FirstName: student.FirstName,
-		LastName:  student.LastName,
-		Verified:  student.Verified,
-		Specialty: student.Specialty.String,
-		Token:     token,
+		StudentID:          student.StudentID,
+		Email:              student.Email,
+		FirstName:          student.FirstName,
+		LastName:           student.LastName,
+		Verified:           student.Verified,
+		Specialty:          student.Specialty.String,
+		Token:              token,
 		MustChangePassword: student.MustChangePassword == 1,
 	})
 }

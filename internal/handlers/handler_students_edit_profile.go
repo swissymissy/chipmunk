@@ -206,7 +206,7 @@ func (cfg *ApiConfig) HandlerStudentRemoveACourse(w http.ResponseWriter, r *http
 }
 
 // let students change their password
-func (cfg *ApiConfig) HandleStudentChangePassword(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) HandlerStudentChangePassword(w http.ResponseWriter, r *http.Request) {
 	// get student ID from the context
 	studentID, ok := middleware.GetUserID(r.Context())
 	if !ok {

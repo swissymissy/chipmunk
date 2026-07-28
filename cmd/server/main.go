@@ -118,6 +118,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/specialties/{id}", middleware.RequireProfessor(cfg.HandlerDeleteSpecialty, cfg.JWT))                                 // professor delete a specialty in the list
 	mux.HandleFunc("GET /api/sessions/active", middleware.RequireProfessor(cfg.HandlerListActiveSession, cfg.JWT))                                   // get all active sessions to let professor close in case forget to to close session
 	mux.HandleFunc("DELETE /api/roster/{course_id}/students/{student_id}", middleware.RequireProfessor(cfg.HandlerRemoveStudentFromCourse, cfg.JWT)) // let professor remove a student from the course
+	mux.HandleFunc("PUT /api/students/{student_id}/reset-password", middleware.RequireProfessor(cfg.HandlerProfessorResetStudentPassword, cfg.JWT))  // professor reset student password and create a temp password for student to login
 
 	// students - public
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses)          // list courses to let students pick
@@ -134,6 +135,7 @@ func main() {
 	mux.HandleFunc("PUT /api/students/myprofile/email", middleware.AuthRequired(cfg.HandlerStudentUpdateEmail, cfg.JWT))             // let students update their email
 	mux.HandleFunc("PUT /api/students/myprofile/name", middleware.AuthRequired(cfg.HandlerStudentUpdateName, cfg.JWT))               // let students update their name
 	mux.HandleFunc("DELETE /api/students/myprofile/courses/{id}", middleware.AuthRequired(cfg.HandlerStudentRemoveACourse, cfg.JWT)) // let students remove a course from their course list
+	mux.HandleFunc("PUT /api/students/myprofile/password", middleware.AuthRequired(cfg.HandlerStudentChangePassword, cfg.JWT))       // student update their password
 
 	// reset - prof only
 	mux.HandleFunc("DELETE /api/reset/students", middleware.RequireProfessor(cfg.HandlerResetStudents, cfg.JWT))       // reset students table

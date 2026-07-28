@@ -13,7 +13,12 @@ async function handleLogin() {
     // store under a student-specific key so it never collides with the
     // professor session.
     localStorage.setItem("student_token", data.token);
-    window.location.href = "/profile.html";
+    // if the professor reset their password, force a change before anything else.
+    if (data.must_change_password) {
+        window.location.href = "/change_password.html";
+    } else {
+        window.location.href = "/profile.html";
+    }
 }
 
 function showError(msg) {

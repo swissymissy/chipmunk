@@ -103,6 +103,12 @@ body {
     font-size: 14px;
 }
 
+/* Roster row: keep the per-student action buttons inline with a small gap */
+.row-actions {
+    display: flex;
+    gap: 6px;
+}
+
 /* Specialty list rows: name on the left, small Delete button on the right */
 .specialty-row {
     display: flex;
