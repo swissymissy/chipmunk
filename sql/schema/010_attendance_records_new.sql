@@ -48,13 +48,13 @@ CREATE TABLE attendance_records_old (
     UNIQUE (session_id, student_id)
 );
 
--- copy data from current attendace_records table to new created attendance_records_old table
+-- copy data from current attendance_records table to new created attendance_records_old table
 -- old CHECK does not have 'late', so we count 'late' as 'absent'
 INSERT INTO attendance_records_old (id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint)
 SELECT id, session_id, student_id,
     CASE WHEN status = 'late' THEN 'absent' ELSE status END,
     check_in_at, student_lat, student_lng, accuracy, device_fingerprint
-FROM attendace_records;
+FROM attendance_records;
     
 DROP TABLE attendance_records;
-ALTER TABLE attendance_records_old RENAME TO attendace_records;
+ALTER TABLE attendance_records_old RENAME TO attendance_records;

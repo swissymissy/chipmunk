@@ -195,3 +195,56 @@ func (q *Queries) GetAttendanceSummaryByCourseInDateRange(ctx context.Context, a
 	}
 	return items, nil
 }
+
+const getStudentAttendanceProgress = `-- name: GetStudentAttendanceProgress :many
+SELECT c.id AS course_id, c.course_name,
+    COUNT(CASE WHEN r.status = 'present' THEN 1 END) AS present,
+    COUNT(CASE WHEN r.status = 'late' THEN 1 END) AS late,
+    COUNT(CASE WHEN r.status = 'absent' THEN 1 END) AS absent,
+    COUNT(r.id) AS total_sessions
+FROM attendance_records r
+JOIN attendance_sessions sess ON r.session_id = sess.id
+JOIN courses c ON sess.course_id = c.id
+WHERE r.student_id = ?
+GROUP BY c.id ORDER BY c.course_name
+`
+
+type GetStudentAttendanceProgressRow struct {
+	CourseID      string
+	CourseName    string
+	Present       int64
+	Late          int64
+	Absent        int64
+	TotalSessions int64
+}
+
+// get attendance information for student to keep track of their atttendance
+func (q *Queries) GetStudentAttendanceProgress(ctx context.Context, studentID string) ([]GetStudentAttendanceProgressRow, error) {
+	rows, err := q.db.QueryContext(ctx, getStudentAttendanceProgress, studentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStudentAttendanceProgressRow
+	for rows.Next() {
+		var i GetStudentAttendanceProgressRow
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.CourseName,
+			&i.Present,
+			&i.Late,
+			&i.Absent,
+			&i.TotalSessions,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

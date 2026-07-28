@@ -60,5 +60,5 @@ SELECT c.id AS course_id, c.course_name,
 FROM attendance_records r
 JOIN attendance_sessions sess ON r.session_id = sess.id
 JOIN courses c ON sess.course_id = c.id
-WHERE r.student = ?
+WHERE r.student_id = ?
 GROUP BY c.id ORDER BY c.course_name;

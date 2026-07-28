@@ -28,7 +28,7 @@ func (q *Queries) CreateRecords(ctx context.Context, arg CreateRecordsParams) er
 }
 
 const getRecordBySession = `-- name: GetRecordBySession :many
-SELECT r.id, r.session_id, r.student_id, r.status, r.check_in_at, r.student_lat, r.student_lng, r.accuracy, r.device_fingerprint , s.first_name, s.last_name, s.student_id
+SELECT r.id, r.session_id, r.student_id, r.status, r.check_in_at, r.student_lat, r.student_lng, r.accuracy, r.device_fingerprint, r.note , s.first_name, s.last_name, s.student_id
 FROM attendance_records r
 JOIN students s ON r.student_id = s.id
 WHERE r.session_id = ?
@@ -44,6 +44,7 @@ type GetRecordBySessionRow struct {
 	StudentLng        sql.NullFloat64
 	Accuracy          sql.NullFloat64
 	DeviceFingerprint sql.NullString
+	Note              sql.NullString
 	FirstName         string
 	LastName          string
 	StudentID_2       string
@@ -69,6 +70,7 @@ func (q *Queries) GetRecordBySession(ctx context.Context, sessionID int64) ([]Ge
 			&i.StudentLng,
 			&i.Accuracy,
 			&i.DeviceFingerprint,
+			&i.Note,
 			&i.FirstName,
 			&i.LastName,
 			&i.StudentID_2,
@@ -99,7 +101,7 @@ const revertCheckin = `-- name: RevertCheckin :one
 UPDATE attendance_records
 SET status = 'absent'
 WHERE student_id = ? AND session_id = ?
-RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint, note
 `
 
 type RevertCheckinParams struct {
@@ -123,6 +125,7 @@ func (q *Queries) RevertCheckin(ctx context.Context, arg RevertCheckinParams) (A
 		&i.StudentLng,
 		&i.Accuracy,
 		&i.DeviceFingerprint,
+		&i.Note,
 	)
 	return i, err
 }
@@ -137,7 +140,7 @@ ON CONFLICT(session_id, student_id) DO UPDATE SET
     student_lng = excluded.student_lng,
     accuracy = excluded.accuracy,
     device_fingerprint = excluded.device_fingerprint
-RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint, note
 `
 
 type StudentCheckInParams struct {
@@ -170,6 +173,45 @@ func (q *Queries) StudentCheckIn(ctx context.Context, arg StudentCheckInParams) 
 		&i.StudentLng,
 		&i.Accuracy,
 		&i.DeviceFingerprint,
+		&i.Note,
+	)
+	return i, err
+}
+
+const updateAttendanceRecord = `-- name: UpdateAttendanceRecord :one
+UPDATE attendance_records SET status = ?, note = ?
+WHERE session_id = ? AND student_id = ? 
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint, note
+`
+
+type UpdateAttendanceRecordParams struct {
+	Status    string
+	Note      sql.NullString
+	SessionID int64
+	StudentID string
+}
+
+// let professor update status for students in past session
+// let professor add a note to the note colum
+func (q *Queries) UpdateAttendanceRecord(ctx context.Context, arg UpdateAttendanceRecordParams) (AttendanceRecord, error) {
+	row := q.db.QueryRowContext(ctx, updateAttendanceRecord,
+		arg.Status,
+		arg.Note,
+		arg.SessionID,
+		arg.StudentID,
+	)
+	var i AttendanceRecord
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Status,
+		&i.CheckInAt,
+		&i.StudentLat,
+		&i.StudentLng,
+		&i.Accuracy,
+		&i.DeviceFingerprint,
+		&i.Note,
 	)
 	return i, err
 }
@@ -178,7 +220,7 @@ const updateCheckIn = `-- name: UpdateCheckIn :one
 UPDATE attendance_records
 SET status = 'present', check_in_at = datetime('now')
 WHERE student_id = ? AND session_id = ?
-RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint, note
 `
 
 type UpdateCheckInParams struct {
@@ -199,6 +241,7 @@ func (q *Queries) UpdateCheckIn(ctx context.Context, arg UpdateCheckInParams) (A
 		&i.StudentLng,
 		&i.Accuracy,
 		&i.DeviceFingerprint,
+		&i.Note,
 	)
 	return i, err
 }

@@ -18,6 +18,7 @@ type AttendanceRecord struct {
 	StudentLng        sql.NullFloat64
 	Accuracy          sql.NullFloat64
 	DeviceFingerprint sql.NullString
+	Note              sql.NullString
 }
 
 type AttendanceSession struct {

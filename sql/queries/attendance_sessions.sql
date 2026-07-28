@@ -45,3 +45,9 @@ WHERE id = ?;
 
 -- name: ResetAttendanceSession :exec
 DELETE FROM attendance_sessions; 
+
+-- list all sessions by course (past sessions to present)
+-- name: ListAllSessionsByCourse :many
+SELECT id, session_date, status, started_at, ended_at
+FROM attendance_sessions WHERE course_id = ?
+ORDER BY session_date DESC, started_at DESC;

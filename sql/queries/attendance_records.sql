@@ -42,3 +42,10 @@ RETURNING *;
 
 -- name: ResetAttendanceRecords :exec
 DELETE FROM attendance_records;
+
+-- let professor update status for students in past session
+-- let professor add a note to the note colum
+-- name: UpdateAttendanceRecord :one
+UPDATE attendance_records SET status = ?, note = ?
+WHERE session_id = ? AND student_id = ? 
+RETURNING *;
