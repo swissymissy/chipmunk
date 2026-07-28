@@ -82,6 +82,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -98,6 +100,8 @@ type GetAttendanceSummaryByCourseRow struct {
 	LastName      string
 	Specialty     sql.NullString
 	TotalPresent  int64
+	TotalLate     int64
+	TotalAbsent   int64
 	TotalSessions int64
 	Average       float64
 }
@@ -118,6 +122,8 @@ func (q *Queries) GetAttendanceSummaryByCourse(ctx context.Context, courseID str
 			&i.LastName,
 			&i.Specialty,
 			&i.TotalPresent,
+			&i.TotalLate,
+			&i.TotalAbsent,
 			&i.TotalSessions,
 			&i.Average,
 		); err != nil {
@@ -141,6 +147,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -163,6 +171,8 @@ type GetAttendanceSummaryByCourseInDateRangeRow struct {
 	LastName      string
 	Specialty     sql.NullString
 	TotalPresent  int64
+	TotalLate     int64
+	TotalAbsent   int64
 	TotalSessions int64
 	Average       float64
 }
@@ -183,6 +193,8 @@ func (q *Queries) GetAttendanceSummaryByCourseInDateRange(ctx context.Context, a
 			&i.LastName,
 			&i.Specialty,
 			&i.TotalPresent,
+			&i.TotalLate,
+			&i.TotalAbsent,
 			&i.TotalSessions,
 			&i.Average,
 		); err != nil {

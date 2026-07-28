@@ -6,6 +6,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
@@ -23,6 +25,8 @@ SELECT
     s.last_name,
     s.specialty,
     COUNT(CASE WHEN r.status='present' THEN 1 END) AS total_present,
+    COUNT(CASE WHEN r.status='late' THEN 1 END) AS total_late,
+    COUNT(CASE WHEN r.status='absent' THEN 1 END) AS total_absent,
     COUNT(r.id) AS total_sessions,
     ROUND(COUNT(CASE WHEN r.status='present' THEN 1 END)*100.0/COUNT(r.id), 1) AS average
 FROM students s 
