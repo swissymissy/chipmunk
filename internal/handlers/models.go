@@ -74,6 +74,7 @@ type Specialty struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// ======== SESSION =========
 type Session struct {
 	ID          int64  `json:"id"`
 	CourseID    string `json:"course_id"`
@@ -116,6 +117,16 @@ type ActiveSessionsView struct {
 	Status      string `json:"status"`
 	StartedAt   string `json:"started_at"`
 }
+
+type AllSessionByCourseResponse struct {
+	ID          int64  `json:"id"`
+	SessionDate string `json:"session_date"`
+	Status      string `json:"status"`
+	StartedAt   string `json:"started_at"`
+	EndedAt     string `json:"ended_at"`
+}
+
+// =============================================================
 
 type QRTokenResponse struct {
 	Token      string `json:"token"`
