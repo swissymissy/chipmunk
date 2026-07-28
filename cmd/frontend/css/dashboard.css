@@ -109,6 +109,18 @@ body {
     gap: 6px;
 }
 
+/* Edit Records: keep the inline status dropdown + note input compact */
+#records-list select,
+#records-list input {
+    width: auto;
+    margin: 0;
+    padding: 4px 6px;
+    font-size: 14px;
+}
+#records-list input {
+    min-width: 160px;
+}
+
 /* Specialty list rows: name on the left, small Delete button on the right */
 .specialty-row {
     display: flex;

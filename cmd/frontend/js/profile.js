@@ -21,9 +21,39 @@ setErrorHandler(showProfileMsg);
 document.addEventListener("DOMContentLoaded", () => {
     safe(loadProfile);
     safe(loadMyCourses);
+    safe(loadAttendanceProgress);
     setupEditableFields();
     setupPasswordChange();
 });
+
+// per-course attendance counts (present / late / absent)
+async function loadAttendanceProgress() {
+    const rows = await api("GET", "/api/students/myprofile/attendance");
+    const container = document.getElementById("attendance-progress");
+    container.innerHTML = "";
+    if (!rows || rows.length === 0) {
+        container.textContent = "No attendance recorded yet.";
+        return;
+    }
+    const table = document.createElement("table");
+    const head = document.createElement("tr");
+    for (const h of ["Course", "Present", "Late", "Absent", "Total"]) {
+        const th = document.createElement("th");
+        th.textContent = h;
+        head.appendChild(th);
+    }
+    table.appendChild(head);
+    for (const r of rows) {
+        const tr = document.createElement("tr");
+        for (const v of [r.course_name, r.present, r.late, r.absent, r.total_sessions]) {
+            const td = document.createElement("td");
+            td.textContent = v;
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    }
+    container.appendChild(table);
+}
 
 // dedicated controller for the change-password section. unlike the other
 // fields it starts blank, does NOT trim (spaces can be meaningful in a

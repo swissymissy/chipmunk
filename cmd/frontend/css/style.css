@@ -96,3 +96,19 @@ button {
     margin-top: 12px;
 }
 
+/* attendance progress table on the profile page */
+#attendance-progress table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+#attendance-progress th,
+#attendance-progress td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    text-align: left;
+}
+#attendance-progress th {
+    background: #f3f4f6;
+}
+

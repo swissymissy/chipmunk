@@ -37,7 +37,7 @@ function buildTable(headers, rows) {
 }
 
 function fillCourseDropdowns(courses) {
-    for (const id of ["session-course", "roster-course", "export-course"]) {
+    for (const id of ["session-course", "roster-course", "export-course", "records-course"]) {
         fillDropdown(id, courses, c => c.course_id, courseLabel);
     }
 }
@@ -99,7 +99,7 @@ function showTab(tabName, btn) {
         attendanceInterval = null;
     }
 
-    if (["session", "roster", "export"].includes(tabName)) safe(refreshAllDropdowns);
+    if (["session", "roster", "export", "records"].includes(tabName)) safe(refreshAllDropdowns);
 
     if (tabName === "attendance") {
         loadAttendance();
@@ -498,6 +498,93 @@ async function flipAttendance(path, studentID, sessionID) {
 
 const markPresent = (s, ses) => flipAttendance("/api/attendance/override", s, ses);
 const markAbsent  = (s, ses) => flipAttendance("/api/attendance/override/absent", s, ses);
+
+// === Edit Records (past sessions) ===
+// fired when the prof picks a course: list all its sessions (past + active).
+async function loadCourseSessions() {
+    const courseID = document.getElementById("records-course").value;
+    const sessionSel = document.getElementById("records-session");
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    document.getElementById("records-list").innerHTML = "";
+    sessionSel.innerHTML = '<option value="">-- Select a session --</option>';
+    if (!courseID) return;
+    try {
+        const sessions = await api("GET", "/api/courses/" + courseID + "/sessions");
+        for (const s of sessions) {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = s.session_date + " (" + s.status + ")";
+            sessionSel.appendChild(opt);
+        }
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    }
+}
+
+// fired when the prof picks a session: render an editable roster. Each row has a
+// status dropdown (defaulted to the current status) and a note input (prefilled
+// with the existing note, so a status change doesn't wipe it) + a Save button.
+async function loadRecordEditor() {
+    const sessionID = document.getElementById("records-session").value;
+    const list = document.getElementById("records-list");
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    list.innerHTML = "";
+    if (!sessionID) return;
+    try {
+        const data = await api("GET", "/api/attendance/" + sessionID);
+        const rows = data.roster || [];
+        if (rows.length === 0) { list.textContent = "No students in this session."; return; }
+
+        list.appendChild(buildTable(
+            ["Student ID", "Name", "Status", "Note", ""],
+            rows.map(r => {
+                const sel = document.createElement("select");
+                for (const st of ["present", "late", "absent"]) {
+                    const opt = document.createElement("option");
+                    opt.value = st;
+                    opt.textContent = st;
+                    if (r.status === st) opt.selected = true;
+                    sel.appendChild(opt);
+                }
+
+                const note = document.createElement("input");
+                note.type = "text";
+                note.value = r.note || "";        // prefill so status-only edits keep the note
+                note.placeholder = "note (optional)";
+
+                const save = document.createElement("button");
+                save.textContent = "Save";
+                save.onclick = () => saveRecord(r.session_id, r.student_id, sel.value, note.value, save);
+
+                return [r.student_school_id, r.first_name + " " + r.last_name, sel, note, save];
+            }),
+        ));
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    }
+}
+
+async function saveRecord(sessionID, studentID, status, note, btn) {
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    if (btn) btn.disabled = true;
+    try {
+        const rec = await api("PUT", "/api/attendance/record", {
+            session_id: sessionID, student_id: studentID, status, note,
+        });
+        msgEl.style.color = "green";
+        msgEl.textContent = `Saved: ${rec.status}` + (rec.note ? " (note added)" : "");
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
 
 // === Settings: destructive resets ===
 // Each row toggles its button enabled only when the matching input contains "RESET".
