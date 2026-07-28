@@ -40,5 +40,6 @@ func (cfg *ApiConfig) HandlerGetStudentProfile(w http.ResponseWriter, r *http.Re
 		LastName:  studentProfile.LastName,
 		Email:     studentProfile.Email,
 		Specialty: studentProfile.Specialty.String,
+		MustChangePassword: studentProfile.MustChangePassword == 1,
 	})
 }
