@@ -154,7 +154,7 @@ type AttendanceBySessionResponse struct {
 	FlagGroups []FlagGroups `json:"flag_groups"`
 }
 
-// === Edit Student Profile ===
+// ====== Edit Student Profile ======
 type UpdateSchoolIDRequest struct {
 	SchoolID string `json:"student_school_id"`
 }
@@ -185,3 +185,13 @@ type StudentChangePasswordRequest struct {
 type TempPasswordRequest struct {
 	NewPassword string `json:"new_password"`
 }
+
+type GetStudentAttendanceProgress struct {
+	CourseName    string `json:"course_name"`
+	Present       int64  `json:"present"`
+	Late          int64  `json:"late"`
+	Absent        int64  `json:"absent"`
+	TotalSessions int64  `json:"total_sessions"`
+}
+
+// ====================================================
