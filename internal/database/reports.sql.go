@@ -19,7 +19,8 @@ SELECT
     s.first_name,
     s.last_name,
     r.status,
-    r.check_in_at
+    r.check_in_at,
+    r.note
 FROM attendance_records r 
 JOIN students s ON r.student_id = s.id 
 JOIN attendance_sessions sess ON r.session_id = sess.id 
@@ -37,6 +38,7 @@ type GetAttendanceByDateRow struct {
 	LastName    string
 	Status      string
 	CheckInAt   sql.NullString
+	Note        sql.NullString
 }
 
 // daily report: all records for sessions on a specific date
@@ -58,6 +60,7 @@ func (q *Queries) GetAttendanceByDate(ctx context.Context, sessionDate string) (
 			&i.LastName,
 			&i.Status,
 			&i.CheckInAt,
+			&i.Note,
 		); err != nil {
 			return nil, err
 		}
