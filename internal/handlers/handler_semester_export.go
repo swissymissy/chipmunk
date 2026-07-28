@@ -54,7 +54,7 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 		}
 		// convert to flexible type and store it outside of scope
 		for _, r := range records {
-			rows = append(rows, toExcelRow(r.StudentID, r.FirstName, r.LastName, r.Specialty, r.TotalPresent, r.TotalSessions, r.Average))
+			rows = append(rows, toExcelRow(r.StudentID, r.FirstName, r.LastName, r.Specialty, r.TotalLate, r.TotalAbsent, r.TotalPresent, r.TotalSessions, r.Average))
 		}
 	} else {
 		records, err := cfg.DB.GetAttendanceSummaryByCourse(r.Context(), courseID)
@@ -69,7 +69,7 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 			return
 		}
 		for _, r := range records {
-			rows = append(rows, toExcelRow(r.StudentID, r.FirstName, r.LastName, r.Specialty, r.TotalPresent, r.TotalSessions, r.Average))
+			rows = append(rows, toExcelRow(r.StudentID, r.FirstName, r.LastName, r.Specialty, r.TotalLate, r.TotalAbsent, r.TotalPresent, r.TotalSessions, r.Average))
 		}
 	}
 
@@ -89,14 +89,14 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 	f.SetSheetName("Sheet1", sheetName)
 
 	// design: merge cells to make a title
-	err = f.MergeCell(sheetName, "A1", "H1")
+	err = f.MergeCell(sheetName, "A1", "J1")
 	if err != nil {
-		log.Printf("unable to merge cell from A1 to H1 to make title: %s\n", err)
+		log.Printf("unable to merge cell from A1 to J1 to make title: %s\n", err)
 	}
 	f.SetCellValue(sheetName, "A1", sheetName)
 	styles := NewExcelStyles(f)
-	f.SetCellStyle(sheetName, "A1", "H1", styles.Title)
-	f.SetCellStyle(sheetName, "A2", "H2", styles.Header)
+	f.SetCellStyle(sheetName, "A1", "J1", styles.Title)
+	f.SetCellStyle(sheetName, "A2", "J2", styles.Header)
 
 	// set up columns headers
 	f.SetSheetRow(sheetName, "A2", &[]interface{}{
@@ -105,8 +105,10 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 		"Last Name",
 		"Major", // specialty
 		"Total Present",
+		"Total Late",
+		"Total Absent",
 		"Total Sessions",
-		"Average (%)",
+		"Present (%)",
 		"Status",
 	})
 
@@ -117,7 +119,7 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 		f.SetSheetRow(sheetName, cell, &r)
 
 		// fill colors based on status
-		status := r[7].(string)
+		status := r[9].(string)
 		applyStatusStyle(f, sheetName, rowNum, status, styles)
 	}
 
@@ -141,7 +143,7 @@ func (cfg *ApiConfig) HandlerExportSemesterRecords(w http.ResponseWriter, r *htt
 // but Go does not allow the structs to be used interchangeably
 // so I wrote this function to remove that struct restriction by returning an []interface{}
 // which is more flexible for branching
-func toExcelRow(studentID, firstName, lastName string, specialty sql.NullString, totalPresent, totalSess int64, avg float64) []interface{} {
+func toExcelRow(studentID, firstName, lastName string, specialty sql.NullString, totalLate, totalAbsent, totalPresent, totalSess int64, avg float64) []interface{} {
 	var status string
 	switch {
 	case avg >= 85:
@@ -158,6 +160,8 @@ func toExcelRow(studentID, firstName, lastName string, specialty sql.NullString,
 		lastName,
 		specialty.String,
 		totalPresent,
+		totalLate,
+		totalAbsent,
 		totalSess,
 		avg,
 		status,
@@ -166,7 +170,7 @@ func toExcelRow(studentID, firstName, lastName string, specialty sql.NullString,
 
 // helper to apply color to status cell
 func applyStatusStyle(f *excelize.File, sheet string, row int, status string, styles ExcelStyle) {
-	cell := fmt.Sprintf("H%d", row)
+	cell := fmt.Sprintf("J%d", row)
 	switch status {
 	case "Qualified":
 		f.SetCellStyle(sheet, cell, cell, styles.Qualified)
