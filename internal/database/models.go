@@ -64,4 +64,5 @@ type Student struct {
 	CreatedAt             string
 	UpdatedAt             string
 	RegisteredFingerprint sql.NullString
+	MustChangePassword    int64
 }

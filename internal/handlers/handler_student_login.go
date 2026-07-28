@@ -39,6 +39,13 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// check password length
+	// this is for prevent resouce-exhausted for when server hash a too long password
+	if !MaxLenOK(loginReq.Password) {
+		ResponseWithError(w, http.StatusBadRequest, "incorrect password or password is too long")
+		return
+	}
+
 	// check password
 	match, err := auth.CheckPasswordHash(loginReq.Password, student.PasswordHash.String)
 	if err != nil {
@@ -62,12 +69,13 @@ func (cfg *ApiConfig) HandlerStudentLogin(w http.ResponseWriter, r *http.Request
 	log.Printf("Student %s %s has logged in\n", student.FirstName, student.LastName)
 	// respond
 	ResponseWithJSON(w, http.StatusOK, StudentLoginResponse{
-		StudentID: student.StudentID,
-		Email:     student.Email,
-		FirstName: student.FirstName,
-		LastName:  student.LastName,
-		Verified:  student.Verified,
-		Specialty: student.Specialty.String,
-		Token:     token,
+		StudentID:          student.StudentID,
+		Email:              student.Email,
+		FirstName:          student.FirstName,
+		LastName:           student.LastName,
+		Verified:           student.Verified,
+		Specialty:          student.Specialty.String,
+		Token:              token,
+		MustChangePassword: student.MustChangePassword == 1,
 	})
 }

@@ -57,6 +57,25 @@
         <div id="name-msg" class="field-msg"></div>
     </div>
 
+    <!-- Change password -->
+    <div class="profile-field">
+        <label>Password</label>
+        <div id="password-fields" style="display: none;">
+            <label for="current-password">Current password</label>
+            <input type="password" id="current-password">
+            <label for="new-password">New password</label>
+            <input type="password" id="new-password">
+            <label for="confirm-password">Confirm new password</label>
+            <input type="password" id="confirm-password">
+        </div>
+        <div class="field-actions">
+            <button type="button" id="password-edit">Change password</button>
+            <button type="button" id="password-save" style="display: none;">Save</button>
+            <button type="button" id="password-cancel" class="cancel-btn" style="display: none;">Cancel</button>
+        </div>
+        <div id="password-msg" class="field-msg"></div>
+    </div>
+
     <hr>
 
     <!-- Courses -->

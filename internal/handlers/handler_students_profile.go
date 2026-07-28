@@ -35,10 +35,11 @@ func (cfg *ApiConfig) HandlerGetStudentProfile(w http.ResponseWriter, r *http.Re
 	}
 
 	ResponseWithJSON(w, http.StatusOK, StudentProfileResponse{
-		SchoolID:  studentProfile.StudentID,
-		FirstName: studentProfile.FirstName,
-		LastName:  studentProfile.LastName,
-		Email:     studentProfile.Email,
-		Specialty: studentProfile.Specialty.String,
+		SchoolID:           studentProfile.StudentID,
+		FirstName:          studentProfile.FirstName,
+		LastName:           studentProfile.LastName,
+		Email:              studentProfile.Email,
+		Specialty:          studentProfile.Specialty.String,
+		MustChangePassword: studentProfile.MustChangePassword == 1,
 	})
 }

@@ -239,15 +239,36 @@ async function loadRoster() {
     list.appendChild(buildTable(
         ["Student ID", "Name", "Email", "Specialty", "Action"],
         students.map(s => {
-            // Remove button — unenrolls the student from this course only.
-            // s.id is the internal student id that enrollments key on
-            // (not s.student_id, which is the school ID).
+            const name = s.first_name + " " + s.last_name;
+            // s.id is the internal UUID that enrollments/actions key on
+            // (not s.student_id, which is the school ID shown in column 1).
             const remove = document.createElement("button");
             remove.textContent = "Remove";
-            remove.onclick = () => removeStudentFromCourse(courseID, s.id, s.first_name + " " + s.last_name);
-            return [s.student_id, s.first_name + " " + s.last_name, s.email, s.specialty || "", remove];
+            remove.onclick = () => removeStudentFromCourse(courseID, s.id, name);
+
+            // Reset password — sets a temp password + forces the student to
+            // change it on next login.
+            const reset = document.createElement("button");
+            reset.textContent = "Reset password";
+            reset.onclick = () => resetStudentPassword(s.id, name);
+
+            const actions = document.createElement("div");
+            actions.className = "row-actions";
+            actions.append(remove, reset);
+            return [s.student_id, name, s.email, s.specialty || "", actions];
         })
     ));
+}
+
+// professor sets a temp password for a student and forces a change at next login.
+async function resetStudentPassword(studentID, name) {
+    const temp = prompt(`Enter a temporary password for ${name}:`);
+    if (temp === null) return;               // professor cancelled
+    if (!temp.trim()) { showMsg("Temporary password can't be empty"); return; }
+    await safe(async () => {
+        await api("PUT", "/api/students/" + studentID + "/reset-password", { new_password: temp });
+        showMsg(`Temp password set for ${name}. They'll be asked to change it at next login.`);
+    });
 }
 
 // unenroll a student from a course (does not delete their account).

@@ -22,7 +22,54 @@ document.addEventListener("DOMContentLoaded", () => {
     safe(loadProfile);
     safe(loadMyCourses);
     setupEditableFields();
+    setupPasswordChange();
 });
+
+// dedicated controller for the change-password section. unlike the other
+// fields it starts blank, does NOT trim (spaces can be meaningful in a
+// password), checks the confirm field, and does NOT feed the response to
+// fillProfile (the endpoint returns only a {msg}). inputs are cleared on
+// open, cancel, and success so a password is never left sitting in the DOM.
+function setupPasswordChange() {
+    const fields = document.getElementById("password-fields");
+    const inputEls = ["current-password", "new-password", "confirm-password"]
+        .map(id => document.getElementById(id));
+    const editBtn = document.getElementById("password-edit");
+    const saveBtn = document.getElementById("password-save");
+    const cancelBtn = document.getElementById("password-cancel");
+    const msg = "password-msg";
+
+    function clear() { inputEls.forEach(el => { el.value = ""; }); }
+    function setEditing(on) {
+        fields.style.display = on ? "block" : "none";
+        editBtn.style.display = on ? "none" : "";
+        saveBtn.style.display = on ? "" : "none";
+        cancelBtn.style.display = on ? "" : "none";
+    }
+
+    editBtn.onclick = () => { fieldMsg(msg, "", true); clear(); setEditing(true); inputEls[0].focus(); };
+    cancelBtn.onclick = () => { fieldMsg(msg, "", true); clear(); setEditing(false); };
+
+    saveBtn.onclick = async () => {
+        const [current, next, confirm] = inputEls.map(el => el.value); // no trim
+        fieldMsg(msg, "", true);
+        if (!current || !next) { fieldMsg(msg, "Please fill in all fields.", false); return; }
+        if (next !== confirm) { fieldMsg(msg, "New passwords don't match.", false); return; }
+        saveBtn.disabled = true;
+        try {
+            await api("PUT", "/api/students/myprofile/password", {
+                current_password: current, new_password: next,
+            });
+            clear();
+            setEditing(false);
+            fieldMsg(msg, "Password changed!", true);
+        } catch (err) {
+            fieldMsg(msg, err.message, false);   // stay open so they can fix it
+        } finally {
+            saveBtn.disabled = false;
+        }
+    };
+}
 
 // --- profile fields ---
 function fillProfile(p) {
@@ -35,6 +82,11 @@ function fillProfile(p) {
 
 async function loadProfile() {
     const p = await api("GET", "/api/students/myprofile");
+    // still-pending forced change (e.g. student navigated here directly) -> bounce.
+    if (p.must_change_password) {
+        window.location.href = "/change_password.html";
+        return;
+    }
     fillProfile(p);
 }
 
