@@ -223,6 +223,12 @@ func (cfg *ApiConfig) HandlerStudentChangePassword(w http.ResponseWriter, r *htt
 		return
 	}
 
+	// check password length
+	if !MaxLenOK(newPassword.NewPassword) || !MaxLenOK(newPassword.CurrentPassword) {
+		ResponseWithError(w, http.StatusBadRequest, "password is too long")
+		return
+	}
+
 	// get current password from db to compare with user's current password input
 	student, err := cfg.DB.GetByID(r.Context(), studentID)
 	if err != nil {

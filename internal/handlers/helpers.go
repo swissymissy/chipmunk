@@ -72,3 +72,8 @@ func SchoolIDCheck(s string) (string, error) {
 	}
 	return schoolID, nil
 }
+
+// string length cap for user's input
+func MaxLenOK(s string) bool {
+	return len(s) <= 128
+}
