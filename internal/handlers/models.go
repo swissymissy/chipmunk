@@ -186,7 +186,8 @@ type TempPasswordRequest struct {
 	NewPassword string `json:"new_password"`
 }
 
-type GetStudentAttendanceProgress struct {
+type StudentAttendanceProgressResponse struct {
+	CourseID      string `json:"course_id"`
 	CourseName    string `json:"course_name"`
 	Present       int64  `json:"present"`
 	Late          int64  `json:"late"`

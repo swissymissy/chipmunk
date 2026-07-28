@@ -25,9 +25,10 @@ func (cfg *ApiConfig) HandlerStudentsAttendanceProgress(w http.ResponseWriter, r
 	}
 
 	// response
-	list := make([]GetStudentAttendanceProgress, 0)
+	list := make([]StudentAttendanceProgressResponse, 0)
 	for _, s := range studentProg {
-		list = append(list, GetStudentAttendanceProgress{
+		list = append(list, StudentAttendanceProgressResponse{
+			CourseID:      s.CourseID,
 			CourseName:    s.CourseName,
 			Present:       s.Present,
 			Late:          s.Late,
