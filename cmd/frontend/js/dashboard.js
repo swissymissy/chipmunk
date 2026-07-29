@@ -153,6 +153,8 @@ function showTab(tabName, btn) {
         }, 5000);
     }
 
+    if (tabName === "students") safe(loadAllStudents);
+
     if (tabName === "settings") renderIndividualResets();
 }
 
@@ -325,6 +327,30 @@ async function removeStudentFromCourse(courseID, studentID, name) {
         showMsg("Student removed from course");
         await loadRoster();
     });
+}
+
+// === All Students ===
+// Lists every registered student, not just those enrolled in a course. This is
+// how the prof reaches a student who was removed from every roster (e.g. to
+// reset a forgotten password) — the per-course roster can't show them.
+async function loadAllStudents() {
+    const students = await api("GET", "/api/students");
+    const list = document.getElementById("students-list");
+    list.innerHTML = "";
+    if (students.length === 0) { list.textContent = "No students registered."; return; }
+    list.appendChild(buildTable(
+        ["Student ID", "Name", "Email", "Specialty", "Action"],
+        students.map(s => {
+            const name = s.first_name + " " + s.last_name;
+            // reuse the same reset flow as the roster tab — it keys on s.id (UUID),
+            // which works regardless of course enrollment.
+            const reset = document.createElement("button");
+            reset.textContent = "Reset password";
+            reset.onclick = () => resetStudentPassword(s.id, name);
+            return [s.student_id, name, s.email, s.specialty || "", reset];
+        })
+    ));
+    reapplyFilter("students-search", "students-list");
 }
 
 // === Export ===

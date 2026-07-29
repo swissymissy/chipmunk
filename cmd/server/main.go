@@ -109,6 +109,7 @@ func main() {
 	mux.HandleFunc("PUT /api/sessions/reopen", middleware.RequireProfessor(cfg.HandlerReopenSession, cfg.JWT))                                       // reopen a closed session
 	mux.HandleFunc("GET /api/sessions/{id}", middleware.RequireProfessor(cfg.HandlerSessionDetail, cfg.JWT))                                         // get session details just to check
 	mux.HandleFunc("GET /api/roster/{course_id}", middleware.RequireProfessor(cfg.HandlerRosters, cfg.JWT))                                          // view students enrolled in a course
+	mux.HandleFunc("GET /api/students", middleware.RequireProfessor(cfg.HandlerListAllStudents, cfg.JWT))                                            // view every student in the DB (manage students removed from all courses)
 	mux.HandleFunc("GET /api/attendance/{session_id}", middleware.RequireProfessor(cfg.HandlerAttendanceBySession, cfg.JWT))                         // view who is present/absent in a specific session
 	mux.HandleFunc("PUT /api/attendance/override", middleware.RequireProfessor(cfg.HandlerMarkStudentPresent, cfg.JWT))                              // manually mark a student present
 	mux.HandleFunc("PUT /api/attendance/override/absent", middleware.RequireProfessor(cfg.HandlerMarkStudentAbsent, cfg.JWT))                        // professor flip student back to be absent if they are found cheating
