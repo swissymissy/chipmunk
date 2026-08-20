@@ -221,4 +221,16 @@ type StudentAttendanceProgressResponse struct {
 	TotalSessions int64  `json:"total_sessions"`
 }
 
+type AddStudentToPastSessionRecordReq struct {
+	StudentID string `json:"student_id"`
+}
+
+type AddStudentToPastSessionRecordRes struct {
+	Msg       string `json:"msg"`
+	SessionID int64  `json:"session_id"`
+	StudentID string `json:"student_id"`
+	Status    string `json:"status"`
+	Note      string `json:"note"`
+}
+
 // ====================================================
