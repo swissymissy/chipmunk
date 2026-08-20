@@ -10,6 +10,42 @@ import (
 	"database/sql"
 )
 
+const addStudentToSession = `-- name: AddStudentToSession :one
+INSERT INTO attendance_records (session_id, student_id)
+SELECT sess.id , e.student_id
+FROM attendance_sessions sess 
+JOIN enrollments e ON e.course_id = sess.course_id
+WHERE sess.id = ? AND e.student_id = ?
+ON CONFLICT (session_id, student_id) DO NOTHING
+RETURNING id, session_id, student_id, status, check_in_at, student_lat, student_lng, accuracy, device_fingerprint, note
+`
+
+type AddStudentToSessionParams struct {
+	ID        int64
+	StudentID string
+}
+
+// add one student to a session's roster , default to 'absent'
+// the professor can edit their status later. The JOIN enforce that the student is already enrolled in the course
+// ON CONFLICT leaves any existing record untouched ( idempotent)
+func (q *Queries) AddStudentToSession(ctx context.Context, arg AddStudentToSessionParams) (AttendanceRecord, error) {
+	row := q.db.QueryRowContext(ctx, addStudentToSession, arg.ID, arg.StudentID)
+	var i AttendanceRecord
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Status,
+		&i.CheckInAt,
+		&i.StudentLat,
+		&i.StudentLng,
+		&i.Accuracy,
+		&i.DeviceFingerprint,
+		&i.Note,
+	)
+	return i, err
+}
+
 const createRecords = `-- name: CreateRecords :exec
 INSERT INTO attendance_records (session_id, student_id)
 SELECT ?, e.student_id

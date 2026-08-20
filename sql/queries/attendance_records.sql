@@ -49,3 +49,15 @@ DELETE FROM attendance_records;
 UPDATE attendance_records SET status = ?, note = ?
 WHERE session_id = ? AND student_id = ? 
 RETURNING *;
+
+-- name: AddStudentToSession :one
+-- add one student to a session's roster , default to 'absent'
+-- the professor can edit their status later. The JOIN enforce that the student is already enrolled in the course
+-- ON CONFLICT leaves any existing record untouched ( idempotent)
+INSERT INTO attendance_records (session_id, student_id)
+SELECT sess.id , e.student_id
+FROM attendance_sessions sess 
+JOIN enrollments e ON e.course_id = sess.course_id
+WHERE sess.id = ? AND e.student_id = ?
+ON CONFLICT (session_id, student_id) DO NOTHING
+RETURNING *;
