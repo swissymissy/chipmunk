@@ -134,6 +134,23 @@ body {
     min-width: 160px;
 }
 
+/* Edit Records: "add a student who missed this session" control */
+.add-student-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 4px 0 12px 0;
+}
+.add-student-row select {
+    max-width: 360px;
+    margin: 0;
+}
+.add-student-row button {
+    width: auto;
+    margin: 0;
+    padding: 8px 16px;
+}
+
 /* Specialty list rows: name on the left, small Delete button on the right */
 .specialty-row {
     display: flex;

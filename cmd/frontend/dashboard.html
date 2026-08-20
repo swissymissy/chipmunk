@@ -119,6 +119,16 @@
             <select id="records-session" onchange="loadRecordEditor()">
                 <option value="">-- Select a session --</option>
             </select>
+
+            <!-- add an enrolled student who missed this session's check-in window -->
+            <div id="add-student-wrap" style="display: none;">
+                <label for="add-student-select">Add student</label>
+                <div class="add-student-row">
+                    <select id="add-student-select"></select>
+                    <button id="add-student-btn" onclick="addStudentToSession()">Add</button>
+                </div>
+            </div>
+
             <input type="text" id="records-search" class="student-search"
                 placeholder="Search by name or ID…"
                 oninput="filterStudentTable('records-list', this.value)">
