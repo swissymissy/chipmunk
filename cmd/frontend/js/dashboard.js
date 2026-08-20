@@ -580,6 +580,7 @@ async function loadCourseSessions() {
     const msgEl = document.getElementById("records-msg");
     msgEl.textContent = "";
     document.getElementById("records-list").innerHTML = "";
+    document.getElementById("add-student-wrap").style.display = "none";  // no session selected yet
     sessionSel.innerHTML = '<option value="">-- Select a session --</option>';
     if (!courseID) return;
     try {
@@ -601,44 +602,123 @@ async function loadCourseSessions() {
 // with the existing note, so a status change doesn't wipe it) + a Save button.
 async function loadRecordEditor() {
     const sessionID = document.getElementById("records-session").value;
+    const courseID = document.getElementById("records-course").value;
     const list = document.getElementById("records-list");
     const msgEl = document.getElementById("records-msg");
+    const addWrap = document.getElementById("add-student-wrap");
     msgEl.textContent = "";
     list.innerHTML = "";
-    if (!sessionID) return;
+    if (!sessionID) { addWrap.style.display = "none"; return; }
     try {
-        const data = await api("GET", "/api/attendance/" + sessionID);
+        // session roster + full course roster in parallel. the course roster is
+        // what lets us offer students who are enrolled but missing from this
+        // session (e.g. they registered after day-1 and never checked in).
+        const [data, enrolled] = await Promise.all([
+            api("GET", "/api/attendance/" + sessionID),
+            api("GET", "/api/roster/" + courseID),
+        ]);
         const rows = data.roster || [];
-        if (rows.length === 0) { list.textContent = "No students in this session."; return; }
 
-        list.appendChild(buildTable(
-            ["Student ID", "Name", "Status", "Note", ""],
-            rows.map(r => {
-                const sel = document.createElement("select");
-                for (const st of ["present", "late", "absent"]) {
-                    const opt = document.createElement("option");
-                    opt.value = st;
-                    opt.textContent = st;
-                    if (r.status === st) opt.selected = true;
-                    sel.appendChild(opt);
-                }
+        if (rows.length === 0) {
+            // an empty roster is a valid state here — it's exactly when everyone
+            // missed check-in — so keep the add-student control available below.
+            list.textContent = "No students recorded in this session yet.";
+        } else {
+            list.appendChild(buildTable(
+                ["Student ID", "Name", "Status", "Note", ""],
+                rows.map(r => {
+                    const sel = document.createElement("select");
+                    for (const st of ["present", "late", "absent"]) {
+                        const opt = document.createElement("option");
+                        opt.value = st;
+                        opt.textContent = st;
+                        if (r.status === st) opt.selected = true;
+                        sel.appendChild(opt);
+                    }
 
-                const note = document.createElement("input");
-                note.type = "text";
-                note.value = r.note || "";        // prefill so status-only edits keep the note
-                note.placeholder = "note (optional)";
+                    const note = document.createElement("input");
+                    note.type = "text";
+                    note.value = r.note || "";        // prefill so status-only edits keep the note
+                    note.placeholder = "note (optional)";
 
-                const save = document.createElement("button");
-                save.textContent = "Save";
-                save.onclick = () => saveRecord(r.session_id, r.student_id, sel.value, note.value, save);
+                    const save = document.createElement("button");
+                    save.textContent = "Save";
+                    save.onclick = () => saveRecord(r.session_id, r.student_id, sel.value, note.value, save);
 
-                return [r.student_school_id, r.first_name + " " + r.last_name, sel, note, save];
-            }),
-        ));
-        reapplyFilter("records-search", "records-list");
+                    return [r.student_school_id, r.first_name + " " + r.last_name, sel, note, save];
+                }),
+            ));
+            reapplyFilter("records-search", "records-list");
+        }
+
+        // offer enrolled-but-not-in-session students in the "add student" dropdown
+        populateAddStudentDropdown(enrolled, rows);
+        addWrap.style.display = "block";
     } catch (err) {
         msgEl.style.color = "red";
         msgEl.textContent = err.message;
+    }
+}
+
+// fill the "add student" dropdown with students who are enrolled in the course
+// but have no record in this session (diff of the two rosters, keyed on UUID).
+function populateAddStudentDropdown(enrolled, sessionRows) {
+    const inSession = new Set(sessionRows.map(r => r.student_id));   // UUIDs
+    const missing = enrolled.filter(s => !inSession.has(s.id));
+
+    const sel = document.getElementById("add-student-select");
+    const btn = document.getElementById("add-student-btn");
+    sel.innerHTML = "";
+
+    if (missing.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "All enrolled students are already in this session";
+        sel.appendChild(opt);
+        sel.disabled = true;
+        btn.disabled = true;
+        return;
+    }
+
+    sel.disabled = false;
+    btn.disabled = false;
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "-- Select a student to add --";
+    sel.appendChild(placeholder);
+    for (const s of missing) {
+        const opt = document.createElement("option");
+        opt.value = s.id;                                            // UUID, what the API expects
+        opt.textContent = `${s.first_name} ${s.last_name} (${s.student_id})`;
+        sel.appendChild(opt);
+    }
+}
+
+// add the chosen enrolled student to this session as an 'absent' record, then
+// reload so the new row shows up in the editor and the professor can set their
+// real status (present/late) + note with the existing Save flow.
+async function addStudentToSession() {
+    const sessionID = document.getElementById("records-session").value;
+    const studentID = document.getElementById("add-student-select").value;
+    const msgEl = document.getElementById("records-msg");
+    msgEl.textContent = "";
+    if (!sessionID) return;
+    if (!studentID) {
+        msgEl.style.color = "red";
+        msgEl.textContent = "Pick a student to add";
+        return;
+    }
+    const btn = document.getElementById("add-student-btn");
+    btn.disabled = true;
+    try {
+        await api("POST", "/api/attendance/" + sessionID + "/students", { student_id: studentID });
+        await loadRecordEditor();   // refresh roster + dropdown
+        msgEl.style.color = "green";
+        msgEl.textContent = "Student added (as absent) — set their status below.";
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+        btn.disabled = false;       // loadRecordEditor rebuilds the button on success
     }
 }
 

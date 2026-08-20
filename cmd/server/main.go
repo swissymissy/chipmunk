@@ -114,6 +114,7 @@ func main() {
 	mux.HandleFunc("PUT /api/attendance/override", middleware.RequireProfessor(cfg.HandlerMarkStudentPresent, cfg.JWT))                              // manually mark a student present
 	mux.HandleFunc("PUT /api/attendance/override/absent", middleware.RequireProfessor(cfg.HandlerMarkStudentAbsent, cfg.JWT))                        // professor flip student back to be absent if they are found cheating
 	mux.HandleFunc("PUT /api/attendance/record", middleware.RequireProfessor(cfg.HandlerUpdateAttendanceRecord, cfg.JWT))                            // let professor edit past session record of a course - mark student as 'late' and add note
+	mux.HandleFunc("POST /api/attendance/{session_id}/students", middleware.RequireProfessor(cfg.HandlerAddStudentToPastSessionRecord, cfg.JWT))     // let professor add student to past session record. The student is already registered to course but they missed the first check-in window, so their name is not in old record.
 	mux.HandleFunc("GET /api/sessions/{id}/qr", middleware.RequireProfessor(cfg.HandlerGetQRToken, cfg.JWT))                                         // endpoint for professor to get fresh qr token
 	mux.HandleFunc("GET /api/export/semester/{course_id}", middleware.RequireProfessor(cfg.HandlerExportSemesterRecords, cfg.JWT))                   // export semester attendance records to excel file
 	mux.HandleFunc("GET /api/export/daily/{date}", middleware.RequireProfessor(cfg.HandlerExportDailyRecord, cfg.JWT))                               // export daily attendance records to excel file
