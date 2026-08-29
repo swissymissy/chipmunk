@@ -22,6 +22,13 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// version stamp
+var (
+	Version = "development"
+	CommitSHA = "unknown"
+	BuildTime = "unknown"
+)
+
 func main() {
 	godotenv.Load()
 
