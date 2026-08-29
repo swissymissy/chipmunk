@@ -101,7 +101,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("frontend embed sub: %v", err)
 	}
-	mux.Handle("/", middleware.NoCache(http.FileServer(http.FS(frontendSub))))
+	// handle html version
+	fileServer := http.FileServer(http.FS(frontendSub))
+	htmlHandler, err := HTMLHandler(frontendSub, Version, fileServer)
+	if err != nil {
+		log.Fatalf("frontend handler: %v", err)
+	}
+	mux.Handle("/js/", middleware.Immutable(fileServer))
+	mux.Handle("/css/", middleware.Immutable(fileServer))
+	mux.Handle("/", middleware.NoCache(htmlHandler))
 
 	// register handlers
 	mux.HandleFunc("GET /api/health", handlers.HandlerHealthCheck)

@@ -17,7 +17,7 @@ func Immutable(next http.Handler) http.Handler {
 		// check for ?v= in URL
 		// if URL contain "v" , mark it immutable for a year (31536000s)
 		if r.URL.Query().Get("v") != "" {
-			w.Header().Set("Cache-Control", "public, max-age=31536000, imutable")
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		} else {
 			// set no-cache for url has no "v"
 			w.Header().Set("Cache-Control", "no-cache")

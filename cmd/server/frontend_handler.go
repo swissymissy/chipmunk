@@ -34,8 +34,8 @@ func HTMLHandler(fsys fs.FS, version string, fallback http.Handler) (http.Handle
 
 		key := "/" + p
 		// stamp version to asset files
-		stamped := AppendVersion(string(rawByte), `"/js`, version)
-		stamped = AppendVersion(stamped, `"/css`, version)
+		stamped := AppendVersion(string(rawByte), `"/js/`, version)
+		stamped = AppendVersion(stamped, `"/css/`, version)
 		pages[key] = []byte(stamped)
 		return nil
 	})
