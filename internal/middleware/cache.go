@@ -10,7 +10,7 @@ func NoCache(next http.Handler) http.Handler {
 	})
 }
 
-// immutable for files to stay the same for a ayear without chekcing with server
+// immutable for files to stay the same for a year without chekcing with server
 // request without ?v= falls back to no-cache so un-versioned URL is never pinned
 func Immutable(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
