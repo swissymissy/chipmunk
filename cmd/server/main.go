@@ -24,7 +24,7 @@ import (
 
 // version stamp
 var (
-	Version = "development"
+	Version   = "development"
 	CommitSHA = "unknown"
 	BuildTime = "unknown"
 )
