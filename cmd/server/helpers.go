@@ -35,6 +35,6 @@ func AppendVersion(html, open, version string) string {
 		closeQuote := valueStart + q     // index of the ending quote
 		b.WriteString(html[:closeQuote]) // start appending everything up to the closing quote
 		b.WriteString(v)                 // append the version
-		html = html[closeQuote:]         // continure parsing from the closing quote
+		html = html[closeQuote:]         // continue parsing from the closing quote
 	}
 }
