@@ -347,10 +347,31 @@ async function loadAllStudents() {
             const reset = document.createElement("button");
             reset.textContent = "Reset password";
             reset.onclick = () => resetStudentPassword(s.id, name);
-            return [s.student_id, name, s.email, s.specialty || "", reset];
+
+            // delete the whole account (cascades to enrollments + attendance records)
+            const del = document.createElement("button");
+            del.textContent = "Delete";
+            del.className = "danger-btn";
+            del.onclick = () => deleteStudentAccount(s.id, name);
+
+            const actions = document.createElement("div");
+            actions.className = "row-actions";
+            actions.append(reset, del);
+            return [s.student_id, name, s.email, s.specialty || "", actions];
         })
     ));
     reapplyFilter("students-search", "students-list");
+}
+
+// delete a student's account entirely. Cascades to their enrollments and all
+// attendance records, so we confirm once before calling.
+async function deleteStudentAccount(studentID, name) {
+    if (!confirm(`Delete ${name}'s account? This also removes their enrollments and attendance records.`)) return;
+    await safe(async () => {
+        await api("DELETE", "/api/students/" + studentID);
+        showMsg(`${name}'s account deleted`);
+        await loadAllStudents();
+    });
 }
 
 // === Export ===

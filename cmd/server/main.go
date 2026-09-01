@@ -139,7 +139,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/roster/{course_id}/students/{student_id}", middleware.RequireProfessor(cfg.HandlerRemoveStudentFromCourse, cfg.JWT)) // let professor remove a student from the course
 	mux.HandleFunc("PUT /api/students/{student_id}/reset-password", middleware.RequireProfessor(cfg.HandlerProfessorResetStudentPassword, cfg.JWT))  // professor reset student password and create a temp password for student to login
 	mux.HandleFunc("DELETE /api/sessions/{id}", middleware.RequireProfessor(cfg.HandlerDeleteASession, cfg.JWT))                                     // let professor delete a session that they might not need anymore.
-
+	mux.HandleFunc("DELETE /api/students/{id}", middleware.RequireProfessor(cfg.HandlerDeleteAStudentAccount, cfg.JWT))                              // let professor delete a student account from database
 	// students - public
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses)          // list courses to let students pick
 	mux.HandleFunc("POST /api/auth/login", cfg.HandlerStudentLogin)       // student login
