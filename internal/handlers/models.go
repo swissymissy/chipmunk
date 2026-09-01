@@ -64,6 +64,13 @@ type Course struct {
 	Time       string `json:"start_time"`
 }
 
+type UpdateCourseReq struct {
+	CourseName string `json:"course_name"`
+	Section    string `json:"section_date"`
+	Time       string `json:"start_time"`
+}
+
+// ===========================================================
 type CreateSpecialty struct {
 	Name string `json:"specialty_name"`
 }
@@ -72,6 +79,10 @@ type Specialty struct {
 	ID        int64  `json:"specialty_id"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"created_at"`
+}
+
+type UpdateSpecialtyReq struct {
+	Name string `json:"name"`
 }
 
 // ======== SESSION =========

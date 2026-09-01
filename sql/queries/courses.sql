@@ -27,3 +27,9 @@ SET start_time = ? WHERE id = ?;
 
 -- name: DeleteAllCourse :exec
 DELETE FROM courses; 
+
+-- name: UpdateCourse :one
+UPDATE courses
+SET course_name = ?, section_date = ?, start_time = ?
+WHERE id = ?
+RETURNING *;

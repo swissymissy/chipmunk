@@ -109,6 +109,38 @@ func (q *Queries) ListAllCourses(ctx context.Context) ([]Course, error) {
 	return items, nil
 }
 
+const updateCourse = `-- name: UpdateCourse :one
+UPDATE courses
+SET course_name = ?, section_date = ?, start_time = ?
+WHERE id = ?
+RETURNING id, course_name, section_date, start_time, created_at
+`
+
+type UpdateCourseParams struct {
+	CourseName  string
+	SectionDate string
+	StartTime   string
+	ID          string
+}
+
+func (q *Queries) UpdateCourse(ctx context.Context, arg UpdateCourseParams) (Course, error) {
+	row := q.db.QueryRowContext(ctx, updateCourse,
+		arg.CourseName,
+		arg.SectionDate,
+		arg.StartTime,
+		arg.ID,
+	)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.CourseName,
+		&i.SectionDate,
+		&i.StartTime,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateCourseName = `-- name: UpdateCourseName :exec
 UPDATE courses 
 SET course_name = ? WHERE id = ?

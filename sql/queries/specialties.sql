@@ -14,3 +14,10 @@ DELETE FROM specialties WHERE id = ?;
 -- reset the specialties table
 -- name: ResetSpecialties :exec
 DELETE FROM specialties;
+
+-- let professor change specialty name
+-- name: UpdateSpecialty :one
+UPDATE specialties
+SET name = ? WHERE id = ?
+RETURNING *;
+
