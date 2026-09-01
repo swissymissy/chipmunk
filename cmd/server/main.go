@@ -134,12 +134,14 @@ func main() {
 	mux.HandleFunc("GET /api/export/semester/{course_id}", middleware.RequireProfessor(cfg.HandlerExportSemesterRecords, cfg.JWT))                   // export semester attendance records to excel file
 	mux.HandleFunc("GET /api/export/daily/{date}", middleware.RequireProfessor(cfg.HandlerExportDailyRecord, cfg.JWT))                               // export daily attendance records to excel file
 	mux.HandleFunc("POST /api/specialties", middleware.RequireProfessor(cfg.HandlerCreateSpecialty, cfg.JWT))                                        // professor create new specialty
+	mux.HandleFunc("PUT /api/specialties/{id}", middleware.RequireProfessor(cfg.HandlerUpdateSpecialty, cfg.JWT))                                    // let professor update name of a specialty
 	mux.HandleFunc("DELETE /api/specialties/{id}", middleware.RequireProfessor(cfg.HandlerDeleteSpecialty, cfg.JWT))                                 // professor delete a specialty in the list
 	mux.HandleFunc("GET /api/sessions/active", middleware.RequireProfessor(cfg.HandlerListActiveSession, cfg.JWT))                                   // get all active sessions to let professor close in case forget to to close session
 	mux.HandleFunc("DELETE /api/roster/{course_id}/students/{student_id}", middleware.RequireProfessor(cfg.HandlerRemoveStudentFromCourse, cfg.JWT)) // let professor remove a student from the course
 	mux.HandleFunc("PUT /api/students/{student_id}/reset-password", middleware.RequireProfessor(cfg.HandlerProfessorResetStudentPassword, cfg.JWT))  // professor reset student password and create a temp password for student to login
 	mux.HandleFunc("DELETE /api/sessions/{id}", middleware.RequireProfessor(cfg.HandlerDeleteASession, cfg.JWT))                                     // let professor delete a session that they might not need anymore.
 	mux.HandleFunc("DELETE /api/students/{id}", middleware.RequireProfessor(cfg.HandlerDeleteAStudentAccount, cfg.JWT))                              // let professor delete a student account from database
+
 	// students - public
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses)          // list courses to let students pick
 	mux.HandleFunc("POST /api/auth/login", cfg.HandlerStudentLogin)       // student login

@@ -74,6 +74,10 @@ type Specialty struct {
 	CreatedAt string `json:"created_at"`
 }
 
+type UpdateSpecialtyReq struct {
+	Name string `json:"name"`
+}
+
 // ======== SESSION =========
 type Session struct {
 	ID          int64  `json:"id"`
