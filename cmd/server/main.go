@@ -119,6 +119,7 @@ func main() {
 	mux.HandleFunc("POST /api/courses", middleware.RequireProfessor(cfg.HandleCreateCourse, cfg.JWT))                                                // professor create new course
 	mux.HandleFunc("GET /api/courses/{course_id}/sessions", middleware.RequireProfessor(cfg.HandlerListAllSessions, cfg.JWT))                        // professor see all  session from a specific course
 	mux.HandleFunc("DELETE /api/courses/{id}", middleware.RequireProfessor(cfg.HandlerRemoveCourse, cfg.JWT))                                        // delete a course from the list
+	mux.HandleFunc("PUT /api/courses/{id}", middleware.RequireProfessor(cfg.HandlerUpdateCourse, cfg.JWT))                                           // professor update course information: name, section date, start time
 	mux.HandleFunc("POST /api/sessions/start", middleware.RequireProfessor(cfg.HandlerStartSession, cfg.JWT))                                        // start a new session
 	mux.HandleFunc("PUT /api/sessions/close", middleware.RequireProfessor(cfg.HandlerCloseSession, cfg.JWT))                                         // close an active session
 	mux.HandleFunc("PUT /api/sessions/reopen", middleware.RequireProfessor(cfg.HandlerReopenSession, cfg.JWT))                                       // reopen a closed session
