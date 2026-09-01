@@ -208,17 +208,36 @@ async function loadSpecialties() {
     for (const s of specialties) {
         const div = document.createElement("div");
         div.className = "specialty-row";
+
         const name = document.createElement("span");
         name.textContent = s.specialty_name;
-        const btn = document.createElement("button");
-        btn.textContent = "Delete";
-        btn.onclick = () => safe(async () => {
+
+        const edit = document.createElement("button");
+        edit.textContent = "Edit";
+        edit.onclick = () => editSpecialty(s.id, s.specialty_name);
+
+        const del = document.createElement("button");
+        del.textContent = "Delete";
+        del.onclick = () => safe(async () => {
             await api("DELETE", "/api/specialties/" + s.id);
             loadSpecialties();
         });
-        div.append(name, btn);
+
+        div.append(name, edit, del);
         list.appendChild(div);
     }
+}
+
+// rename a specialty via a simple prompt (pre-filled with the current name).
+async function editSpecialty(id, currentName) {
+    const newName = prompt("Edit specialty name:", currentName);
+    if (newName === null) return;                       // professor cancelled
+    if (!newName.trim()) { showMsg("Name can't be empty"); return; }
+    await safe(async () => {
+        await api("PUT", "/api/specialties/" + id, { name: newName.trim() });
+        showMsg("Specialty updated");
+        await loadSpecialties();
+    });
 }
 
 async function createSpecialty() {
