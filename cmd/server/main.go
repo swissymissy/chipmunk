@@ -138,6 +138,7 @@ func main() {
 	mux.HandleFunc("GET /api/sessions/active", middleware.RequireProfessor(cfg.HandlerListActiveSession, cfg.JWT))                                   // get all active sessions to let professor close in case forget to to close session
 	mux.HandleFunc("DELETE /api/roster/{course_id}/students/{student_id}", middleware.RequireProfessor(cfg.HandlerRemoveStudentFromCourse, cfg.JWT)) // let professor remove a student from the course
 	mux.HandleFunc("PUT /api/students/{student_id}/reset-password", middleware.RequireProfessor(cfg.HandlerProfessorResetStudentPassword, cfg.JWT))  // professor reset student password and create a temp password for student to login
+	mux.HandleFunc("DELETE /api/sessions/{id}", middleware.RequireProfessor(cfg.HandlerDeleteASession, cfg.JWT))                                     // let professor delete a session that they might not need anymore.
 
 	// students - public
 	mux.HandleFunc("GET /api/courses", cfg.HandlerGetAllCourses)          // list courses to let students pick
