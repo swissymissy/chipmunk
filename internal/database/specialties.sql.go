@@ -69,3 +69,22 @@ func (q *Queries) ResetSpecialties(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, resetSpecialties)
 	return err
 }
+
+const updateSpecialty = `-- name: UpdateSpecialty :one
+UPDATE specialties
+SET name = ? WHERE id = ?
+RETURNING id, name, created_at
+`
+
+type UpdateSpecialtyParams struct {
+	Name string
+	ID   int64
+}
+
+// let professor change specialty name
+func (q *Queries) UpdateSpecialty(ctx context.Context, arg UpdateSpecialtyParams) (Specialty, error) {
+	row := q.db.QueryRowContext(ctx, updateSpecialty, arg.Name, arg.ID)
+	var i Specialty
+	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	return i, err
+}
