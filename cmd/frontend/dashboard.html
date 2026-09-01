@@ -121,6 +121,11 @@
                 <option value="">-- Select a session --</option>
             </select>
 
+            <!-- delete the selected session (also deletes all its attendance records) -->
+            <div id="session-actions" style="display: none;">
+                <button id="delete-session-btn" class="danger-btn" onclick="deleteSession()">Delete this session</button>
+            </div>
+
             <!-- add an enrolled student who missed this session's check-in window -->
             <div id="add-student-wrap" style="display: none;">
                 <label for="add-student-select">Add student</label>

@@ -70,6 +70,17 @@ body {
 
 .tab-content h2 { margin-top: 0; }
 
+/* Edit Records: "delete this session" action */
+#session-actions {
+    margin: 8px 0 12px 0;
+}
+#session-actions .danger-btn {
+    width: auto;
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
 /* === Courses tab: 2-column split === */
 .grid-2col {
     display: grid;

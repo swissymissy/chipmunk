@@ -581,6 +581,7 @@ async function loadCourseSessions() {
     msgEl.textContent = "";
     document.getElementById("records-list").innerHTML = "";
     document.getElementById("add-student-wrap").style.display = "none";  // no session selected yet
+    document.getElementById("session-actions").style.display = "none";
     sessionSel.innerHTML = '<option value="">-- Select a session --</option>';
     if (!courseID) return;
     try {
@@ -608,7 +609,11 @@ async function loadRecordEditor() {
     const addWrap = document.getElementById("add-student-wrap");
     msgEl.textContent = "";
     list.innerHTML = "";
-    if (!sessionID) { addWrap.style.display = "none"; return; }
+    if (!sessionID) {
+        addWrap.style.display = "none";
+        document.getElementById("session-actions").style.display = "none";
+        return;
+    }
     try {
         // session roster + full course roster in parallel. the course roster is
         // what lets us offer students who are enrolled but missing from this
@@ -654,6 +659,8 @@ async function loadRecordEditor() {
         // offer enrolled-but-not-in-session students in the "add student" dropdown
         populateAddStudentDropdown(enrolled, rows);
         addWrap.style.display = "block";
+        document.getElementById("delete-session-btn").disabled = false;
+        document.getElementById("session-actions").style.display = "block";
     } catch (err) {
         msgEl.style.color = "red";
         msgEl.textContent = err.message;
@@ -719,6 +726,31 @@ async function addStudentToSession() {
         msgEl.style.color = "red";
         msgEl.textContent = err.message;
         btn.disabled = false;       // loadRecordEditor rebuilds the button on success
+    }
+}
+
+// delete a session the professor no longer needs. Deleting it also clears that
+// session's attendance records (FK cascade), so the confirm mentions it.
+async function deleteSession() {
+    const sel = document.getElementById("records-session");
+    const sessionID = sel.value;
+    if (!sessionID) return;
+    const label = sel.options[sel.selectedIndex].text;
+    const msgEl = document.getElementById("records-msg");
+    if (!confirm(`Delete "${label}"? This also removes its attendance records.`)) {
+        return;
+    }
+    const btn = document.getElementById("delete-session-btn");
+    btn.disabled = true;
+    try {
+        await api("DELETE", "/api/sessions/" + sessionID);
+        await loadCourseSessions(); // refresh the dropdown (drops the deleted session, clears the editor)
+        msgEl.style.color = "green";
+        msgEl.textContent = "Session deleted.";
+    } catch (err) {
+        msgEl.style.color = "red";
+        msgEl.textContent = err.message;
+        btn.disabled = false;
     }
 }
 
