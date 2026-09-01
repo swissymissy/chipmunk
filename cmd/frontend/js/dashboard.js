@@ -38,9 +38,7 @@ function buildTable(headers, rows) {
 
 // Filter a student table (roster / attendance / edit-records) to rows whose
 // Student ID or Name matches the query. Those two are always the first two
-// columns, so we match against cells 0-1 only — that keeps the search from
-// hitting button labels ("Mark Present"), statuses, notes, or emails.
-// Updates an optional "<containerId>-count" element with "showing X of Y".
+// columns
 function filterStudentTable(containerId, query) {
     const q = query.trim().toLowerCase();
     const table = document.getElementById(containerId).querySelector("table");
@@ -60,8 +58,7 @@ function filterStudentTable(containerId, query) {
 }
 
 // Re-apply an active search after a table is rebuilt. The attendance roster
-// re-renders every 5s (polling) and the roster/records tables rebuild when the
-// prof changes course/session — without this, hidden rows reappear.
+// re-renders every 5s (polling) 
 function reapplyFilter(searchId, containerId) {
     const input = document.getElementById(searchId);
     if (input && input.value) filterStudentTable(containerId, input.value);
@@ -166,10 +163,18 @@ async function loadCourses() {
     if (courses.length === 0) { list.textContent = "No courses yet."; return; }
 
     const rows = courses.map(c => {
-        const btn = document.createElement("button");
-        btn.textContent = "Delete";
-        btn.onclick = () => safe(() => deleteCourse(c.course_id, c.course_name));
-        return [c.course_name, c.section_date, c.start_time, btn];
+        const edit = document.createElement("button");
+        edit.textContent = "Edit";
+        edit.onclick = () => editCourse(c);
+
+        const del = document.createElement("button");
+        del.textContent = "Delete";
+        del.onclick = () => safe(() => deleteCourse(c.course_id, c.course_name));
+
+        const actions = document.createElement("div");
+        actions.className = "row-actions";
+        actions.append(edit, del);
+        return [c.course_name, c.section_date, c.start_time, actions];
     });
 
     list.appendChild(buildTable(
@@ -177,6 +182,29 @@ async function loadCourses() {
         rows,
     ));
     fillCourseDropdowns(courses);
+}
+
+// edit a course's information
+async function editCourse(c) {
+    const name = prompt("Course name:", c.course_name);
+    if (name === null) return;
+    const day = prompt("Day of week:", c.section_date);
+    if (day === null) return;
+    const time = prompt("Start time:", c.start_time);
+    if (time === null) return;
+    if (!name.trim() || !day.trim() || !time.trim()) {
+        showMsg("Name, day, and time can't be empty");
+        return;
+    }
+    await safe(async () => {
+        await api("PUT", "/api/courses/" + c.course_id, {
+            course_name: name.trim(),
+            section_date: day.trim(),
+            start_time: time.trim(),
+        });
+        showMsg("Course updated");
+        await loadCourses();
+    });
 }
 
 async function deleteCourse(courseID, courseName) {
@@ -349,9 +377,7 @@ async function removeStudentFromCourse(courseID, studentID, name) {
 }
 
 // === All Students ===
-// Lists every registered student, not just those enrolled in a course. This is
-// how the prof reaches a student who was removed from every roster (e.g. to
-// reset a forgotten password) — the per-course roster can't show them.
+// Lists every registered student
 async function loadAllStudents() {
     const students = await api("GET", "/api/students");
     const list = document.getElementById("students-list");
@@ -383,7 +409,7 @@ async function loadAllStudents() {
 }
 
 // delete a student's account entirely. Cascades to their enrollments and all
-// attendance records, so we confirm once before calling.
+// attendance records
 async function deleteStudentAccount(studentID, name) {
     if (!confirm(`Delete ${name}'s account? This also removes their enrollments and attendance records.`)) return;
     await safe(async () => {
@@ -394,8 +420,7 @@ async function deleteStudentAccount(studentID, name) {
 }
 
 // === Export ===
-// Exports use fetch + blob (not navigation) so the JWT travels in the
-// Authorization header. window.location.href would skip the header entirely.
+// Exports 
 function exportSemester() {
     const courseID = document.getElementById("export-course").value;
     if (!courseID) { showMsg("Please select a course"); return; }
@@ -446,7 +471,6 @@ setErrorHandler(showMsg);
 
 // runs when Attendance tab is opened
 // fetches active sessions + course names in parallel
-// populate the pickers, then load the rosters
 async function loadAttendance() {
     try {
         const [sessions, courses] = await Promise.all([
@@ -502,9 +526,6 @@ function onAttendanceSessionChange() {
 }
 
 // fetches the attendance roster for a session and renders the table.
-// "Mark Present" button only appears for absent rows.
-// uses local try/catch (not safe()) so errors stay in attendance-msg
-// instead of replacing the whole tab via the global error handler.
 async function loadAttendanceRoster(sessionID) {
     if (!sessionID) return;
     const msgEl = document.getElementById("attendance-msg");
